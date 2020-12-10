@@ -84,50 +84,23 @@
 </template>
 
 <script>
+import {
+  // function for calculate distance
+  distanceToPoint,
+  distanceToPoligon
+} from 'dgtek-function-for-map'
+import { mapState } from 'vuex'
+const wells = require('@/components/ConnectAddress/mockData/wells-DGtek.json')
 
 export default {
   name: 'AddressValidation',
-  props: ['polygons', 'ticketAddress', 'canSave'],
+  props: ['polygonsMap', 'ticketAddress', 'ticketLocatedInPolygon', 'ticketDistanceToPolygons', 'ticketDistanceToWell'],
   data: () => ({
     editedItem: require('@/config/newBuilding.js').default,
     ValidateAddress: require('@/helpers/validateAddress').default
-    // selectState: {
-    //   stateName: 'Victoria',
-    //   shortStateName: 'VIC'
-    // },
-    // states: [
-    //   {
-    //     stateName: 'Victoria',
-    //     shortStateName: 'VIC'
-    //   },
-    //   {
-    //     stateName: 'Queensland',
-    //     shortStateName: 'QLD'
-    //   },
-    //   {
-    //     stateName: 'South Australia',
-    //     shortStateName: 'SA'
-    //   },
-    //   {
-    //     stateName: 'Western Australia',
-    //     shortStateName: 'WA'
-    //   },
-    //   {
-    //     stateName: 'Tasmania',
-    //     shortStateName: 'TAS'
-    //   },
-    //   {
-    //     stateName: 'Northern Territory',
-    //     shortStateName: 'NT'
-    //   },
-    //   {
-    //     stateName: 'Australian Capital Territory',
-    //     shortStateName: 'ACT'
-    //   }
-    // ]
-    // polygons: require('@/components/mockData/polygons.json')
   }),
   computed: {
+    ...mapState('polygons', ['polygons']),
     addressReady () {
       return this.editedItem.addressComponents.postCode &&
         this.editedItem.addressComponents.state &&
@@ -148,10 +121,38 @@ export default {
       }
     }
   },
+  watch: {
+    coordinates (val) {
+      if (!val) return
+      this.calculate()
+    }
+  },
   methods: {
+    distanceToWells (addressCoordinate) {
+      // const currentWells = wells['DGtek-Pits']
+      return wells['DGtek-Pits'].map(well => distanceToPoint(addressCoordinate, [well[1], well[0]]))
+        .sort((a, b) => (a.distance < b.distance ? -1 : 0))[0]
+    },
+    distanceToPolygons (targetCoord) {
+      const distance = this.polygons.features
+        .map(poligon =>
+          distanceToPoligon(targetCoord, poligon.geometry.coordinates[0])
+        )
+        .sort((a, b) => (a.distance < b.distance ? -1 : 0))[0]
+      return distance
+    },
+    async calculate () {
+      if (this.ticketLocatedInPolygon) {
+        this.$emit('update:ticketDistanceToPolygons', 0)
+      } else {
+        this.$emit('update:ticketDistanceToPolygons', this.distanceToPolygons(this.coordinates).distance)
+      }
+      this.distanceToWell = this.distanceToWells(this.coordinates)
+      this.$emit('update:ticketDistanceToWell', this.distanceToWell)
+    },
     test (coordinates) {
       if (!this.polygons) return false
-      return this.polygons.some(polygon => window.google.maps.geometry.poly.containsLocation(coordinates, polygon))
+      return this.polygonsMap.some(polygon => window.google.maps.geometry.poly.containsLocation(coordinates, polygon))
     },
     async validateAddress () {
       try {
@@ -161,14 +162,12 @@ export default {
           addressComponents: result.properties,
           address: result.formattedAddress
         })
-
-        if (result.location) this.$emit('update:canSave', this.test(result.location))
-        else this.$emit('update:canSave', false)
-
+        if (result.location) this.$emit('update:ticketLocatedInPolygon', this.test(result.location))
+        else this.$emit('update:ticketLocatedInPolygon', false)
         this.$emit('update:ticketAddress', this.address)
       } catch (status) {
         console.warn('ADDRESS ERROR: ', status)
-        this.canSave = false
+        this.$emit('update:ticketLocatedInPolygon', false)
       }
     }
   },

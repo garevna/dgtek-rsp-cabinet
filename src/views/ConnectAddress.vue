@@ -3,9 +3,11 @@
     <v-row>
       <v-form class="col-7">
         <AddressValidation
-          :polygons="polygonsMap"
+          :polygonsMap="polygonsMap"
           :ticketAddress.sync="ticketData.address"
-          :canSave.sync="canSave"
+          :ticketLocatedInPolygon.sync="ticketData.locatedInPolygon"
+          :ticketDistanceToPolygons.sync="ticketData.distanceToPolygons"
+          :ticketDistanceToWell.sync="ticketData.distanceToWell"
         />
         <v-container disabled class="mt-6 mb-16">
           <v-row>
@@ -77,6 +79,9 @@ export default {
     polygonsMap: null,
     ticketData: {
       address: '',
+      locatedInPolygon: false,
+      distanceToPolygons: null,
+      distanceToWell: null,
       tariffId: '',
       message: ''
     },
@@ -119,7 +124,7 @@ export default {
     },
     sendTicket () {
       this.ticketData.resellerId = this.user._id
-      if (this.canSave) this.$store.dispatch('connection/REQUEST', this.ticketData)
+      if (this.ticketData.locatedInPolygon) this.$store.dispatch('connection/REQUEST', this.ticketData)
       else this.$store.dispatch('connection/RESEARCH', this.ticketData)
     }
   },

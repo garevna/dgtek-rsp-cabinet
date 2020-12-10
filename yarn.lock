@@ -929,13 +929,14 @@
     any-observable "^0.3.0"
 
 "@soda/friendly-errors-webpack-plugin@^1.7.1":
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/@soda/friendly-errors-webpack-plugin/-/friendly-errors-webpack-plugin-1.7.1.tgz#706f64bcb4a8b9642b48ae3ace444c70334d615d"
-  integrity sha512-cWKrGaFX+rfbMrAxVv56DzhPNqOJPZuNIS2HGMELtgGzb+vsMzyig9mml5gZ/hr2BGtSLV+dP2LUEuAL8aG2mQ==
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@soda/friendly-errors-webpack-plugin/-/friendly-errors-webpack-plugin-1.8.0.tgz#84751d82a93019d5c92c0cf0e45ac59087cd2240"
+  integrity sha512-RLotfx6k1+nfLacwNCenj7VnTMPxVwYKoGOcffMFoJDKM8tXzBiCN0hMHFJNnoAojduYAsxuiMm0EOMixgiRow==
   dependencies:
-    chalk "^1.1.3"
-    error-stack-parser "^2.0.0"
+    chalk "^2.4.2"
+    error-stack-parser "^2.0.2"
     string-width "^2.0.0"
+    strip-ansi "^5"
 
 "@soda/get-current-script@^1.0.0":
   version "1.0.2"
@@ -3228,6 +3229,16 @@ detect-node@^2.0.4:
   resolved "https://registry.yarnpkg.com/detect-node/-/detect-node-2.0.4.tgz#014ee8f8f669c5c58023da64b8179c083a28c46c"
   integrity sha512-ZIzRpLJrOj7jjP2miAtgqIfmzbxa4ZOr5jJc601zklsfEx9oTzmmj2nVpIPRpNlRTIh8lc1kyViIY7BWSGNmKw==
 
+dgtek-function-for-map@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/dgtek-function-for-map/-/dgtek-function-for-map-0.0.4.tgz#61a8fea12a1ceaa479e3bd78194a3d155c15fae7"
+  integrity sha512-wcEeReAX2S6u5u2dS32b4/1OoP3MKyNWj2K8+0LP9xvz9fFPvDgytPYmuLDidfL2QZBJfxLmBRLi5LhThNwZfg==
+  dependencies:
+    core-js "^3.6.5"
+    vue "^2.6.11"
+    vue-router "^3.2.0"
+    vuex "^3.4.0"
+
 dgtek-styles@^0.0.8:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/dgtek-styles/-/dgtek-styles-0.0.8.tgz#73acf9532d8fe923a5eb3cc3bc53ea26ce09cc34"
@@ -3506,7 +3517,7 @@ error-ex@^1.2.0, error-ex@^1.3.1:
   dependencies:
     is-arrayish "^0.2.1"
 
-error-stack-parser@^2.0.0:
+error-stack-parser@^2.0.2:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/error-stack-parser/-/error-stack-parser-2.0.6.tgz#5a99a707bd7a4c58a797902d48d82803ede6aad8"
   integrity sha512-d51brTeqC+BHlwF0BhPtcYgF5nlzf9ZZ0ZIUQNZpc9ZB9qw5IJ2diTrBY9jlCJkTLITYPjmiX6OWCwH+fuyNgQ==
@@ -8250,7 +8261,7 @@ strip-ansi@^4.0.0:
   dependencies:
     ansi-regex "^3.0.0"
 
-strip-ansi@^5.0.0, strip-ansi@^5.1.0, strip-ansi@^5.2.0:
+strip-ansi@^5, strip-ansi@^5.0.0, strip-ansi@^5.1.0, strip-ansi@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-5.2.0.tgz#8c9a536feb6afc962bdfa5b104a5091c1ad9c0ae"
   integrity sha512-DuRs1gKbBqsMKIZlrffwlug8MHkcnpjs5VPmL1PAh+mA30U0DTotfDZ0d2UUsXpPmPmMMJ6W773MaA3J+lbiWA==
