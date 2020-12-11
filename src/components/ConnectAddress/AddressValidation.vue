@@ -81,7 +81,7 @@
         <v-spacer></v-spacer>
         <v-btn
           :disabled="false"
-          class="mb-6"
+          class="mb-6 ml-3"
           color="buttons"
           dark
           @click="validateAddress"

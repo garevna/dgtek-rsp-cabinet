@@ -1,6 +1,9 @@
 <template>
   <v-app>
-    <Header :drawer.sync="showDrawer" />
+    <Header
+    :drawer.sync="showDrawer"
+    :toRoute="toRoute"
+    />
     <v-main>
       <v-container>
         <!-- <router-view /> -->
@@ -55,10 +58,10 @@ button {
   padding: 8px 16px;
   outline: none;
 }
-button:hover {
-  color: #09b;
-  background: #09b7;
-}
+// button:hover {
+//   color: #09b;
+//   background: #09b7;
+// }
 </style>
 
 <script>

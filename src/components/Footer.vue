@@ -5,10 +5,6 @@
       grow
       app
     >
-      <v-btn @click="toRoute('Profile')">
-        <span>Profile</span>
-      <v-icon>mdi-card-account-details</v-icon>
-      </v-btn>
       <v-btn @click="toRoute('ConnectAddress')">
         <span>Сonnect address</span>
       <v-icon>mdi-domain</v-icon>
