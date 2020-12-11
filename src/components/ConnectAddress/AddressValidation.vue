@@ -6,6 +6,15 @@
             <tr>
               <td style="width: 140px">
                 <v-text-field
+                  v-model="apartmentNumber"
+                  label="Apartment number"
+                  placeholder="1"
+                  color="buttons"
+                  outlined
+                />
+              </td>
+              <td style="width: 140px">
+                <v-text-field
                   v-model="editedItem.addressComponents.number"
                   label="Street number*"
                   placeholder="Number"
@@ -43,7 +52,7 @@
                   outlined
                 />
               </td>
-              <td>
+              <td colspan="3">
                 <v-text-field
                   v-model="editedItem.addressComponents.postCode"
                   label="Postal code*"
@@ -94,10 +103,12 @@ const wells = require('@/components/ConnectAddress/mockData/wells-DGtek.json')
 
 export default {
   name: 'AddressValidation',
-  props: ['polygonsMap', 'ticketAddress', 'ticketLocatedInPolygon', 'ticketDistanceToPolygons', 'ticketDistanceToWell'],
+  props: ['polygonsMap', 'ticketAddress', 'ticketLocatedInPolygon', 'ticketDistanceToPolygons', 'ticketDistanceToWell', 'ticketApartmentNumber', 'validateChecked'],
   data: () => ({
     editedItem: require('@/config/newBuilding.js').default,
-    ValidateAddress: require('@/helpers/validateAddress').default
+    ValidateAddress: require('@/helpers/validateAddress').default,
+    distanceToWell: null,
+    apartmentNumber: ''
   }),
   computed: {
     ...mapState('polygons', ['polygons']),
@@ -109,7 +120,7 @@ export default {
     },
     address () {
       const { number = '', street = '', city = '', state = '', postCode = '' } = this.editedItem.addressComponents
-      return `${number} ${street}, ${city} ${state} ${postCode}`
+      return `${this.apartmentNumber}, ${number} ${street}, ${city} ${state} ${postCode}`
     },
     coordinates: {
       get () {
@@ -165,8 +176,11 @@ export default {
         if (result.location) this.$emit('update:ticketLocatedInPolygon', this.test(result.location))
         else this.$emit('update:ticketLocatedInPolygon', false)
         this.$emit('update:ticketAddress', this.address)
+        this.$emit('update:ticketApartmentNumber', this.apartmentNumber)
+        this.$emit('update:validateChecked', true)
       } catch (status) {
         console.warn('ADDRESS ERROR: ', status)
+        this.$emit('update:ticketAddress', 'Address is invalid')
         this.$emit('update:ticketLocatedInPolygon', false)
       }
     }

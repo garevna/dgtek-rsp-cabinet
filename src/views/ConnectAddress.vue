@@ -8,9 +8,11 @@
           :ticketLocatedInPolygon.sync="ticketData.locatedInPolygon"
           :ticketDistanceToPolygons.sync="ticketData.distanceToPolygons"
           :ticketDistanceToWell.sync="ticketData.distanceToWell"
+          :ticketApartmentNumber.sync="ticketData.apartmentNumber"
+          :validateChecked.sync="validateChecked"
         />
-        <v-container disabled class="mt-6 mb-16">
-          <v-row>
+        <v-container class="mt-6 mb-16">
+          <v-row justify="center" class=" pl-4">
             <TariffCard
               v-for="tariff in tariffs"
               :key="tariff._id"
@@ -21,13 +23,19 @@
           </v-row>
         </v-container>
       </v-form>
-      <v-container class="col-4">
+      <v-container class="col-4 mt-4">
         <v-row>
-          <h3 class="ml-2 mr-2">Address: </h3>
+          <h3 class="mr-2">Address: </h3>
           <p class="tittle">{{ ticketData.address }}</p>
         </v-row>
+        <v-row v-if="ticketData.locatedInPolygon && validateChecked">
+          <h3 class="mr-2">In Footprint</h3>
+        </v-row>
+        <v-row v-else-if="!ticketData.locatedInPolygon && validateChecked">
+          <h3 class="mr-2">Not in Footprint<br>Distance to Footprint : {{ Math.ceil(ticketData.distanceToPolygons) }} m.</h3>
+        </v-row>
         <v-row>
-          <h3 class="ml-2 mr-2">Tariff: </h3>
+          <h3 class="mr-2">Tariff: </h3>
           <p class="tittle">{{ tariffName }}</p>
         </v-row>
         <v-row>
@@ -43,7 +51,6 @@
         <v-btn
           color="buttons"
           dark
-          class="mt-6"
           @click="sendTicket"
         >
           Send request
@@ -60,8 +67,13 @@
 </style>
 
 <style lang="scss" scoped>
-.info-section{
-}
+  p{
+    font-size: 20px;
+  }
+  h3{
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
 </style>
 
 <script>
@@ -79,14 +91,15 @@ export default {
     polygonsMap: null,
     ticketData: {
       address: '',
+      apartmentNumber: '',
       locatedInPolygon: false,
       distanceToPolygons: null,
       distanceToWell: null,
       tariffId: '',
       message: ''
     },
+    validateChecked: false,
     tariffName: '',
-    canSave: false,
     loadScript: require('@/helpers/loadGoogleMapsScript').default
   }),
   computed: {
