@@ -5,8 +5,12 @@
       grow
       app
     >
-      <v-btn @click="toRoute('ConnectAddress')">
+      <v-btn @click="click('ConnectLayout')">
         <span>Сonnect address</span>
+      <v-icon>mdi-domain</v-icon>
+      </v-btn>
+      <v-btn @click="click('OtherLayout')">
+        <span>OtherLayout</span>
       <v-icon>mdi-domain</v-icon>
       </v-btn>
     </v-bottom-navigation>
@@ -35,15 +39,18 @@ p {
 
 export default {
   name: 'Footer',
-  props: ['toRoute'],
+  props: [],
   data () {
     return {
-      value: 1
+      value: 0
     }
   },
   computed: {
   },
   methods: {
+    click (name) {
+      this.$layoutRouter.to({ name })
+    }
   }
 }
 </script>

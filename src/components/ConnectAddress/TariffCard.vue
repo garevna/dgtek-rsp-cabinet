@@ -55,7 +55,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/sass/_variables.scss";
+@import "@/sass/variables.scss";
 .description {
   overflow: hidden;
   text-overflow: ellipsis;

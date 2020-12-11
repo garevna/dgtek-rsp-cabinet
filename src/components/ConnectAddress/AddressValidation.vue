@@ -140,9 +140,8 @@ export default {
   },
   methods: {
     distanceToWells (addressCoordinate) {
-      // const currentWells = wells['DGtek-Pits']
       return wells['DGtek-Pits'].map(well => distanceToPoint(addressCoordinate, [well[1], well[0]]))
-        .sort((a, b) => (a.distance < b.distance ? -1 : 0))[0]
+        .sort((a, b) => (a < b ? -1 : 0))[0]
     },
     distanceToPolygons (targetCoord) {
       const distance = this.polygons.features

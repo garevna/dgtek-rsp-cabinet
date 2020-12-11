@@ -1,5 +1,5 @@
 {
-  "name": "dgtek-reseller-cabinet",
+  "name": "rsp-cabinet",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,7 +12,6 @@
     "cryptico": "^1.0.2",
     "dgtek-function-for-map": "^0.0.4",
     "dgtek-styles": "^0.0.8",
-    "dgtek-wells": "^0.0.10",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuetify": "^2.2.11",

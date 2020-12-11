@@ -1,17 +1,20 @@
 <template>
   <v-app>
-    <Header
+    <!-- <Header
     :drawer.sync="showDrawer"
     :toRoute="toRoute"
-    />
+    /> -->
     <v-main>
-      <v-container>
+      <!-- <v-container> -->
         <!-- <router-view /> -->
-        <div v-if="currentRoute === routes[0]"><Profile /></div>
-        <div v-if="currentRoute === routes[1]"><ConnectAddress /></div>
-      </v-container>
+        <!-- <div v-if="currentRoute === routes[0]"><Profile /></div> -->
+        <!-- <div v-if="currentRoute === routes[1]"><ConnectAddress /></div>
+      </v-container> -->
+
+      <ConnectLayout v-if="show('ConnectLayout')" />
+      <OtherLayout v-if="show('OtherLayout')" />
     </v-main>
-    <Footer :toRoute="toRoute" />
+    <Footer />
     <v-snackbar v-model="snackbar" :timeout="timeout" :color="color" top>
       {{ text }}
       <template v-slot:action="{ attrs }">
@@ -69,25 +72,31 @@ import { mapState } from 'vuex'
 
 import 'dgtek-styles'
 
-import Header from '@/components/Header'
+// import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Profile from '@/views/Profile'
-import ConnectAddress from '@/views/ConnectAddress'
+// import Profile from '@/views/Profile'
+// import ConnectAddress from '@/views/ConnectAddress'
+import ConnectLayout from '@/layouts/ConnectLayout'
+import OtherLayout from '@/layouts/OtherLayout'
 
 export default {
   name: 'App',
 
   components: {
-    Header,
-    Profile,
-    ConnectAddress,
+    ConnectLayout,
+    OtherLayout,
+    // Header,
+    // Profile,
+    // ConnectAddress,
     Footer
   },
 
   data: () => ({
-    showDrawer: false,
-    currentRoute: 'ConnectAddress',
-    routes: ['Profile', 'ConnectAddress'],
+    name: 'ConnectLayout',
+    params: null,
+    // showDrawer: false,
+    // currentRoute: 'ConnectAddress',
+    // routes: ['Profile', 'ConnectAddress'],
     snackbar: false,
     text: '',
     timeout: 8000,
@@ -105,8 +114,15 @@ export default {
     }
   },
   methods: {
-    toRoute (route) {
-      if (this.routes.includes(route)) this.currentRoute = route
+    // toRoute (route) {
+    //   if (this.routes.includes(route)) this.currentRoute = route
+    // }
+    show (name) {
+      return this.name === name
+    },
+    callBack ({ name, params }) {
+      this.name = name
+      this.params = params
     }
   },
   created () {
@@ -115,6 +131,9 @@ export default {
       const hash = arr[arr.length - 1]
       this.$store.dispatch('auth/GET_USER', hash)
     }
+  },
+  mounted () {
+    this.$layoutRouter.addListener(this.callBack)
   }
 }
 </script>

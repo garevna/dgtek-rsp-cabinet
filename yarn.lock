@@ -3244,16 +3244,6 @@ dgtek-styles@^0.0.8:
   resolved "https://registry.yarnpkg.com/dgtek-styles/-/dgtek-styles-0.0.8.tgz#73acf9532d8fe923a5eb3cc3bc53ea26ce09cc34"
   integrity sha512-ndpkIv/x9YURtmrSi3arS/viPLlMBzXuseF4f9idQyUYAy+M+0b5nQlFnH+nv4bNscl9XMuL5JLpJpdqHtGupQ==
 
-dgtek-wells@^0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/dgtek-wells/-/dgtek-wells-0.0.10.tgz#84ad977e66d238deb37904ac24295a6e88716f55"
-  integrity sha512-KyTMFF/W7z3lrmbKLDWJ5+9o2JPafBf+PghiRu88IfHsKA10EqxY/MfjBIvi0cbAUlcwY4ogSgZ58Yatt+l14Q==
-  dependencies:
-    core-js "^3.6.5"
-    vue "^2.6.11"
-    vue-select "^3.10.7"
-    vuetify "^2.2.11"
-
 diffie-hellman@^5.0.0:
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/diffie-hellman/-/diffie-hellman-5.0.3.tgz#40e8ee98f55a2149607146921c63e1ae5f3d2875"
@@ -3421,9 +3411,9 @@ ejs@^2.6.1:
   integrity sha512-7vmuyh5+kuUyJKePhQfRQBhXV5Ce+RnaeeQArKu1EAMpL3WbgMt5WG6uQZpEVvYSSsxMXRKOewtDk9RaTKXRlA==
 
 electron-to-chromium@^1.3.621:
-  version "1.3.621"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.621.tgz#0bbe2100ef0b28f88d0b1101fbdf433312f69be0"
-  integrity sha512-FeIuBzArONbAmKmZIsZIFGu/Gc9AVGlVeVbhCq+G2YIl6QkT0TDn2HKN/FMf1btXEB9kEmIuQf3/lBTVAbmFOg==
+  version "1.3.622"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.622.tgz#9726bd2e67a5462154750ce9701ca6af07d07877"
+  integrity sha512-AJT0Fm1W0uZlMVVkkJrcCVvczDuF8tPm3bwzQf5WO8AaASB2hwTRP7B8pU5rqjireH+ib6am8+hH5/QkXzzYKw==
 
 elegant-spinner@^1.0.1:
   version "1.0.1"
@@ -8904,11 +8894,6 @@ vue-router@^3.2.0:
   version "3.4.9"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.4.9.tgz#c016f42030ae2932f14e4748b39a1d9a0e250e66"
   integrity sha512-CGAKWN44RqXW06oC+u4mPgHLQQi2t6vLD/JbGRDAXm0YpMv0bgpKuU5bBd7AvMgfTz9kXVRIWKHqRwGEb8xFkA==
-
-vue-select@^3.10.7:
-  version "3.10.8"
-  resolved "https://registry.yarnpkg.com/vue-select/-/vue-select-3.10.8.tgz#5d0839cba228a9a5efa1a88e5436840eb3fd0c7a"
-  integrity sha512-PnjtZWCTiSr04bs8ctPIiU41qnBK+oh/SOe6Pb4gElMMxofDFwUxiUe++mz0+84aTy4zrleGxtvVVyWbiPYBiw==
 
 vue-style-loader@^4.1.0, vue-style-loader@^4.1.2:
   version "4.1.2"
