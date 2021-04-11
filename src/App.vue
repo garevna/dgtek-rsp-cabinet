@@ -1,25 +1,35 @@
 <template>
   <v-app>
-    <!-- <Header
-    :drawer.sync="showDrawer"
-    :toRoute="toRoute"
-    /> -->
-    <v-main>
-      <!-- <v-container> -->
-        <!-- <router-view /> -->
-        <!-- <div v-if="currentRoute === routes[0]"><Profile /></div> -->
-        <!-- <div v-if="currentRoute === routes[1]"><ConnectAddress /></div>
-      </v-container> -->
+    <v-row>
+      <v-app-bar app flat height="80" class="homefone">
+        <v-card flat class="transparent text-left mt-4 ml-0" height="50">
+          <v-img :src="require('@/assets/dgtek-logo.svg')" width="70" class="mr-8" />
+        </v-card>
+        <h3 class="main-header mt-5">DGtek provisioning RSP portal</h3>
+      </v-app-bar>
 
-      <ConnectLayout v-if="show('ConnectLayout')" />
-      <OtherLayout v-if="show('OtherLayout')" />
-    </v-main>
-    <Footer />
-    <v-snackbar v-model="snackbar" :timeout="timeout" :color="color" top>
-      {{ text }}
+      <v-progress-linear
+        :active="progress"
+        :indeterminate="progress"
+        absolute
+        top
+        color="buttons"
+        style="z-index: 8"
+      ></v-progress-linear>
+
+    </v-row>
+
+    <v-row>
+      <v-main class="main-content mt-8">
+        <Home />
+      </v-main>
+    </v-row>
+
+    <v-snackbar v-model="snackbar" timeout="5000" color="primary" top>
+      {{ message }}
       <template v-slot:action="{ attrs }">
         <v-btn
-          color="blue"
+          color="#fff"
           class="close-icon-snackbar"
           icon
           v-bind="attrs"
@@ -29,111 +39,61 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <error-message />
+    <simple-message />
   </v-app>
 </template>
 
-<style lang="scss">
-@import "@/sass/main.scss";
-#app {
-  // font-family: Avenir, Helvetica, Arial, sans-serif;
-  // -webkit-font-smoothing: antialiased;
-  // -moz-osx-font-smoothing: grayscale;
-  // text-align: center;
-  // color: #2c3e50;
-}
-
-#container-for-map {
-  // width: 50%;
-  // height: 700px;
-}
-.nav {
-  // margin-bottom: 48px;
-}
-button {
-  padding: 8px 16px;
-  outline: none;
-}
-.theme--light.v-list-item .v-list-item__mask {
-  // color: #83332C !important;
-  // background: transparent !important;
-}
-button {
-  padding: 8px 16px;
-  outline: none;
-}
-// button:hover {
-//   color: #09b;
-//   background: #09b7;
-// }
-</style>
-
 <script>
-import { mapState } from 'vuex'
 
+import '@/sass/main.scss'
 import 'dgtek-styles'
-
-// import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-// import Profile from '@/views/Profile'
-// import ConnectAddress from '@/views/ConnectAddress'
-import ConnectLayout from '@/layouts/ConnectLayout'
-import OtherLayout from '@/layouts/OtherLayout'
 
 export default {
   name: 'App',
-
   components: {
-    ConnectLayout,
-    OtherLayout,
-    // Header,
-    // Profile,
-    // ConnectAddress,
-    Footer
+    Home: () => import('@/views/Home.vue')
   },
-
   data: () => ({
-    name: 'ConnectLayout',
-    params: null,
-    // showDrawer: false,
-    // currentRoute: 'ConnectAddress',
-    // routes: ['Profile', 'ConnectAddress'],
+    progress: false,
     snackbar: false,
-    text: '',
-    timeout: 8000,
-    color: 'green'
+    message: 'Welcome to DGtek provisioning RSP portal'
   }),
-  computed: {
-    ...mapState('auth', ['authError'])
-  },
   watch: {
-    authError (val) {
-      if (!val) return
-      this.text = val
-      this.color = 'red'
-      this.snackbar = true
+    progress (val) {
+      console.log('PROGRESS: ', val)
     }
   },
   methods: {
-    // toRoute (route) {
-    //   if (this.routes.includes(route)) this.currentRoute = route
-    // }
-    show (name) {
-      return this.name === name
+    errorHandler (event) {
+      const { errorType, errorMessage } = event.data
+      this.$root.$emit('open-error-popup', { errorType, errorMessage })
     },
-    callBack ({ name, params }) {
-      this.name = name
-      this.params = params
-    }
-  },
-  created () {
-    if (this.$route.redirectedFrom) {
-      const arr = this.$route.redirectedFrom.split('/')
-      const hash = arr[arr.length - 1]
-      this.$store.dispatch('auth/GET_USER', hash)
+    messageHandler (event) {
+      const { messageType, messageText } = event.data
+      this.$root.$emit('open-message-popup', { messageType, messageText })
     }
   },
   mounted () {
-    this.$layoutRouter.addListener(this.callBack)
+    this.$root.$on('progress-event', function (event) {
+      this.progress = event.progress
+    }.bind(this))
+
+    this.__worker.addEventListener('message', function (event) {
+      if (event.data.status === '300') return
+      event.data.error && this.errorHandler(event)
+      event.data.message && this.messageHandler(event)
+    }.bind(this))
   }
 }
 </script>
+
+<style>
+body {
+  overflow: hidden;
+  margin-bottom: 88px;
+}
+* {
+  user-select: none;
+}
+</style>
