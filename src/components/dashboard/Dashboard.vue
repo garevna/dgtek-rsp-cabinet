@@ -75,85 +75,26 @@
 export default {
   name: 'Dashboard',
   data: () => ({
+    customers: [],
     activeCustomersNumber: 107,
     currentMonthlyCharge: '$350',
     monthlyCharge: '$480',
     lastMonthConnectedCustomers: 4,
-    recent: [],
-    awaitingCustomers: [
-      {
-        _id: '4789',
-        name: 'John Smith'
-      },
-      {
-        _id: '4790',
-        name: 'Piter Moor'
-      },
-      {
-        _id: '4791',
-        name: 'Kelly Wagner'
-      },
-      {
-        _id: '4794',
-        name: 'Helen Trump'
-      },
-      {
-        _id: '4795',
-        name: 'John Smith'
-      },
-      {
-        _id: '4797',
-        name: 'Piter Moor'
-      },
-      {
-        _id: '4798',
-        name: 'Kelly Wagner'
-      },
-      {
-        _id: '4799',
-        name: 'Helen Trump'
-      },
-      {
-        _id: '4800',
-        name: 'John Smith'
-      },
-      {
-        _id: '4801',
-        name: 'Piter Moor'
-      },
-      {
-        _id: '4802',
-        name: 'Kelly Wagner'
-      },
-      {
-        _id: '4803',
-        name: 'Helen Trump'
-      },
-      {
-        _id: '4804',
-        name: 'John Smith'
-      },
-      {
-        _id: '4805',
-        name: 'Piter Moor'
-      },
-      {
-        _id: '4807',
-        name: 'Kelly Wagner'
-      },
-      {
-        _id: '4808',
-        name: 'Helen Trump'
-      }
-    ]
+    recent: []
   }),
+  computed: {
+    awaitingCustomers () {
+      return this.customers.filter(customer => customer.status === 'Not connected')
+    }
+  },
   methods: {
     getCustomers (data) {
-      console.log(data)
+      console.log('CUSTOMERS:\n', data)
+      this.customers = data
     }
   },
   mounted () {
-    this.__addCustomersListListener(this.getCustomers)
+    this.$on('customers-list-refreshed', this.getCustomers)
     this.__getCustomers()
   }
 }

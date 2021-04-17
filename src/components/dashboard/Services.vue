@@ -25,8 +25,6 @@
 
 <script>
 
-import { mapState } from 'vuex'
-
 export default {
   name: 'Services',
   data: () => ({
@@ -37,35 +35,24 @@ export default {
       {
         text: 'Plan name',
         align: 'start',
-        value: 'tariffName'
+        value: 'serviceName'
       },
-      { text: 'Speed (Mbps)', value: '' },
+      { text: 'Speed (Mbps)', value: 'speed' },
       { text: 'Data (MB)', value: 'dataLimit' },
-      { text: 'Term (months)', value: 'speed' },
+      { text: 'Term (months)', value: 'term' },
       { text: 'Connection fee', value: 'connectionFee' },
       { text: 'Router fee', value: 'routerFee' },
       { text: 'Service fee', value: 'serviceFee' },
       { text: 'PROMO', value: 'promo' }
     ]
   }),
-  computed: {
-    ...mapState(['refreshed']),
-    readyToSendRequestForData () {
-      return this.refreshed.services
-    }
-  },
   methods: {
     getData (data) {
-      this.items = data
-
+      console.log(data)
+      this.items = Array.isArray(data) ? data : data.result ? data.result : []
       this.items.forEach(item => {
-        item.speed = `${item.downstreamSpeed}/${item.upstreamSpeed}`
-        item.connectionFee = ''
-        item.routerFee = ''
-        item.serviceFee = ''
-        item.promo = ''
+        item.speed = `${item.downstreamSpeed}/${item.upstreamSpeed}Mbps`
       })
-      console.log('SERVICES:\n', this.items)
       this.ready = true
     }
   },
@@ -75,13 +62,12 @@ export default {
       handler (val) {
         console.log('SERVICES DATA CHANGED:\n', val)
       }
-    },
-    readyToSendRequestForData (val) {
-      if (val) {
-        this.__getServices()
-        this.__addServicesListListener(this.getData)
-      }
     }
+  },
+  mounted () {
+    console.warn('SERVICES LIST MOUNTED')
+    this.__getServices()
+    this.$root.$on('service-data-received', this.getData)
   }
 }
 </script>

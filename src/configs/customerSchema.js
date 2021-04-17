@@ -1,16 +1,13 @@
 export const customerSchema = {
   customerDetails: {
-    type: {
-      name: 'commercial'
-    },
     commercial: {
       companyName: {
         title: 'Company name',
         type: 'simple-text',
         value: ''
       },
-      abn: {
-        title: 'ABN',
+      companyAbn: {
+        title: 'Company ABN',
         type: 'abn',
         value: ''
       }
