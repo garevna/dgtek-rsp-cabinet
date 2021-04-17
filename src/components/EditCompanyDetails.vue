@@ -61,7 +61,6 @@ export default {
   }
 }
 </script>
-
 <style>
 /* .tab {
   background: transparent!important;

@@ -3,9 +3,9 @@
     <v-card flat class="transparent pa-5 mx-auto" max-width="1440" outlined style="border: solid 1px #900">
       <v-row>
         <v-col cols="10">
-          <CompanyDetailsStep :rspData.sync="schema" step="company" />
-          <CompanyDetailsStep :rspData.sync="schema" step="general" />
-          <CompanyDetailsStep :rspData.sync="schema" step="technic" />
+          <CompanyDetailsStep :data.sync="schema" step="company" />
+          <CompanyDetailsStep :data.sync="schema" step="general" />
+          <CompanyDetailsStep :data.sync="schema" step="technic" />
         </v-col>
       </v-row>
       <v-row justify="center">
@@ -17,7 +17,7 @@
 
     <v-card dark class="primary px-5 py-12 my-12 mx-auto" max-width="960">
       <v-row>
-        <CompanyDetailsStep :rspData.sync="schema" step="userInfo" />
+        <CompanyDetailsStep :data.sync="schema" step="userInfo" />
       </v-row>
       <v-row justify="center">
         <v-btn text outlined class="mt-12" @click="saveCredentials">
@@ -30,8 +30,6 @@
 </template>
 
 <script>
-
-import { mapState, mapMutations } from 'vuex'
 
 import { schema } from '@/configs'
 
@@ -46,26 +44,22 @@ export default {
     steps: Object.keys(schema)
   }),
   methods: {
-    ...mapMutations({
-      message: 'MESSAGE'
-    }),
     getData (data) {
-      console.log('RSP DATA:\n', data)
-      for (const step in data) {
-        console.log(step)
+      console.log('COMPANY DETAILS GET DATA\n', data)
+      const details = data.company ? data : data.result ? data.result : {}
+      // const { company, general, technic, userInfo } = details
+      for (const step in details) {
         if (step === 'activeSesions') continue
-        for (const prop in data[step]) {
+        for (const prop in details[step]) {
+          console.log(step, prop, details[step][prop])
           if (prop === 'password' || prop === 'role') continue
-          console.log(step, prop)
-          this.schema[step][prop].value = data[step][prop]
+          this.schema[step][prop].value = details[step][prop]
         }
       }
-      console.log('RSP SCHEMA:\n', this.schema)
       this.ready = true
     },
     saveData () {
       const result = {}
-      console.log(this.schema.company.address)
       for (const stepName of Object.keys(this.schema)) {
         result[stepName] = {}
         const step = this.schema[stepName]
@@ -73,26 +67,11 @@ export default {
           result[stepName][propName] = step[propName].value
         }
       }
-      console.log('RSP for save\n', result)
+      console.log('Client data to be saved\n', result)
       this.__putClientData(result)
     },
-    showMessage (data) {
-      console.log(data)
-      this.message({
-        message: true,
-        messageType: 'Data saved',
-        messageText: 'Success'
-      })
-    },
-    saveCredentials (event) {
+    saveCredentials () {
       console.log(event.data)
-    }
-  },
-  computed: {
-    ...mapState(['refreshed']),
-    readyToSendRequestForData () {
-      console.log('RSP REFRESHED: ', this.refreshed.rsp)
-      return this.refreshed.rsp
     }
   },
   watch: {
@@ -101,14 +80,12 @@ export default {
       handler (val) {
         console.log('RSP DATA CHANGED:\n', val)
       }
-    },
-    readyToSendRequestForData (val) {
-      if (val) {
-        this.__addClientGetListener(this.getData)
-        this.__getClientData()
-        this.__addClientPutListener(this.showMessage)
-      }
     }
+  },
+  mounted () {
+    console.warn('COMPANY DETAILS MOUNTED')
+    this.__getClientData()
+    this.$root.$on('client-data-received', this.getData)
   }
 }
 </script>

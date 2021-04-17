@@ -22,11 +22,18 @@
           :type="type(item)"
           @click:append="showPassword = !showPassword"
         />
-        <InputWithAutocomplite
+        <!-- <InputWithAutocomplite
           v-if="item.type === 'address'"
           :address.sync="item.value"
           style="display: block;"
+        /> -->
+
+        <GeoscapeAutocomplete
+          v-if="item.type === 'address'"
+          :value.sync="item.value"
+          style="margin-top: -14px!important; margin-bottom: 8px!important;"
         />
+
         <v-textarea
           v-if="item.type === 'textarea'"
           v-model="item.value"
@@ -50,10 +57,11 @@ import { rules } from '@/configs'
 export default {
   name: 'CompanyDetailsStep',
   components: {
-    InputWithAutocomplite: () => import('@/components/edit-company-details/InputWithAutocomplite.vue')
+    // InputWithAutocomplite: () => import('@/components/edit-company-details/InputWithAutocomplite.vue')
+    GeoscapeAutocomplete: () => import('@/components/inputs/GeoscapeAutocomplete.vue')
   },
   props: {
-    rspData: Object,
+    data: Object,
     step: String
   },
   data: () => ({
@@ -61,30 +69,14 @@ export default {
     schema: {},
     showPassword: false,
     rules
-    // rules: {
-    //   required: value => !!value || 'Required.',
-    //   'simple-text': value => true,
-    //   number: value => patterns.number.test(value) || 'Invalid number.',
-    //   phone: value => patterns.phone.test(value) || 'Invalid phone number.',
-    //   email: value => patterns.email.test(value) || 'Invalid e-mail.',
-    //   state: value => patterns.state.indexOf(value) !== -1 || 'Invalid state.',
-    //   postcode: value => patterns.postcode.test(value) || 'Invalid state.',
-    //   abn: value => validateABN(value) || 'Invalid ABN.',
-    //   url: value => patterns.url.test(value) || 'Invalid URL.',
-    //   login: value => value.length > 5 || 'Invalid login',
-    //   password: value => patterns.password.test(value) || 'Password is not strong enough.'
-    // }
   }),
-  computed: {
-    //
-  },
   watch: {
-    rspData: {
+    data: {
       deep: true,
       immediate: true,
       handler (value) {
         if (!value) return
-        this.schema = JSON.parse(JSON.stringify(value[this.step]))
+        this.schema = value[this.step]
         this.ready = true
       }
     },
@@ -116,14 +108,6 @@ export default {
     rule (item) {
       return this.rules[item.type]
     }
-    // validateABN (abn) {
-    //   if (!abn) return false
-    //   const weight = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
-    //   const res = abn.split('')
-    //     .map((item, index) => item - (index === 0 ? 1 : 0))
-    //     .reduce((result, item, index) => result + item * weight[index], 0)
-    //   return res % 89 === 0
-    // }
   }
 }
 </script>

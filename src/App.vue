@@ -55,16 +55,15 @@ export default {
     Home: () => import('@/views/Home.vue')
   },
   data: () => ({
+    ready: false,
     progress: false,
     snackbar: false,
     message: 'Welcome to DGtek provisioning RSP portal'
   }),
-  watch: {
-    progress (val) {
-      console.log('PROGRESS: ', val)
-    }
-  },
   methods: {
+    // refreshCallback (event) {
+    //   console.log('APP refresh event:\n', event)
+    // },
     errorHandler (event) {
       const { errorType, errorMessage } = event.data
       this.$root.$emit('open-error-popup', { errorType, errorMessage })
@@ -75,12 +74,15 @@ export default {
     }
   },
   mounted () {
+    // this.$root.$on('data-refreshed', this.refreshCallback)
+    this.$root.$on('app-is-ready', function (event) {
+      this.ready = true
+    }.bind(this))
     this.$root.$on('progress-event', function (event) {
       this.progress = event.progress
     }.bind(this))
 
     this.__worker.addEventListener('message', function (event) {
-      if (event.data.status === '300') return
       event.data.error && this.errorHandler(event)
       event.data.message && this.messageHandler(event)
     }.bind(this))
@@ -95,5 +97,15 @@ body {
 }
 * {
   user-select: none;
+}
+@media screen and (max-width: 600px) {
+  h3 {
+    font-size: 20px;
+  }
+}
+@media screen and (max-width: 420px) {
+  h3 {
+    font-size: 18px;
+  }
 }
 </style>
