@@ -1,7 +1,10 @@
 .DS_Store
 node_modules
 /dist
+___toBeDeleted
 
+.env*
+!.env.example
 
 # local env files
 .env.local
