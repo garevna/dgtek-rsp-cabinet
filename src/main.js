@@ -1,6 +1,5 @@
 import Vue from './vue-extended'
 import App from './App.vue'
-import store from './store'
 import vuetify from './plugins/vuetify'
 
 import ErrorMessage from '@/components/popups/error.vue'
@@ -15,7 +14,6 @@ Vue.component('error-message', ErrorMessage)
 Vue.component('simple-message', Message)
 
 const instance = new Vue({
-  store,
   vuetify,
   render: h => h(App)
 }).$mount('#app')
