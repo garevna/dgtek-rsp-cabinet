@@ -156,18 +156,18 @@ export default {
       console.log('Event type: ', event.type)
       console.log('Event data:\n', event.data)
       console.groupEnd('Event handler')
-      if (['on-net', 'footprint', 'construction-commenced', 'comming-soon', 'not-available'].indexOf(event.type)) {
+      if (['on-net', 'footprint', 'construction-commenced', 'coming-soon', 'not-available'].indexOf(event.type)) {
         this.address = event.data.address
         this.status = this.validStatus[event.data.status] ? this.validStatus[event.data.status].title : ''
         this.terms = this.validStatus[event.data.status] ? this.validStatus[event.data.status].terms : ''
         this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
       }
       if (event.type === 'list') {
-        if (event.data.type === 'lit') {
+        if (event.data.store === 'lit') {
           this.litLoading = false
           this.litBuildings = event.data.result
         }
-        if (event.data.type === 'footprint') {
+        if (event.data.store === 'footprint') {
           this.footprintLoading = false
           this.footprintBuildings = event.data.result
         }
