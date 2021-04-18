@@ -124,46 +124,7 @@ export default {
     companyName: '',
     companyAbn: ''
   }),
-  computed: {
-    // customerType: {
-    //   get () {
-    //     if (!this.customerDetails || !this.customerDetails.commercial) return false
-    //     const { companyName, companyAbn } = this.customerDetails.commercial
-    //     return !!companyName.value && !!companyAbn.value
-    //   },
-    //   set (value) {
-    //     const { companyName, companyAbn } = value
-    //     const commercial = this.customerDetails.commercial
-    //     commercial.companyName.value = companyName || commercial.companyName.value
-    //     commercial.companyAbn.value = companyAbn || commercial.companyAbn.value
-    //   }
-    // }
-  },
-  // watch: {
-  //   customerType (val) {
-  //     if (!this.ready) return
-  //     if (!val) {
-  //       this.tmp = {
-  //         companyName: this.customerDetails.commercial.companyName.value,
-  //         companyAbn: this.customerDetails.commercial.companyAbn.value
-  //       }
-  //       this.customerDetails.commercial = null
-  //     } else {
-  //       this.customerDetails.commercial = {
-  //         companyName: {
-  //           title: 'Company name',
-  //           type: 'simple-text',
-  //           value: this.tmp.companyName
-  //         },
-  //         companyAbn: {
-  //           title: 'Company ABN',
-  //           type: 'abn',
-  //           value: this.tmp.companyAbn
-  //         }
-  //       }
-  //     }
-  //   }
-  // },
+  computed: {},
   methods: {
     rowHeight (item) {
       return item.type === 'textarea' ? 160 : 60
@@ -213,7 +174,6 @@ export default {
       this.ready = true
     },
     getBuildings (data) {
-      console.log('GET BUILDINGS LIST:\n', data)
       this.buildings.push(...data)
     },
     getServices (data) {
@@ -233,8 +193,6 @@ export default {
 
     this.$root.$on('lit-buildings-list', this.getBuildings)
     this.$root.$on('footprint-buildings-list', this.getBuildings)
-
-    console.log(this.__getLitBuildings, this.__getFootprintBuildings)
 
     this.buildings = []
 
