@@ -11,8 +11,8 @@ class RSPController {
     self.postMessage(await credentials())
   }
 
-  async passwordChange (password) {
-    self.postMessage(await passwordChange(password))
+  async passwordChange (data) {
+    self.postMessage(await passwordChange(data))
   }
 
   async refresh () {

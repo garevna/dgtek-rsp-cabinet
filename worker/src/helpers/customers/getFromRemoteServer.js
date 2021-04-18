@@ -10,8 +10,8 @@ export const getFromRemoteServer = async function () {
 
   clearStore('customers')
 
-  for (const record of result) {
-    const { _id, ...customer } = record
+  for (const customer of result) {
+    const { _id } = customer
     const { status } = await putRecordByKey('customers', _id, customer)
     if (status !== 200) return refreshCustomersListError(status)
   }

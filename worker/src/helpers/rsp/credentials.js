@@ -16,30 +16,35 @@ export const credentials = async function () {
 
   const { _id, userInfo } = result
   idHandler(_id)
-  self.postMessage({ status: 300, action: 'user id', result: idHandler() })
+
   const { login, password } = userInfo
   loginHandler(login)
 
   const { status: decryptStatus, action: decryptAction, result: decryptResult } = decrypt(password)
+
   if (decryptStatus !== 200) return { status: decryptStatus, route, action: decryptAction, key: 'password description', result: decryptResult }
+
   passwordHandler(decryptResult)
+
   const { status: encryptStatus, action: encryptAction, result: credentials } = encrypt(JSON.stringify({
     login,
     password: passwordHandler()
   }))
+
   if (encryptStatus !== 200) return { status: encryptStatus, action: encryptAction, key: 'credentials', result: credentials }
+
   credentialsHandler(credentials)
+
   return {
     status: 200,
     route,
     action,
-    // result: 'Success'
     result: {
       id: idHandler(),
-      login: loginHandler(),
-      role: userInfo.role,
-      passHash: passwordHandler(),
-      credentials: credentialsHandler()
+      login: loginHandler()
+      // role: userInfo.role,
+      // passHash: passwordHandler(),
+      // credentials: credentialsHandler()
     }
   }
 }

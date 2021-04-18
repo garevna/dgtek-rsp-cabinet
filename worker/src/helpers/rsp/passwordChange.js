@@ -3,18 +3,20 @@ import { loginHandler, passwordHandler, credentialsHandler } from '../env'
 import { post } from '../AJAX'
 import { putClientCredentialsError } from '../error-handlers'
 
-export const passwordChange = function (request) {
-  const { login, userName, password, userPhone } = request
+export const passwordChange = async function (request) {
+  const { login, newPass, userPhone } = request.data
 
-  const newPasswordHash = hash(password)
+  if (!login || !newPass || !userPhone) return putClientCredentialsError(422)
 
-  const { status: encryptStatus, result: cryptoPassword } = encrypt(newPasswordHash)
+  const { result: newPasswordHash } = hash(newPass)
+
+  const { status: encryptStatus, result: cryptoPassword } = await encrypt(JSON.stringify({ password: newPasswordHash }))
+
   if (encryptStatus !== 200) return putClientCredentialsError(encryptStatus)
 
   const { status } = post('pass/change', {
     newPass: cryptoPassword,
     login,
-    userName,
     userPhone
   })
 
