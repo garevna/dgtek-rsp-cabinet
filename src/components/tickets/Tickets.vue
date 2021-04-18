@@ -2,11 +2,11 @@
   <v-card flat class="transparent pb-12 px-12" v-if="ready">
     <v-row align="start" justify="center" v-if="!edit">
       <v-col cols="12" md="4" lg="3" xl="2" class="text-center mt-4">
-        <fieldset class="pa-5" style="border: solid 1px #999">
+        <fieldset class="field-set">
           <legend>
-            <h5><sup>Ticket category</sup></h5>
+            Ticket category
           </legend>
-          <v-list dense class="transparent">
+          <v-list dense class="transparent mb-12">
             <v-list-item-group
               v-model="category"
               color="primary"
@@ -17,9 +17,6 @@
                 v-for="(item, i) in categories"
                 :key="i"
               >
-                <!-- <v-list-item-icon>
-                  <v-icon v-text="item.icon"></v-icon>
-                </v-list-item-icon> -->
                 <v-list-item-content>
                   <v-list-item-title v-text="item"></v-list-item-title>
                 </v-list-item-content>
@@ -54,51 +51,36 @@
           </template>
 
           <template v-slot:item.actions="{ item }">
-            <v-icon
+            <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
+            <!-- <v-icon
               small
               class="mr-2"
               @click="editItem(item)"
             >
               mdi-pencil
-            </v-icon>
-            <v-icon
+            </v-icon> -->
+            <!-- <v-icon
               small
               @click="deleteItem(item)"
             >
               mdi-delete
-            </v-icon>
+            </v-icon> -->
           </template>
         </v-data-table>
       </v-col>
     </v-row>
     <v-row v-else>
-      <TicketDetails :ticket.sync="selectedTicket" :categories="categories" />
+      <TicketDetails
+        :ticket.sync="selectedTicket"
+        :categories="categories"
+        :edit.sync="edit"
+        :newTicket="newTicket"
+      />
     </v-row>
-
-    <!-- <v-card-title>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        dense
-        outlined
-        hide-details
-        style="display: inline-block; width: 280px"
-      ></v-text-field>
-    </v-card-title> -->
-
-    <!-- <span class="ml-12"><small>Total number of: {{ selectedServiceNumber }}</small></span> -->
-
-    <!-- <v-dialog v-model="dialog"> -->
-    <!-- <TicketDetails :ticketId="selectedTicketId" v-if="editTicket" /> -->
-    <!-- </v-dialog> -->
   </v-card>
 </template>
 
 <script>
-
-// import { ticketCategories } from '@/configs'
 
 export default {
   name: 'Tickets',
@@ -108,6 +90,7 @@ export default {
   data: () => ({
     ready: false,
     edit: false,
+    newTicket: false,
     items: null,
     selectedTicket: null,
     search: null,
@@ -137,27 +120,30 @@ export default {
   },
   methods: {
     getCategories (data) {
-      console.log('CATEGORIES RESPONSE:\n', data)
       this.categories = data.result
     },
     getTickets (data) {
-      console.log('TICKETS RESPONSE:\n', data)
+      const getDate = date => typeof date === 'string' ? date : new Date(data).toISOString().slice(0, 10)
       this.items = data.result.map((ticket) => {
-        ticket.created = new Date(ticket.created).toISOString().slice(0, 10)
-        ticket.modified = new Date(ticket.modified).toISOString().slice(0, 10)
-        console.log(ticket)
+        ticket.created = getDate(ticket.created)
+        ticket.modified = getDate(ticket.modified)
         return ticket
       })
 
       this.ready = true
     },
     createNewTicket () {
-      this.dialog = true
+      const { ticketSchema } = require('@/configs/ticketSchema')
+      this.selectedTicket = ticketSchema
+      this.selectedTicket.created = new Date().toISOString().slice(0, 10)
+      this.selectedTicket.modified = new Date().toISOString().slice(0, 10)
+      this.edit = true
+      this.newTicket = true
     },
     editItem (item) {
-      console.log(item)
       this.selectedTicket = item
       this.edit = true
+      this.newTicket = false
     }
   },
   mounted () {

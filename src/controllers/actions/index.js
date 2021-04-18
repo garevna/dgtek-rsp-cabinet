@@ -4,15 +4,17 @@ import { credentials } from './credentials'
 import { refreshClientData } from './rsp/refreshClientData'
 import { getClientData } from './rsp/getClientData'
 import { putClientData } from './rsp/putClientData'
+import { putClientCredentials } from './rsp/putClientCredentials'
 
 import { refreshServices } from './services/refreshServices'
 import { getServices } from './services/getServices'
 
 import { refreshCustomers } from './customers/refreshCustomers'
 import { getCustomers } from './customers/getCustomers'
-import { getCustomerById } from './customers/getCustomerById'
+import { getCustomerData } from './customers/getCustomerData'
 import { putCustomer } from './customers/putCustomer'
 import { postCustomer } from './customers/postCustomer'
+import { deleteCustomer } from './customers/deleteCustomer'
 
 import { refreshTickets } from './tickets/refreshTickets'
 
@@ -20,7 +22,7 @@ import { getTickets } from './tickets/getTickets'
 import { getCategories } from './tickets/getCategories'
 import { getTicketById } from './tickets/getTicketById'
 import { postNewTicket } from './tickets/postNewTicket'
-import { putTicketById } from './tickets/putTicketById'
+import { saveTicketData } from './tickets/saveTicketData'
 
 export {
   init,
@@ -31,14 +33,16 @@ export {
   refreshTickets,
   getClientData,
   putClientData,
+  putClientCredentials,
   getCustomers,
-  getCustomerById,
+  getCustomerData,
   putCustomer,
   postCustomer,
+  deleteCustomer,
   getServices,
   getTickets,
   getCategories,
   getTicketById,
   postNewTicket,
-  putTicketById
+  saveTicketData
 }

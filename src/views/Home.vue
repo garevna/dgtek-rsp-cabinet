@@ -64,27 +64,27 @@
 
       <v-stepper-items flat class="transparent mt-1 mt-md-6 mb-12">
         <v-stepper-content step="1">
-          <Dashboard v-if="step === 1" />
+          <Dashboard key="1" v-if="step === 1" />
         </v-stepper-content>
 
         <v-stepper-content step="2">
-          <CompanyDetails v-if="step === 2" />
+          <CompanyDetails key="2" v-if="step === 2" />
         </v-stepper-content>
 
         <v-stepper-content step="3">
-          <CheckAddress v-if="step === 3" />
+          <CheckAddress key="3" v-if="step === 3" />
         </v-stepper-content>
 
         <v-stepper-content step="4">
-          <CustomersList v-if="step === 4" />
+          <CustomersList key="4" v-if="step === 4" />
         </v-stepper-content>
 
         <v-stepper-content step="5">
-          <Services v-if="step === 5" />
+          <Services key="5" v-if="step === 5" />
         </v-stepper-content>
 
         <v-stepper-content step="6">
-          <Tickets v-if="step === 6" />
+          <Tickets key="6" v-if="step === 6" />
         </v-stepper-content>
 
       </v-stepper-items>

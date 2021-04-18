@@ -22,9 +22,14 @@ export const customerSchema = {
       type: 'simple-text',
       value: ''
     },
-    aptNumber: {
+    apartmentNumber: {
       title: 'Apt number',
       type: 'simple-text',
+      value: ''
+    },
+    address: {
+      title: 'Address',
+      type: 'address',
       value: ''
     },
     uniqueCode: {
@@ -42,12 +47,12 @@ export const customerSchema = {
       type: 'phone',
       value: ''
     },
-    emailPrimary: {
+    primaryEmail: {
       title: 'Email (primary)',
       type: 'email',
       value: ''
     },
-    emailAlternative: {
+    alternativeEmail: {
       title: 'Email (alternative)',
       type: 'email',
       value: ''

@@ -1,7 +1,7 @@
-export const getCustomerById = function (id) {
+export const deleteCustomer = function (id) {
   window[Symbol.for('vue.prototype')].sendMessageToWorker({
     route: 'customers',
-    action: 'get',
+    action: 'delete',
     key: id
   })
 }

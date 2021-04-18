@@ -25,7 +25,7 @@
 <script>
 
 export default {
-  name: 'SwitchValue',
+  name: 'SwitchValues',
   props: ['label', 'value', 'states'],
   // data: () => ({
   //   switchValue: false
@@ -39,6 +39,9 @@ export default {
         this.$emit('update:value', val)
       }
     }
+  },
+  mounted () {
+    console.log(this.states)
   }
 }
 

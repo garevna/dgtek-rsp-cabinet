@@ -48,7 +48,7 @@ export default {
   }),
   methods: {
     getData (data) {
-      console.log(data)
+      console.log('SERVICES COMPONENT RECEIVE THE DATA:\n', data)
       this.items = Array.isArray(data) ? data : data.result ? data.result : []
       this.items.forEach(item => {
         item.speed = `${item.downstreamSpeed}/${item.upstreamSpeed}Mbps`
@@ -67,7 +67,7 @@ export default {
   mounted () {
     console.warn('SERVICES LIST MOUNTED')
     this.__getServices()
-    this.$root.$on('service-data-received', this.getData)
+    this.$root.$on('services-list-received', this.getData)
   }
 }
 </script>

@@ -9,24 +9,31 @@
       class="transparent"
     >
     </v-card>
+
     <v-card id="searchAddressResults" class="transparent mx-auto py-10 text-center" outlined>
+
       <v-card-text text-center>
         <p v-if="address">DGtek service at</p>
         <h5 v-if="address">{{ address }}</h5>
         <p v-if="address">check results</p>
         <p v-if="status">Status: {{ status }}</p>
         <p v-if="terms">Estimated service delivery time: {{ terms }}</p>
+
       </v-card-text>
+
       <v-card-text text-center v-if="address">
-        <v-btn outlined color="buttons" class="mx-2" @click="newCustomer">
+        <v-btn v-if="address" outlined color="buttons" class="mx-2" @click="newCustomer">
           Add new customer
         </v-btn>
+
         <v-btn outlined color="buttons" class="mx-2" @click="selectCustomer">
           Select existing customer
         </v-btn>
-        <v-btn outlined color="buttons" class="mx-2" @click="services">
+
+        <v-btn v-if="address" outlined color="buttons" class="mx-2" @click="services">
           Check the available services
         </v-btn>
+
       </v-card-text>
     </v-card>
 
@@ -181,6 +188,7 @@ export default {
     },
     newCustomer () {
       console.log('Create new customer!')
+      console.log(this.address)
     },
     selectCustomer (customer) {
       console.log('Selected customer:', customer)
@@ -215,6 +223,8 @@ export default {
     const container = document.getElementById('container-for-map')
     this.events.forEach(eventName => container.addEventListener(eventName, this.catchEvent))
 
+    window.google = null
+
     this.map = new DgtekMap({
       container,
       center: { lat: -37.8357725, lng: 144.9738764 }
@@ -224,10 +234,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-# container-for-map {
-
-}
-</style>

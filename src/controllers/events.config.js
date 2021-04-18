@@ -13,8 +13,8 @@ export const events = {
   },
   services: {
     refresh: 'services-list-refreshed',
-    // list: 'services-list-received',
-    get: 'service-data-received'
+    get: 'services-list-received'
+    // get: 'service-data-received'
   },
   tickets: {
     refresh: 'tickets-list-refreshed',
@@ -23,5 +23,15 @@ export const events = {
     get: 'ticket-data-received',
     post: 'ticket-created',
     put: 'ticket-updated'
+  },
+  buildings: {
+    list: {
+      LIT: 'lit-buildings-list',
+      Footprint: 'footprint-buildings-list'
+    },
+    put: 'buildings-data-saved',
+    post: 'new-building-created',
+    getById: 'building-data-received',
+    getByAddress: 'building-data-received'
   }
 }

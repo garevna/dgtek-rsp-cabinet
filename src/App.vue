@@ -61,9 +61,6 @@ export default {
     message: 'Welcome to DGtek provisioning RSP portal'
   }),
   methods: {
-    // refreshCallback (event) {
-    //   console.log('APP refresh event:\n', event)
-    // },
     errorHandler (event) {
       const { errorType, errorMessage } = event.data
       this.$root.$emit('open-error-popup', { errorType, errorMessage })
@@ -74,7 +71,6 @@ export default {
     }
   },
   mounted () {
-    // this.$root.$on('data-refreshed', this.refreshCallback)
     this.$root.$on('app-is-ready', function (event) {
       this.ready = true
     }.bind(this))
@@ -97,6 +93,24 @@ body {
 }
 * {
   user-select: none;
+}
+.main-header {
+  font-weight: 900;
+}
+.field-set {
+  border: solid 1px #ddd;
+  padding: 32px 0;
+  box-shadow: 0 0 4px #0003;
+}
+.field-set > legend {
+  font-size: 14px;
+  font-weight: bold;
+  color: #881F1A!important;
+  background: #FBFBFB;
+  border: solid 1px #ddd!important;
+  box-shadow: 0 0 4px #0003;
+  border-radius: 4px;
+  padding: 4px 16px;
 }
 @media screen and (max-width: 600px) {
   h3 {

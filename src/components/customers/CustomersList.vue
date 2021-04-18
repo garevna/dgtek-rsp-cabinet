@@ -1,98 +1,93 @@
 <template>
-  <v-card flat class="transparent pb-12 px-12" v-if="ready">
-    <v-card-title>
-      <table>
-        <tbody>
-          <tr>
-            <td>
-              <v-select
-                :items="statuses"
-                v-model="status"
-                label="Service status"
-                outlined
-                clearable
-                dense
-                color="#900"
-                style="width: 270px"
-              ></v-select>
-            </td>
-            <td>
-              <v-select
-                :items="speeds"
-                v-model="speed"
-                label="Service speed"
-                outlined
-                clearable
-                dense
-                color="primary"
-                style="width: 180px"
-              ></v-select>
-            </td>
-            <td>
-              <v-select
-                :items="plans"
-                v-model="plan"
-                label="Plan"
-                outlined
-                clearable
-                dense
-                color="primary"
-                style="width: 140px"
-              ></v-select>
-            </td>
-            <td>
-              <v-select
-                :items="postalCodes"
-                v-model="postCode"
-                label="Post code"
-                outlined
-                clearable
-                dense
-                color="primary"
-                style="width: 140px"
-              ></v-select>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="filteredItems"
-      :search="search"
-    >
-      <template v-slot:item.actions="{ item }">
-        <v-icon
-          small
-          class="mr-2"
-          @click="editItem(item)"
+  <v-container>
+    <v-row v-if="!edit" justify="center">
+      <v-card flat class="transparent pb-12 px-12" v-if="ready">
+        <v-card-title>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <v-select
+                    :items="statuses"
+                    v-model="status"
+                    label="Service status"
+                    outlined
+                    clearable
+                    dense
+                    color="primary"
+                    style="width: 270px"
+                  ></v-select>
+                </td>
+                <td>
+                  <v-select
+                    :items="speeds"
+                    v-model="speed"
+                    label="Service speed"
+                    outlined
+                    clearable
+                    dense
+                    color="primary"
+                    style="width: 180px"
+                  ></v-select>
+                </td>
+                <td>
+                  <v-select
+                    :items="plans"
+                    v-model="plan"
+                    label="Plan"
+                    outlined
+                    clearable
+                    dense
+                    color="primary"
+                    style="width: 140px"
+                  ></v-select>
+                </td>
+                <td>
+                  <v-select
+                    :items="postalCodes"
+                    v-model="postCode"
+                    label="Post code"
+                    outlined
+                    clearable
+                    dense
+                    color="primary"
+                    style="width: 140px"
+                  ></v-select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </v-card-title>
+        <v-data-table
+          :headers="headers"
+          :items="filteredItems"
+          :search="search"
         >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
-      </template>
-    </v-data-table>
-    <v-text-field
-      v-model="search"
-      append-icon="mdi-magnify"
-      label="Search"
-      single-line
-      dense
-      outlined
-      hide-details
-      style="display: inline-block; width: 280px"
-    ></v-text-field>
+          <template v-slot:item.actions="{ item }">
+            <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
+          </template>
+        </v-data-table>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          dense
+          outlined
+          hide-details
+          style="display: inline-block; width: 280px"
+        ></v-text-field>
 
-    <span class="ml-12"><small>Total selected customers: {{ selectedCustomersNumber }}</small></span>
-    <v-dialog v-model="dialog" transition="dialog-bottom-transition">
-      <CustomerDetails :customerId="selectedCustomerId" />
-    </v-dialog>
-  </v-card>
+        <span class="ml-12"><small>Total selected customers: {{ selectedCustomersNumber }}</small></span>
+      </v-card>
+    </v-row>
+    <v-row v-else justify="center">
+      <CustomerDetails
+        :dialog.sync="edit"
+        :customerId="selectedCustomerId"
+      />
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -104,7 +99,8 @@ export default {
   },
   data: () => ({
     ready: false,
-    dialog: false,
+    edit: false,
+    selectedCustomerId: null,
     data: null,
     search: '',
     status: null,
@@ -131,8 +127,7 @@ export default {
       { text: 'Approx ETA', value: 'approxETA' },
       { text: 'Term', value: 'serviceTerm' },
       { text: 'Actions', value: 'actions', sortable: false }
-    ],
-    selectedCustomerId: null
+    ]
   }),
   computed: {
     customers () {
@@ -174,13 +169,15 @@ export default {
       this.services = data.result
     },
     editItem (item) {
-      console.log(item)
+      console.log('SELECTED CUSTOMER:\n', item)
       this.selectedCustomerId = item.id
-      this.dialog = true
+      console.log('SELECTED CUSTOMER ID: ', this.selectedCustomerId)
+      this.edit = true
     }
   },
   mounted () {
     console.warn('CUSTOMERS LIST MOUNTED')
+
     this.$root.$on('customers-list-received', this.getData)
     this.$root.$on('services-list-received', this.getServices)
     this.__getCustomers()

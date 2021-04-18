@@ -71,7 +71,11 @@ export default {
       this.__putClientData(result)
     },
     saveCredentials () {
-      console.log(event.data)
+      this.__putClientCredentials({
+        login: this.schema.userInfo.login.value,
+        userPhone: this.schema.userInfo.phoneNumber.value,
+        password: this.schema.userInfo.password.value
+      })
     }
   },
   watch: {
