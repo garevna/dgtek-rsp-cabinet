@@ -1,12 +1,10 @@
 <template>
   <v-app>
-    <v-row>
-      <v-app-bar app flat height="80" class="homefone">
-        <v-card flat class="transparent text-left mt-4 ml-0" height="50">
+    <v-app-bar app flat height="150" class="homefone">
+        <v-card flat class="transparent text-left ml-4" height="50" style="margin-top: -64px">
           <v-img :src="require('@/assets/dgtek-logo.svg')" width="70" class="mr-8" />
         </v-card>
-        <h3 class="main-header mt-5">DGtek provisioning RSP portal</h3>
-      </v-app-bar>
+        <h3 class="main-header">DGtek provisioning RSP portal</h3>
 
       <v-progress-linear
         :active="progress"
@@ -16,8 +14,7 @@
         color="buttons"
         style="z-index: 8"
       ></v-progress-linear>
-
-    </v-row>
+    </v-app-bar>
 
     <v-row>
       <v-main class="main-content mt-8">
@@ -96,6 +93,7 @@ body {
 }
 .main-header {
   font-weight: 900;
+  margin-top: -64px;
 }
 .field-set {
   border: solid 1px #ddd;

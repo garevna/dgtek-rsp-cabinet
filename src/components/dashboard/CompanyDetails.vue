@@ -47,11 +47,9 @@ export default {
     getData (data) {
       console.log('COMPANY DETAILS GET DATA\n', data)
       const details = data.company ? data : data.result ? data.result : {}
-      // const { company, general, technic, userInfo } = details
       for (const step in details) {
         if (step === 'activeSesions') continue
         for (const prop in details[step]) {
-          console.log(step, prop, details[step][prop])
           if (prop === 'password' || prop === 'role') continue
           this.schema[step][prop].value = details[step][prop]
         }

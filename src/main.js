@@ -39,10 +39,19 @@ instance.__worker.addEventListener('message', initCallback)
 init()
 
 window[Symbol.for('map.worker')].addEventListener('message', function (event) {
-  const { status, action, key, result } = event.data
+  const { status, action, /* store, key, */ result } = event.data
   if (action !== 'getById' && action !== 'getByAddress') return
   if (status === 200) {
-    window[Symbol.for('vue.instance')].$root.$emit('building-data-received', { key, management: result.management, owner: result.owner })
+    const { _id, address, addressComponents, management, owner } = result
+    console.log(address)
+    console.log(management)
+    window[Symbol.for('vue.instance')].$root.$emit('building-data-received', {
+      _id,
+      address,
+      addressComponents,
+      management,
+      owner
+    })
   } else {
     instance.$root.$emit('open-error-popup', {
       messageType: 'Reading the building details',

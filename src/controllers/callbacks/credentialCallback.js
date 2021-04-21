@@ -5,7 +5,7 @@ import {
   refreshCustomers,
   refreshServices,
   refreshTickets
-} from '../../controllers/actions'
+} from '../actions'
 
 export function credentialCallback (event) {
   const { status, action } = event.data

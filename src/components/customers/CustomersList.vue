@@ -58,7 +58,9 @@
             </tbody>
           </table>
         </v-card-title>
+
         <v-data-table
+          ref="customersList"
           :headers="headers"
           :items="filteredItems"
           :search="search"
@@ -129,6 +131,14 @@ export default {
       { text: 'Actions', value: 'actions', sortable: false }
     ]
   }),
+  watch: {
+    data: {
+      deep: true,
+      handler (value) {
+        console.log('SOURCE DATA CHANGED\n', value)
+      }
+    }
+  },
   computed: {
     customers () {
       if (!this.data) return
@@ -136,7 +146,7 @@ export default {
         name: `${customer.firstName} ${customer.lastName}`,
         uniqueCode: customer.uniqueCode,
         postCode: customer.postCode,
-        address: `${customer.apartmentsNumber}/${customer.address}`,
+        address: `${customer.apartmentNumber}/${customer.address}`,
         plan: customer.service ? customer.service.serviceName : '',
         status: customer.service ? customer.service.status : '',
         approxETA: customer.approxETA,
@@ -161,7 +171,7 @@ export default {
   },
   methods: {
     getData (data) {
-      console.log(data)
+      console.log('CUSTOMERS LIST REFRESHED\n', data)
       this.data = data.result
       this.ready = true
     },
@@ -173,11 +183,14 @@ export default {
       this.selectedCustomerId = item.id
       console.log('SELECTED CUSTOMER ID: ', this.selectedCustomerId)
       this.edit = true
+    },
+    forceRerender () {
+      console.log('FORCE RERENDER', this.selectedCustomerId)
+      this.__getCustomers()
     }
   },
   mounted () {
-    console.warn('CUSTOMERS LIST MOUNTED')
-
+    this.$on('refresh-page', this.forceRerender)
     this.$root.$on('customers-list-received', this.getData)
     this.$root.$on('services-list-received', this.getServices)
     this.__getCustomers()

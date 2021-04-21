@@ -1,9 +1,9 @@
 import { refreshCallback, credentialsError } from './'
 import {
-  refreshRSPData,
-  refreshCustomersList,
-  refreshServicesList,
-  refreshTicketsList
+  refreshClientData,
+  refreshCustomers,
+  refreshServices,
+  refreshTickets
 } from '../../controllers/actions'
 
 export function credentialCallback (event) {
@@ -12,10 +12,10 @@ export function credentialCallback (event) {
   if (status === 200) {
     window[Symbol.for('rsp.worker')].addEventListener('message', refreshCallback)
 
-    refreshRSPData()
-    refreshCustomersList()
-    refreshServicesList()
-    refreshTicketsList()
+    refreshClientData()
+    refreshCustomers()
+    refreshServices()
+    refreshTickets()
 
     window[Symbol.for('rsp.worker')].removeEventListener('message', credentialCallback)
     // window[Symbol.for('vue.prototype')].__refresh()

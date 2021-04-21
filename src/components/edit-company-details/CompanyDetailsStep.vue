@@ -9,6 +9,7 @@
       <v-col cols="0" md="4" class="d-none d-md-inline-block">
         <h6 class="text-right">{{ item.title }}</h6>
       </v-col>
+
       <v-col cols="12" sm="8">
         <v-text-field
           v-if="textField(item)"
@@ -49,15 +50,12 @@
 
 <script>
 
-// import { /* schema, */ patterns } from '@/configs'
-// import { validateABN } from '@/helpers'
-
+import { testTextField } from '@/helpers'
 import { rules } from '@/configs'
 
 export default {
   name: 'CompanyDetailsStep',
   components: {
-    // InputWithAutocomplite: () => import('@/components/edit-company-details/InputWithAutocomplite.vue')
     GeoscapeAutocomplete: () => import('@/components/inputs/GeoscapeAutocomplete.vue')
   },
   props: {
@@ -83,7 +81,7 @@ export default {
     schema: {
       deep: true,
       handler (val) {
-        console.log(val)
+        // console.log(val)
       }
     }
   },
@@ -103,7 +101,7 @@ export default {
       return item.type === 'textarea' ? 160 : 60
     },
     textField (item) {
-      return ['simple-text', 'url', 'phone', 'email', 'abn', 'state', 'postcode', 'number', 'login', 'password'].indexOf(item.type) !== -1
+      return testTextField(item.type)
     },
     rule (item) {
       return this.rules[item.type]
