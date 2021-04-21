@@ -5,6 +5,6 @@ export const putCustomerDataError = function (status) {
     route: 'customers',
     error: true,
     errorType: 'Customer details',
-    errorMessage: 'Failed to save customer details'
+    errorMessage: 'Failed to save data'
   }
 }
