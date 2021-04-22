@@ -1,3 +1,4 @@
+import { normalizeAddress } from './normalizeAddress'
 import { testTextField } from './testTextField'
 import { createMapWorker } from './createMapWorker'
 import { createRspWorker } from './createRspWorker'
@@ -7,6 +8,7 @@ import { readFile } from './readFile'
 import { getBuildingUniqueCode } from './getBuildingUniqueCode'
 
 export {
+  normalizeAddress,
   testTextField,
   createMapWorker,
   createRspWorker,

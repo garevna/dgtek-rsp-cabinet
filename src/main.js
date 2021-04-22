@@ -38,19 +38,21 @@ Vue.prototype.sendMessageToWorker = instance.sendMessageToWorker
 instance.__worker.addEventListener('message', initCallback)
 init()
 
+/* ===================== MAP WORKER ========================= */
+
 window[Symbol.for('map.worker')].addEventListener('message', function (event) {
   const { status, action, /* store, key, */ result } = event.data
   if (action !== 'getById' && action !== 'getByAddress') return
   if (status === 200) {
-    const { _id, address, addressComponents, management, owner } = result
-    console.log(address)
-    console.log(management)
+    const { _id, address, addressComponents, management, owner, status } = result
+    console.log(result)
     window[Symbol.for('vue.instance')].$root.$emit('building-data-received', {
       _id,
       address,
       addressComponents,
       management,
-      owner
+      owner,
+      status
     })
   } else {
     instance.$root.$emit('open-error-popup', {
@@ -62,7 +64,6 @@ window[Symbol.for('map.worker')].addEventListener('message', function (event) {
 
 window[Symbol.for('map.worker')].addEventListener('message', function (event) {
   const { status, action, store, result } = event.data
-  console.log({ status, action, store, result })
   if (action !== 'list') return
   if (status !== 200) {
     window[Symbol.for('vue.instance')].$root.$emit('open-error-popup', {
@@ -78,16 +79,19 @@ window[Symbol.for('map.worker')].addEventListener('message', function (event) {
 window[Symbol.for('map.worker')].addEventListener('message', function (event) {
   const { status, action, key, result } = event.data
   if (action !== 'put' && action !== 'post') return
-  console.log(status, action, key, result)
+  console.log('EVENT HANDLER\n', status, action, key, result)
   if (status === 200) {
+    const eventName = action === 'post' ? 'new-building-created' : 'buildings-data-saved'
+    console.log('EMIT EVENT: ', eventName)
+    window[Symbol.for('vue.instance')].$root.$emit(eventName, event.data)
     instance.$root.$emit('open-message-popup', {
-      messageType: 'Save building details',
+      messageType: 'Building details',
       messageText: 'Data saved'
     })
     return
   }
   instance.$root.$emit('open-error-popup', {
-    messageType: 'Save building details',
+    messageType: 'Building details',
     messageText: 'Operaion faled. Data was not saved'
   })
 })

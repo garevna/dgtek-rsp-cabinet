@@ -40,6 +40,9 @@ export const createController = function () {
     },
     __putBuildingDetails: function (id, details) {
       window[Symbol.for('map.worker')].postMessage({ action: 'put', key: id, data: details })
+    },
+    __postBuildingDetails: function (details) {
+      window[Symbol.for('map.worker')].postMessage({ action: 'post', data: details })
     }
   })
 }

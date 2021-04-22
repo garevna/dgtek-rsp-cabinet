@@ -71,6 +71,7 @@ export default {
     this.$root.$on('app-is-ready', function (event) {
       this.ready = true
     }.bind(this))
+
     this.$root.$on('progress-event', function (event) {
       this.progress = event.progress
     }.bind(this))
@@ -79,6 +80,10 @@ export default {
       event.data.error && this.errorHandler(event)
       event.data.message && this.messageHandler(event)
     }.bind(this))
+  },
+  errorCaptured (err, instance, info) {
+    console.warn('ERROR:\n', err, info, instance.$options._componentTag)
+    return false
   }
 }
 </script>

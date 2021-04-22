@@ -6,114 +6,8 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-toolbar>
-    <fieldset class="mt-4 pa-4">
-      <legend class="ml-4"><h5>Customer details</h5></legend>
-      <v-card flat class="transparent mt-0">
-        <table width="100%">
-          <tbody>
-            <tr>
-              <td width="120" class="d-none d-md-flex">
-                Residential/commercial
-              </td>
-              <td width="*" colspan="2">
-                <SwitchValues
-                  label="Residential/commercial"
-                  :value.sync="customerType"
-                  :states="['residential', 'commercial']"
-                  hide-details
-                />
-              </td>
-            </tr>
-            <tr v-if="customerType">
-              <td class="d-none d-md-flex">Company name</td>
-              <td colspan="2">
-                <v-text-field
-                  v-model="customer.commercial.companyName"
-                  label="Company name"
-                  :rules="[rules.required]"
-                  outlined
-                  dense
-                  hide-details
-                />
-              </td>
-            </tr>
-            <tr v-if="customerType">
-              <td class="d-none d-md-flex">Company ABN</td>
-              <td colspan="2">
-                <v-text-field
-                  v-model="customer.commercial.companyAbn"
-                  label="Company ABN"
-                  :rules="[rules.required, rules.abn]"
-                  outlined
-                  dense
-                  hide-details
-                />
-              </td>
-            </tr>
-            <tr>
-              <td class="d-none d-md-flex"></td>
-              <td>Apartment number</td>
-              <td>Building address</td>
-            </tr>
-            <tr v-if="customer">
-              <td class="d-none d-md-flex">Address</td>
-              <td width="160">
-                <v-text-field v-model="customer.apartmentNumber" label="apt" outlined dense hide-details />
-              </td>
-              <td>
-                <v-select
-                  :items="buildings"
-                  v-model="customer.address"
-                  @input="updateBuildingId"
-                  hide-details
-                  outlined
-                  dense
-                  label="address"
-                  :menu-props="{ bottom: true, offsetY: true }"
-                />
-              </td>
-            </tr>
-            <tr v-for="(prop, propName) in customerDetails" :key="propName">
-              <td class="d-none d-md-flex">{{ prop.title }}</td>
-              <td colspan="2">
-                <v-text-field
-                  v-if="textField(prop)"
-                  v-model="prop.value"
-                  @input="update(propName, prop.value)"
-                  :label="prop.title"
-                  :rules="[prop.required ? rules.required : (value) => true, rule(prop)]"
-                  outlined
-                  dense
-                  hide-details
-                />
-                <v-text-field
-                  v-if="prop.type === 'mobile'"
-                  v-model="prop.value"
-                  @input="update(propName, prop.value)"
-                  prefix="+61"
-                  :rules="[prop.required && !customerDetails.phoneWork.value ? rules.required : (value) => true, rules.mobile]"
-                  label="mobile phone number"
-                  outlined
-                  dense
-                  hide-details
-                ></v-text-field>
-              </td>
-            </tr>
-            <tr style="height: 48px;"></tr>
-            <tr style="margin-top: 48px!important">
-              <td class="d-none d-md-flex">
-                <!-- <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn> -->
-              </td>
-              <td colspan="2" class="text-right">
-                <v-spacer />
-                <v-btn dark class="buttons" @click="saveCustomerDetails">Save</v-btn>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </v-card>
-    </fieldset>
-    <BuildingDetails :buildingData="buildingData" />
+    <EditCustomerDetails v-if="ready" :initialCustomer.sync="customer" />
+    <EditBuildingDetails v-if="ready" :buildingData.sync="buildingData" />
     <v-row justify="center" class="my-12">
       <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn>
     </v-row>
@@ -122,155 +16,103 @@
 
 <script>
 
-import { customerSchema, rules } from '@/configs'
-import { testTextField, getBuildingUniqueCode } from '@/helpers'
-import { SwitchValues } from '@/components/inputs'
+import { newCustomer } from '@/configs'
+import { getBuildingUniqueCode, normalizeAddress } from '@/helpers'
 
 export default {
   name: 'CustomerDetails',
   components: {
-    BuildingDetails: () => import('@/components/customers/BuildingDetails.vue'),
-    SwitchValues
+    EditCustomerDetails: () => import('@/components/customers/EditCustomerDetails.vue'),
+    EditBuildingDetails: () => import('@/components/customers/EditBuildingDetails.vue')
   },
-  props: {
-    customerId: String,
-    dialog: Boolean
-  },
+  props: ['customerId', 'initialAddressData', 'dialog'],
   data: () => ({
-    customerSchema: customerSchema,
-    buildingData: null,
     ready: false,
     customer: null,
-    customerDetails: {},
-    commercialSchema: { companyName: '', companyAbn: '' },
-    rules: rules,
-    buildings: [],
-    customerType: null,
-    companyName: '',
-    companyAbn: ''
+    buildingData: null
   }),
-  computed: {},
-  watch: {
-    customerType: {
-      handler (newVal, oldVal) {
-        if (newVal && (!this.customer.commercial || !Object.keys(this.customer.commercial))) {
-          this.customer.commercial = this.commercialSchema
-        }
-      }
-    }
-  },
   methods: {
-    update (propName, propValue) {
-      console.log(propName, propValue)
-      this.customer[propName] = propValue
-    },
-    createBuildingCode (addressComponents) {
-      return getBuildingUniqueCode(addressComponents)
-    },
-    createCustomerCode (addressComponents) {
-      return `${getBuildingUniqueCode(addressComponents)}.${this.customer.apartmentNumber}`
-    },
-    updateBuildingId () {
-      console.log(this.customer.address)
-      this.__getBuildingByAddress(this.customer.address)
-    },
-    getBuildingDetails (data) {
-      console.log('BUILDING DETAILS:\n', data)
-      console.log(data.address)
-      this.customer.buildingId = data._id
-      this.customer.postCode = data.addressComponents.postCode
-      this.buildingId = data._id
-      this.customer.uniqueCode = `${getBuildingUniqueCode(data.addressComponents)}.${this.customer.apartmentNumber}`
-      this.customerDetails.uniqueCode.value = `${getBuildingUniqueCode(data.addressComponents)}.${this.customer.apartmentNumber}`
+    getBuildingEventHandler (data) {
+      console.log('CUSTOMER DETAILS COMPONENT HAS RECEIVED THE BUILDING DATA: ', data)
       this.buildingData = {
-        _id: data._id,
-        address: data.address,
-        addressComponents: data.addressComponents,
-        buildingUniqueCode: getBuildingUniqueCode(data.addressComponents),
-        management: JSON.parse(JSON.stringify(data.management)),
-        owner: JSON.parse(JSON.stringify(data.owner))
+        buildingId: data._id,
+        buildingAddress: normalizeAddress(data.address),
+        buildingAddressComponents: data.addressComponents,
+        buildingManagement: JSON.parse(JSON.stringify(data.management)),
+        buildingOwner: JSON.parse(JSON.stringify(data.owner)),
+        buildingStatus: data.status
       }
+      this.ready = true
+      console.log('BUILDING DATA:\n', this.buildingData)
     },
-    rowHeight (item) {
-      return item.type === 'textarea' ? 160 : 60
-    },
-    textField (item) {
-      return testTextField(item.type)
-    },
-    rule (item) {
-      return this.rules[item.type]
-    },
-    getCustomerData (data) {
+    getCustomerEventHandler (data) {
+      console.log('CUSTOMER DATA RECEIVED:\n', data)
       this.customer = data.result
-
-      if (this.customer.commercial && Object.keys(this.customer.commercial).length > 0) {
-        this.customerType = true
-        this.customerDetails.commercial = this.customerSchema.commercial
-        this.customerDetails.commercial.companyName.value = this.customer.commercial.companyName
-        this.customerDetails.commercial.companyAbn.value = this.customer.commercial.companyAbn
-      }
-      this.customerDetails = customerSchema.customerDetails
-      for (const prop in this.customerDetails) {
-        this.customerDetails[prop].value = data.result[prop]
-      }
-
       const { buildingId } = data.result
 
-      if (buildingId) {
-        this.__getBuildingById(buildingId)
-      }
+      if (buildingId) return this.__getBuildingById(buildingId)
+    },
 
-      this.ready = true
+    // getServices (data) {
+    //   console.log('SERVICES:\n', data)
+    // },
+
+    assignNewService () {
+      //
     },
-    getBuildings (data) {
-      this.buildings.push(...data)
-    },
-    getServices (data) {
-      console.log('SERVICES:\n', data)
-    },
-    saveCustomerDetails () {
-      if (!this.customerType) this.customer.commercial = {}
-      console.log(this.customer)
-      console.log(this.customerDetails)
-      this.__putCustomer(this.customer._id, this.customer)
-    },
-    close () {
-      console.log('CUSTOMER UPDATED')
-      this.$parent.$emit('refresh-page')
-      this.$emit('update:dialog', false)
+    createNewCustomer () {
+      console.log('CREATE NEW CUSTOMER')
+      const {
+        buildingAddress,
+        buildingAddressComponents,
+        buildingId,
+        buildingManagement,
+        buildingOwner,
+        buildingStatus
+      } = this.initialAddressData
+
+      console.log(buildingAddress)
+      console.log(buildingAddressComponents)
+
+      this.customer = JSON.parse(JSON.stringify(newCustomer))
+
+      this.customer.address = normalizeAddress(buildingAddress)
+      this.customer.buildingId = buildingId || null
+      this.customer.postCode = buildingAddressComponents.postCode
+      this.customer.uniqueCode = `${getBuildingUniqueCode(buildingAddressComponents)}.0}`
+
+      this.buildingData = {
+        buildingId,
+        buildingAddress: normalizeAddress(buildingAddress),
+        buildingAddressComponents,
+        buildingManagement,
+        buildingOwner,
+        buildingStatus
+      }
     }
   },
+  beforeDestroy () {
+    this.$root.$off('customer-data-received', this.getCustomerEventHandler)
+    this.$root.$off('building-data-received', this.getBuildingEventHandler)
+  },
   mounted () {
-    this.$root.$on('customer-data-received', this.getCustomerData)
-    this.$root.$on('services-list-received', this.getServices)
-    this.$root.$on('building-data-received', this.getBuildingDetails)
-    this.$root.$on('lit-buildings-list', this.getBuildings)
-    this.$root.$on('footprint-buildings-list', this.getBuildings)
+    console.log('CUSTOMER DETAILS MOUNTED')
+    console.log('CUSTOMER ID: ', this.customerId)
+    console.log('INITIAL ADDRESS DATA:\n', this.initialAddressData)
 
-    this.$root.$on('customer-updated', this.close)
+    if (this.customerId) {
+      this.$root.$on('customer-data-received', this.getCustomerEventHandler)
+      this.$root.$on('building-data-received', this.getBuildingEventHandler)
+      this.__getCustomerData(this.customerId)
+    } else {
+      if (!this.initialAddressData) return console.warn('Error: prop "initialAddressData" not defined')
+      this.buildingData = JSON.parse(JSON.stringify(this.initialAddressData))
+      this.createNewCustomer()
+      this.ready = true
+    }
 
-    this.__getCustomerData(this.customerId)
-    this.__getServices()
-
-    this.buildings = []
-
-    this.__getLitBuildings()
-    this.__getFootprintBuildings()
+    // this.$root.$on('customer-updated', this.$emit('update:dialog', false))
+    // this.__getServices()
   }
 }
 </script>
-
-<style scoped>
-table {
-  width: 100%;
-  margin-bottom: 48px;
-}
-tr {
-  margin-bottom: 32px;
-}
-td {
-  /* border: dotted 1px red; */
-  font-size: 14px;
-  padding: 4px 12px;
-}
-</style>

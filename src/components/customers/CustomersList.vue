@@ -132,6 +132,9 @@ export default {
     ]
   }),
   watch: {
+    edit (val) {
+      console.log('EDIT: ', val)
+    },
     data: {
       deep: true,
       handler (value) {
@@ -179,7 +182,6 @@ export default {
       this.services = data.result
     },
     editItem (item) {
-      console.log('SELECTED CUSTOMER:\n', item)
       this.selectedCustomerId = item.id
       console.log('SELECTED CUSTOMER ID: ', this.selectedCustomerId)
       this.edit = true

@@ -5,7 +5,7 @@ export const routes = {
   credentials: workerController.credentials,
   refresh: workerController.refreshAllData,
   rsp: {
-    get: workerController.getClientData,
+    get: window[Symbol.for('vue.prototype')].getClientData,
     put: workerController.putClientData
   },
   customers: {

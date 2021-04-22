@@ -51,11 +51,6 @@ export default {
       this.errorType = event.errorType
       this.errorMessage = event.errorMessage
     }.bind(this))
-    this.$on('open-error-popup', function (event) {
-      this.error = true
-      this.errorType = event.errorType
-      this.errorMessage = event.errorMessage
-    })
   }
 }
 </script>

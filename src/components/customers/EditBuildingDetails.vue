@@ -16,7 +16,7 @@
             </v-col>
           </v-row>
           <v-row justify="center">
-            <v-col cols="4" col-lg="3" col-xl="2" class="d-none d-md-flex">
+            <v-col cols="4" col-lg="3" col-xl="2" class="d-none d-md-flex mb-8">
               <small>Building unique code</small>
             </v-col>
             <v-col cols="8" col-lg="6" col-xl="5">
@@ -67,7 +67,7 @@ import { buildingSchema, rules } from '@/configs'
 import { testTextField, getBuildingUniqueCode } from '@/helpers'
 
 export default {
-  name: 'BuildingDetails',
+  name: 'EditBuildingDetails',
   props: {
     buildingData: Object
   },
@@ -76,26 +76,59 @@ export default {
     schema: buildingSchema,
     buildingDetails: {},
     rules: rules,
-    buildingType: null
+    buildingType: null,
+    sections: {
+      management: 'buildingManagement',
+      owner: 'buildingOwner'
+    }
   }),
   computed: {},
   watch: {
     buildingData: {
       deep: true,
+      immediate: true,
       handler (data) {
-        console.log(data)
+        console.log('BUILDING DATA UPDATED:\n', data)
         if (!data) return
-        this.schema.address.value = data.address
-        this.schema.buildingUniqueCode.value = getBuildingUniqueCode(data.addressComponents)
-        for (const sectionName of ['management', 'owner']) {
+        this.schema.address.value = data.buildingAddress
+        this.schema.buildingUniqueCode.value = getBuildingUniqueCode(data.buildingAddressComponents)
+
+        for (const sectionName of Object.keys(this.sections)) {
           for (const propName in this.schema[sectionName]) {
-            this.schema[sectionName][propName].value = data[sectionName][propName]
+            console.log(this.sections[sectionName], propName, data[this.sections[sectionName]][propName])
+            this.schema[sectionName][propName].value = data[this.sections[sectionName]][propName]
           }
         }
       }
     }
   },
   methods: {
+    getData (data) {
+      this.schema.address.value = data.buildingAddress
+      this.schema.buildingUniqueCode.value = getBuildingUniqueCode(data.buildingAddressComponents)
+      for (const sectionName of Object.keys(this.sections)) {
+        for (const propName in this.schema[sectionName]) {
+          console.log(this.sections[sectionName], propName, data[this.sections[sectionName]][propName])
+          this.schema[sectionName][propName].value = data[this.sections[sectionName]][propName]
+        }
+      }
+    },
+    getNewBuildingId (event) {
+      console.log('NEW BUILDING CREATED EVENT:\n', event)
+      this.$root.$emit('progress-event', false)
+      this.$root.$emit('open-message-popup', {
+        messageType: 'New building',
+        messageText: 'Created'
+      })
+    },
+    sendMessage (event) {
+      this.$root.$emit('progress-event', false)
+      console.log('SAVE BUILDING EVENT:\n', event)
+      this.$root.$emit('open-message-popup', {
+        messageTyle: 'Building details',
+        messageText: 'Data updated'
+      })
+    },
     rowHeight (item) {
       return item.type === 'textarea' ? 160 : 60
     },
@@ -117,11 +150,27 @@ export default {
         }
       }
 
-      console.log(this.buildingData._id)
+      console.log(this.buildingData.buildingId)
       console.log(result)
-      this.__putBuildingDetails(this.buildingData._id, result)
+      this.$root.$emit('progress-event', true)
+      if (this.buildingData.buildingId) {
+        this.__putBuildingDetails(this.buildingData.buildingId, result)
+      } else {
+        this.__postBuildingDetails(result)
+      }
+
       this.$emit('update:dialog', false)
     }
+  },
+  beforeDestroy () {
+    this.$root.$off('buildings-data-saved', this.sendMessage)
+    this.$root.$off('new-building-created', this.getNewBuildingId)
+  },
+  mounted () {
+    console.warn('BUILDING MOUNTED:\n', this.buildingData)
+
+    this.$root.$on('buildings-data-saved', this.sendMessage)
+    this.$root.$on('new-building-created', this.getNewBuildingId)
   }
 }
 </script>
