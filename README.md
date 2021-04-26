@@ -1,6 +1,6 @@
-# dgtek-reseller-cabinet
+# dgtek-rsp-cabinet
 
-[**demo**](https://vue-command.github.io/dgtek-reseller-cabinet/)
+[**demo**](https://garevna.github.io/dgtek-rsp-cabinet/)
 
 ## Project setup
 

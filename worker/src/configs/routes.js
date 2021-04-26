@@ -18,7 +18,7 @@ export const routes = {
     refresh: customersController.getFromRemote,
     list: customersController.getAllCustomers,
     get: customersController.getCustomer,
-    post: customersController.addNewCustomer,
+    post: customersController.createCustomer,
     delete: customersController.deleteCustomer,
     put: customersController.updateCustomer
   },

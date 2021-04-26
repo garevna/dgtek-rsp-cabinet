@@ -1,6 +1,6 @@
 {
-  "name": "rsp-cabinet",
-  "version": "1.0.0",
+  "name": "dgtek-rsp-cabinet",
+  "version": "1.0.1",
   "scripts": {
     "worker-dev": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode development -w && yarn remove crypto-js",
     "worker": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode production && yarn remove crypto-js",
@@ -10,7 +10,7 @@
     "dgtek-map": "yarn add dgtek-map && mv node_modules/dgtek-map/dist/map.worker.js public"
   },
   "dependencies": {
-    "dgtek-map": "^1.2.4",
+    "dgtek-map": "^1.2.5",
     "dgtek-styles": "^0.0.8",
     "vue": "2.6.11",
     "vue-router": "^3.5.1",
