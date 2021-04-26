@@ -69,7 +69,15 @@ import { testTextField, getBuildingUniqueCode } from '@/helpers'
 export default {
   name: 'EditBuildingDetails',
   props: {
-    buildingData: Object
+    buildingData: Object,
+    buildingId: {
+      type: String,
+      required: false
+    },
+    postCode: {
+      type: String,
+      required: false
+    }
   },
   data: () => ({
     ready: false,
@@ -89,23 +97,30 @@ export default {
       immediate: true,
       handler (data) {
         console.log('BUILDING DATA UPDATED:\n', data)
-        if (!data) return
-        this.schema.address.value = data.buildingAddress
-        this.schema.buildingUniqueCode.value = getBuildingUniqueCode(data.buildingAddressComponents)
-
-        for (const sectionName of Object.keys(this.sections)) {
-          for (const propName in this.schema[sectionName]) {
-            console.log(this.sections[sectionName], propName, data[this.sections[sectionName]][propName])
-            this.schema[sectionName][propName].value = data[this.sections[sectionName]][propName]
-          }
-        }
+        this.getData(data)
+        // if (!data) return
+        // this.schema.address.value = data.buildingAddress
+        // this.schema.buildingUniqueCode.value = getBuildingUniqueCode(data.buildingAddressComponents)
+        // this.schema.buildingStatus = data.buildingStatus
+        //
+        // for (const sectionName of Object.keys(this.sections)) {
+        //   for (const propName in this.schema[sectionName]) {
+        //     console.log(this.sections[sectionName], propName, data[this.sections[sectionName]][propName])
+        //     this.schema[sectionName][propName].value = data[this.sections[sectionName]][propName]
+        //   }
+        // }
       }
     }
   },
   methods: {
     getData (data) {
+      console.log(data.buildingAddressComponents)
       this.schema.address.value = data.buildingAddress
+      this.schema.addressComponents = Object.assign({}, data.buildingAddressComponents)
+      this.$emit('update:postCode', data.buildingAddressComponents.postCode)
       this.schema.buildingUniqueCode.value = getBuildingUniqueCode(data.buildingAddressComponents)
+      this.schema.buildingStatus = data.buildingStatus
+
       for (const sectionName of Object.keys(this.sections)) {
         for (const propName in this.schema[sectionName]) {
           console.log(this.sections[sectionName], propName, data[this.sections[sectionName]][propName])
@@ -113,13 +128,12 @@ export default {
         }
       }
     },
-    getNewBuildingId (event) {
-      console.log('NEW BUILDING CREATED EVENT:\n', event)
+    getNewBuildingId (data) {
+      console.log('NEW BUILDING CREATED EVENT:\n', data)
       this.$root.$emit('progress-event', false)
-      this.$root.$emit('open-message-popup', {
-        messageType: 'New building',
-        messageText: 'Created'
-      })
+      if (data.status === 200) {
+        this.$emit('update:buildingId', data.key || data.result)
+      }
     },
     sendMessage (event) {
       this.$root.$emit('progress-event', false)
@@ -141,8 +155,10 @@ export default {
     saveBuildingDetails () {
       const result = {
         address: this.schema.address.value,
+        addressComponents: this.schema.addressComponents,
         management: {},
-        owner: {}
+        owner: {},
+        status: this.schema.buildingStatus
       }
       for (const section of ['management', 'owner']) {
         for (const propName in this.schema[section]) {
@@ -150,16 +166,15 @@ export default {
         }
       }
 
-      console.log(this.buildingData.buildingId)
+      console.log('Building id: ', this.buildingData.buildingId)
       console.log(result)
       this.$root.$emit('progress-event', true)
+
       if (this.buildingData.buildingId) {
         this.__putBuildingDetails(this.buildingData.buildingId, result)
       } else {
         this.__postBuildingDetails(result)
       }
-
-      this.$emit('update:dialog', false)
     }
   },
   beforeDestroy () {

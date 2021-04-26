@@ -171,13 +171,16 @@ export default {
       this.buildingId = data.buildingId
       this.address = normalizeAddress(data.address)
 
-      const buildingStatus = data.status === 'UnderConstruction' ? 'BuildCommenced'
-        : data.status === 'ServiceAvailable' ? 'Footprint'
-          : data.status === 'NotAvailable' ? 'Other' : data.status
+      // const buildingStatus = data.status === 'UnderConstruction' || 'BuildCommenced' ? 'BuildCommenced'
+      //   : data.status === 'ServiceAvailable' ? 'Footprint'
+      //     : data.status === 'NotAvailable' ? 'Other' : data.status
+
+      const buildingStatus = buildingStatusConfig[eventType].buildingStatus
+      console.log(eventType, buildingStatus)
 
       this.initialAddressData = {
         eventType,
-        buildingId: data._id,
+        buildingId: data.buildingId,
         buildingAddress: normalizeAddress(data.address),
         buildingAddressComponents: data.addressComponents,
         buildingStatus,

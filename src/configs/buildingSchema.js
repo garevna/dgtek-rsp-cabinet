@@ -4,6 +4,14 @@ export const buildingSchema = {
     type: 'address',
     value: ''
   },
+  addressComponents: {
+    city: '',
+    postCode: '',
+    state: '',
+    street: '',
+    streetType: '',
+    number: ''
+  },
   buildingUniqueCode: {
     title: 'Building unique code',
     type: 'unique-code',

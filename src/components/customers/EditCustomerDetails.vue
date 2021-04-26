@@ -107,8 +107,12 @@
             </td>
               <td colspan="2" class="text-right">
               <v-spacer />
-              <v-btn outlined color="buttons" class="mr-2" @click="assignNewService">Assign new service</v-btn>
-              <v-btn dark class="buttons" @click="saveCustomerDetails">Update/save details</v-btn>
+              <v-btn outlined color="buttons" class="mr-2" @click="assignNewService">
+                Assign new service
+              </v-btn>
+              <v-btn dark class="buttons" @click="saveCustomerDetails" :disabled="saveDisabled">
+                Update/save details
+              </v-btn>
             </td>
           </tr>
         </tbody>
@@ -131,7 +135,15 @@ export default {
     SwitchValues
   },
   props: {
-    initialCustomer: Object
+    initialCustomer: Object,
+    buildingId: {
+      type: String,
+      required: false
+    },
+    buildingPostCode: {
+      type: String,
+      required: false
+    }
   },
   data: () => ({
     customer: null,
@@ -142,7 +154,20 @@ export default {
     buildings: [],
     customerType: null
   }),
+  computed: {
+    saveDisabled () {
+      return !this.customer || !this.customer.buildingId
+    }
+  },
   watch: {
+    buildingId (value) {
+      console.log('BUILDING ID CHANGED TO: ', value)
+      Object.assign(this.customer, { buildingId: value })
+    },
+    buildingPostCode (value) {
+      console.log('POST CODE CHANGED TO: ', value)
+      Object.assign(this.customer, { postCode: value })
+    },
     customerType: {
       handler (newVal, oldVal) {
         if (newVal && (!this.customer.commercial || !Object.keys(this.customer.commercial))) {
@@ -232,6 +257,7 @@ export default {
     this.$root.$off('lit-buildings-list', this.getBuildings)
     this.$root.$off('footprint-buildings-list', this.getBuildings)
     this.$root.$off('customer-updated', this.close)
+    this.$root.$off('customer-created', this.close)
   },
   mounted () {
     this.customer = this.initialCustomer
@@ -245,6 +271,7 @@ export default {
     this.$root.$on('footprint-buildings-list', this.getBuildings)
 
     this.$root.$on('customer-updated', this.close)
+    this.$root.$on('customer-created', this.close)
 
     this.__getLitBuildings()
     this.__getFootprintBuildings()

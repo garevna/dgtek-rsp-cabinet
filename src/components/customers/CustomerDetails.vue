@@ -6,8 +6,18 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-toolbar>
-    <EditCustomerDetails v-if="ready" :initialCustomer.sync="customer" />
-    <EditBuildingDetails v-if="ready" :buildingData.sync="buildingData" />
+    <EditCustomerDetails
+      v-if="ready"
+      :initialCustomer.sync="customer"
+      :buildingId.sync="buildingId"
+      :buildingPostCode="buildingPostCode"
+    />
+    <EditBuildingDetails
+      v-if="ready"
+      :buildingData="buildingData"
+      :buildingId.sync="buildingId"
+      :postCode.sync="buildingPostCode"
+    />
     <v-row justify="center" class="my-12">
       <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn>
     </v-row>
@@ -29,8 +39,18 @@ export default {
   data: () => ({
     ready: false,
     customer: null,
-    buildingData: null
+    buildingData: null,
+    buildingId: null,
+    buildingPostCode: null
   }),
+  watch: {
+    buildingId (value) {
+      Object.assign(this.customer, { buildingId: value })
+    },
+    buildingPostCode (value) {
+      Object.assign(this.customer, { postCode: value })
+    }
+  },
   methods: {
     getBuildingEventHandler (data) {
       console.log('CUSTOMER DETAILS COMPONENT HAS RECEIVED THE BUILDING DATA: ', data)
