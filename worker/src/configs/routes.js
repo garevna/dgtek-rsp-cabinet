@@ -17,6 +17,7 @@ export const routes = {
   customers: {
     refresh: customersController.getFromRemote,
     list: customersController.getAllCustomers,
+    services: customersController.getCustomerServices,
     get: customersController.getCustomer,
     post: customersController.createCustomer,
     delete: customersController.deleteCustomer,
@@ -29,14 +30,17 @@ export const routes = {
   },
   services: {
     refresh: servicesController.refresh,
+    list: servicesController.list,
     get: servicesController.get
   },
   tickets: {
     refresh: ticketsController.refresh,
-    categories: ticketsController.getCategories,
     list: ticketsController.list,
     get: ticketsController.get,
     post: ticketsController.post,
     put: ticketsController.put
+  },
+  categories: {
+    get: ticketsController.getCategories
   }
 }

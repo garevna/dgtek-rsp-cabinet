@@ -1,42 +1,55 @@
-import { refreshTicketsListError } from './tickets/refreshTicketsList'
-import { getTicketsListError } from './tickets/getTicketsList'
-import { getTicketDataError } from './tickets/getTicketData'
-import { postNewTicketError } from './tickets/postNewTicket'
-import { putTicketDataError } from './tickets/putTicketData'
+import {
+  getCategoriesError,
+  getTicketDataError,
+  getTicketsListError,
+  postNewTicketError,
+  putTicketDataError,
+  refreshTicketsListError
+} from './tickets'
 
-import { refreshServicesListError } from './services/refreshServicesList'
-import { getServicesListError } from './services/getServicesList'
-import { putServicesListError } from './services/putServicesList'
+import {
+  refreshServicesListError,
+  getServicesListError,
+  getServiceDetailsError
+} from './services'
 
-import { refreshClientDataError } from './rsp/refreshClientData'
-import { getClientDataError } from './rsp/getClientData'
-import { putClientDataError } from './rsp/putClientData'
-import { putClientCredentialsError } from './rsp/putClientCredentials'
+import {
+  getClientDataError,
+  putClientCredentialsError,
+  putClientDataError,
+  refreshClientDataError
+} from './rsp'
 
-import { refreshCustomersListError } from './customers/refreshCustomersList'
-import { getCustomersListError } from './customers/getCustomersList'
-import { getCustomerDataError } from './customers/getCustomerData'
-import { postNewCustomerError } from './customers/postNewCustomer'
-import { putCustomerDataError } from './customers/putCustomerData'
-import { deleteCustomerError } from './customers/deleteCustomer'
+import {
+  deleteCustomerError,
+  getCustomerDataError,
+  getCustomersListError,
+  postNewCustomerError,
+  putCustomerDataError,
+  refreshCustomersListError
+} from './customers'
 
 export {
+  refreshClientDataError,
   getClientDataError,
   putClientDataError,
   putClientCredentialsError,
+
+  refreshCustomersListError,
   getCustomersListError,
   getCustomerDataError,
   postNewCustomerError,
   putCustomerDataError,
   deleteCustomerError,
+
+  refreshTicketsListError,
+  getCategoriesError,
   getTicketsListError,
   getTicketDataError,
   postNewTicketError,
   putTicketDataError,
-  getServicesListError,
-  putServicesListError,
-  refreshClientDataError,
-  refreshCustomersListError,
+
   refreshServicesListError,
-  refreshTicketsListError
+  getServicesListError,
+  getServiceDetailsError
 }

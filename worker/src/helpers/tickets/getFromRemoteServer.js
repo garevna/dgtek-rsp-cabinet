@@ -1,6 +1,7 @@
 import { get } from '../AJAX'
 import { clearStore, putRecordByKey } from '../db'
 import { refreshTicketsListError } from '../error-handlers'
+import { getDateNumber } from './'
 
 export const getFromRemoteServer = async function () {
   const [route, action] = ['tickets', 'refresh']
@@ -20,7 +21,13 @@ export const getFromRemoteServer = async function () {
   if (categoryStatus !== 200) return refreshTicketsListError(categoryStatus)
 
   for (const record of tickets) {
+    Object.assign(record, {
+      created: getDateNumber(record.created),
+      modified: getDateNumber(record.modified)
+    })
+
     const { status: localDBStatus } = await putRecordByKey('tickets', record._id, record)
+
     if (localDBStatus !== 200) self.postMessage(refreshTicketsListError(localDBStatus))
   }
 
