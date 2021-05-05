@@ -8,7 +8,9 @@ export const getRecordByKey = (storeName, recordKey) => new Promise((resolve) =>
         resolve({ status, result: null })
         return
       }
+
       const store = db.transaction([storeName]).objectStore(storeName)
+
       Object.assign(store.get(recordKey), {
         onsuccess: event => resolve({
           status: event.target.result ? 200 : 404,

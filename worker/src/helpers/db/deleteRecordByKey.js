@@ -8,7 +8,9 @@ export const deleteRecordByKey = (storeName, recordKey) => new Promise((resolve)
         resolve({ status, result: null })
         return
       }
+
       const store = db.transaction([storeName], 'readwrite').objectStore(storeName)
+
       Object.assign(store.delete(recordKey), {
         onsuccess: event => resolve({
           status: event.target.result ? 200 : 404,

@@ -7,7 +7,9 @@ export const clearStore = (storeName) => new Promise((resolve) => {
       resolve({ status, result: null })
       return
     }
+
     const store = db.transaction([storeName], 'readwrite').objectStore(storeName)
+
     Object.assign(store.clear(), {
       onsuccess: event => resolve({
         status: event.target.result ? 200 : 400,

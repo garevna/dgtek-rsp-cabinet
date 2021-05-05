@@ -43,14 +43,13 @@ export default {
 
   methods: {
     getListOfBuildings (event) {
-      console.log('GET LIST OF BUILDINGS:\n', event)
+      if (event.store !== this.type) return
       this.buildings = event.result
       this.eventType = event.result.event
       this.loading = false
       this.ready = true
     },
     clickListItem (item) {
-      console.log(item)
       const event = this.type === 'lit' ? 'on-net' : this.type
       this.$emit('update:selected', Object.assign(item, { event }))
     }

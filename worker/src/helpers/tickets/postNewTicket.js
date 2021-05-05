@@ -3,7 +3,8 @@ import { postNewTicketError } from '../error-handlers'
 import { getFromRemoteServer, getFromLocalDb } from './'
 
 export const postNewTicket = async function (data) {
-  const [route, action] = ['tickets', 'post']
+  // const [route, action] = ['tickets', 'post']
+  const route = 'tickets'
   const { data: ticket } = data
 
   Object.assign(ticket, {
@@ -11,27 +12,29 @@ export const postNewTicket = async function (data) {
     modified: Date.now().toString()
   })
 
-  self.postMessage({ status: 300, route, action, result: ticket })
+  // self.postMessage({ status: 300, route, action, result: ticket })
 
-  const { status, result } = await post('ticket', ticket)
+  // const { status, result } = await post('ticket', ticket)
+  await post('ticket', ticket)
 
-  self.postMessage({ status: 300, route, action, result: { status, ...result } })
+  // self.postMessage({ status: 300, route, action, result: { status, ...result } })
 
   if (status !== 200) return postNewTicketError(status)
 
-  const { data: newTicket } = result
+  // const { data: newTicket } = result
 
-  self.postMessage({ status: 300, route: 'tickets', action: 'new ticket', result: newTicket })
+  // self.postMessage({ status: 300, route: 'tickets', action: 'new ticket', result: newTicket })
 
   // self.postMessage({ status: 300, route, action, result })
 
-  const { status: refreshStatus, result: refreshResult } = await getFromRemoteServer()
+  // const { status: refreshStatus, result: refreshResult } = await getFromRemoteServer()
+  await getFromRemoteServer()
 
-  self.postMessage({ status: 300, route, action: 'refresh', result: { status: refreshStatus, result: refreshResult } })
+  // self.postMessage({ status: 300, route, action: 'refresh', result: { status: refreshStatus, result: refreshResult } })
 
   const { status: getStatus, result: getResult } = await getFromLocalDb()
 
-  self.postMessage({ status: 300, route, action: 'list', result: getResult })
+  // self.postMessage({ status: 300, route, action: 'list', result: getResult })
 
   return getStatus !== 200 ? postNewTicketError(getStatus)
     : ({

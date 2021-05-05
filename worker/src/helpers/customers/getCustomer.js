@@ -4,7 +4,7 @@ import { getCustomerDataError } from '../error-handlers'
 export const getCustomer = async function (id) {
   const [route, action] = ['customers', 'get']
 
-  self.postMessage({ status: 300, route, action, key: `customer id: ${id}` })
+  // self.postMessage({ status: 300, route, action, key: `customer id: ${id}` })
 
   const { status, result } = await getRecordByKey('customers', id)
 
@@ -14,7 +14,7 @@ export const getCustomer = async function (id) {
 
   services.forEach(async (service, index) => {
     const { status, result } = await getRecordByKey('services', service.id)
-    self.postMessage({ status: 300, route, action, key: `service: ${service.id}`, result })
+    // self.postMessage({ status: 300, route, action, key: `service: ${service.id}`, result })
 
     if (status !== 200) {
       self.postMessage({
@@ -34,7 +34,7 @@ export const getCustomer = async function (id) {
 
   Object.assign(result, { services })
 
-  self.postMessage({ status: 300, route, action, key: 'services', result })
+  // self.postMessage({ status: 300, route, action, key: 'services', result })
 
   return { status, route: 'customers', action: 'get', key: id, result }
 }

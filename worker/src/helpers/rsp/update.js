@@ -9,8 +9,8 @@ export const update = async function (data) {
 
   if (getStatus !== 200) return { status: getStatus, route, action, result: getResult, message: 'Worker DB error: read from local DB failed' }
 
-  self.postMessage({ status: 300, route, action, result: getResult, message: 'Data from local DB' })
-  self.postMessage({ status: 300, route, action, result: data.key, message: 'Data from app to be stored' })
+  // self.postMessage({ status: 300, route, action, result: getResult, message: 'Data from local DB' })
+  // self.postMessage({ status: 300, route, action, result: data.key, message: 'Data from app to be stored' })
 
   const { company, general, technic } = data
 
@@ -18,7 +18,7 @@ export const update = async function (data) {
 
   const { status: putStatus, result: putResult } = await putRecordByKey('rsp', idHandler(), requestData)
 
-  self.postMessage({ status: 300, route, action, result: getResult, message: 'Data from local DB' })
+  // self.postMessage({ status: 300, route, action, result: getResult, message: 'Data from local DB' })
 
   if (putStatus !== 200) return { status: putStatus, route, action, key, result: putResult, message: 'WORKER DB error: store to local DB failed' }
 

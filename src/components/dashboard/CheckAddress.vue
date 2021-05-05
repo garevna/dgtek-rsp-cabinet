@@ -22,10 +22,10 @@
 
       <v-row justify="center">
         <v-col cols="12" md="6" lg="5" xl="4">
-          <ListOfBuildings type="lit" :selected.sync="selected" />
+          <ListOfBuildings key="lit" type="lit" :selected.sync="selected" />
         </v-col>
         <v-col cols="12" md="6" lg="5" xl="4">
-          <ListOfBuildings type="footprint" :selected.sync="selected" />
+          <ListOfBuildings key="footprint" type="footprint" :selected.sync="selected" />
         </v-col>
       </v-row>
     </v-card>

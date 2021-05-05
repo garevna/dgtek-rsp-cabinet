@@ -22,13 +22,9 @@ Vue.prototype.$dispatchProgressEvent = function (value) {
 
 Vue.prototype.$addWorkerListener = function (routeName, actionName) {
   this.__worker.addEventListener('message', function (event) {
-    const { status, route, action /*, result */ } = event.data
+    const { route, action } = event.data
 
     if (route !== routeName || event.data.action !== actionName) return
-
-    // event.stopImmediatePropagation()
-
-    console.log('LISTENER', route, action, status, '\nEVENT: ', events[route][action])
 
     window[Symbol.for('vue.prototype')].$dispatchProgressEvent(false)
     window[Symbol.for('vue.instance')].$root.$emit(events[route][action], event.data)

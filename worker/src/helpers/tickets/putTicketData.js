@@ -9,7 +9,7 @@ export const putTicketData = async function (key, data) {
   data.created = getDateNumber(data.created).toString()
   data.modified = Date.now().toString()
 
-  self.postMessage({ status: 300, route, action, result: { key: _id, data } })
+  // self.postMessage({ status: 300, route, action, result: { key: _id, data } })
 
   const { status, result } = await put(`ticket/${_id}`, data)
 
