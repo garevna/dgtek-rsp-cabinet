@@ -1,10 +1,10 @@
 <template>
-  <v-card flat class="transparent mx-auto" width="960">
-    <fieldset class="my-4 pa-8">
-      <legend class="ml-4"><h5>Building details</h5></legend>
-      <v-toolbar class="transparent" style="box-shadow: none">
+  <v-card flat class="transparent mx-auto">
+    <!-- <fieldset class="my-4 pa-8">
+      <legend class="ml-4"><h5>Building details</h5></legend> -->
+      <!-- <v-toolbar class="transparent" style="box-shadow: none">
 
-      </v-toolbar>
+      </v-toolbar> -->
       <v-card flat class="transparent mt-0" v-if="schema">
         <v-container>
           <v-row justify="center">
@@ -57,7 +57,7 @@
         <v-spacer />
         <v-btn dark class="buttons" @click="saveBuildingDetails">Save</v-btn>
       </v-card-actions>
-    </fieldset>
+    <!-- </fieldset> -->
   </v-card>
 </template>
 
@@ -96,25 +96,12 @@ export default {
       deep: true,
       immediate: true,
       handler (data) {
-        console.log('BUILDING DATA UPDATED:\n', data)
         this.getData(data)
-        // if (!data) return
-        // this.schema.address.value = data.buildingAddress
-        // this.schema.buildingUniqueCode.value = getBuildingUniqueCode(data.buildingAddressComponents)
-        // this.schema.buildingStatus = data.buildingStatus
-        //
-        // for (const sectionName of Object.keys(this.sections)) {
-        //   for (const propName in this.schema[sectionName]) {
-        //     console.log(this.sections[sectionName], propName, data[this.sections[sectionName]][propName])
-        //     this.schema[sectionName][propName].value = data[this.sections[sectionName]][propName]
-        //   }
-        // }
       }
     }
   },
   methods: {
     getData (data) {
-      console.log(data.buildingAddressComponents)
       this.schema.address.value = data.buildingAddress
       this.schema.addressComponents = Object.assign({}, data.buildingAddressComponents)
       this.$emit('update:postCode', data.buildingAddressComponents.postCode)
@@ -123,7 +110,6 @@ export default {
 
       for (const sectionName of Object.keys(this.sections)) {
         for (const propName in this.schema[sectionName]) {
-          console.log(this.sections[sectionName], propName, data[this.sections[sectionName]][propName])
           this.schema[sectionName][propName].value = data[this.sections[sectionName]][propName]
         }
       }

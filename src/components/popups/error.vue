@@ -1,8 +1,8 @@
 <template>
   <v-dialog v-model="dialog" max-width="480px" class="pa-4">
     <v-card flat>
-      <v-toolbar dark dense color="buttons">
-        <v-icon class="mr-4"> $error </v-icon>
+      <v-toolbar dense color="buttons">
+        <v-icon class="mr-4" color="buttons" large> $error </v-icon>
         <v-toolbar-title> Error </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon @click="dialog = false">

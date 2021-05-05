@@ -1,5 +1,12 @@
 <template>
   <v-card flat class="transparent mx-auto py-5">
+    <v-toolbar class="transparent" style="box-shadow: none">
+      <v-toolbar-title>Ticket</v-toolbar-title>
+      <v-spacer />
+      <v-btn icon>
+        <v-icon large>mdi-close</v-icon>
+      </v-btn>
+    </v-toolbar>
     <v-row justify="center">
       <v-col cols="12" md="4" v-if="categories">
         <v-select
@@ -8,6 +15,7 @@
           label="Ticket category"
           outlined
           dense
+          hide-details
           color="#900"
           style="width: 270px"
         ></v-select>
@@ -20,6 +28,7 @@
           label="Severity"
           outlined
           dense
+          hide-details
           color="#900"
           style="width: 270px"
         ></v-select>
@@ -32,6 +41,7 @@
           label="Priority"
           outlined
           dense
+          hide-details
           color="#900"
           style="width: 270px"
         ></v-select>
@@ -63,6 +73,7 @@
           v-model="customer"
           outlined
           chips
+          hide-details
         />
       </v-col>
     </v-row>
@@ -72,6 +83,7 @@
         v-model="details"
         label="Details"
         outlined
+        hide-details
       />
     </v-row>
 
@@ -179,17 +191,27 @@ export default {
   },
   methods: {
     fillCustomerList (data) {
+      console.log(data)
+      if (!data || !data.result) return
       this.customersList = data.result.map(customer => `${customer.apartmentNumber}/${customer.address}`)
       this.customersIds = data.result.map(customer => customer._id)
       const index = this.customersIds.findIndex(item => item === this.ticket.customerId)
       this.customer = index !== -1 ? this.customersList[index] : null
     },
     postNewTicket () {
-      this.__postNewTicket(this.ticket)
+      this.update('created', new Date().valueOf())
+      const result = JSON.parse(JSON.stringify(this.ticket))
+      delete result.createdDate
+      delete result.modifiedDate
+      this.__postNewTicket(result)
     },
     updateTicket () {
-      this.update('modified', new Date().toISOString().slice(0, 10))
-      this.__saveTicketData(this.ticket._id, this.ticket)
+      this.update('modified', new Date().valueOf())
+      const result = JSON.parse(JSON.stringify(this.ticket))
+      delete result.createdDate
+      delete result.modifiedDate
+      console.log(result)
+      this.__saveTicketData(this.ticket._id, result)
     },
     save () {
       this.newTicket ? this.postNewTicket() : this.updateTicket()
@@ -201,13 +223,14 @@ export default {
       this.$emit('update:ticket', Object.assign({}, this.ticket, { [prop]: value }))
     }
   },
+
+  beforeDestroy () {
+    this.$root.$off('customers-list-received', this.fillCustomerList)
+  },
+
   mounted () {
     this.$root.$on('customers-list-received', this.fillCustomerList)
     this.__getCustomers()
-    // this.$root.$on('customer-data-received', this.callback)
-    // if (this.newTicket) {
-    //   this.ticket = ticketSchema
-    // }
   }
 }
 </script>

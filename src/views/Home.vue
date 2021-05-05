@@ -1,94 +1,10 @@
 <template>
   <v-container class="homefone">
     <v-stepper v-model="step" class="homefone" style="box-shadow: none;">
-      <!-- <h4 class="d-block d-md-none ml-5 mt-4">
-        {{ stepsNames[step - 1] }}
-      </h4> -->
-      <!-- <v-row justify="center" class="homefone py-12 mx-0 px-0">
-        <v-stepper-header
-          elevation="0"
-          class="homefone text-center mx-auto d-none d-md-block"
-          style="box-shadow: none; position: fixed; top: 100px; width: 950px; z-index: 11;"
-        >
-          <v-btn
-            class="mx-1"
-            :class="{ active: first, tab: !first }"
-            @click="step=1"
-          >
-            {{ stepsNames[0] }}
-          </v-btn>
-
-          <v-btn
-            v-if="refreshed.rsp"
-            class="mx-1"
-            :class="{ active: second, tab: !second }"
-            @click="step=2"
-          >
-              {{ stepsNames[1] }}
-            </v-btn>
-
-          <v-btn
-            class="mx-1"
-            :class="{ active: third, tab: !third }"
-            @click="step=3"
-          >
-            {{ stepsNames[2] }}
-          </v-btn>
-
-          <v-btn
-            v-if="refreshed.customers"
-            class="mx-1"
-            :class="{ active: fourth, tab: !fourth }"
-            @click="step=4"
-          >
-            {{ stepsNames[3] }}
-          </v-btn>
-
-          <v-btn
-            v-if="refreshed.services"
-            class="mx-1"
-            :class="{ active: fifth, tab: !fifth }"
-            @click="step=5"
-          >
-            {{ stepsNames[4] }}
-          </v-btn>
-
-          <v-btn
-            v-if="refreshed.tickets"
-            class="mx-1"
-            :class="{ active: six, tab: !six }"
-            @click="step=6"
-          >
-            {{ stepsNames[5] }}
-          </v-btn>
-        </v-stepper-header>
-      </v-row> -->
-
-      <v-stepper-items flat class="transparent mt-12 mt-md-6 mb-12">
-        <v-stepper-content step="1">
-          <Dashboard key="1" v-if="step === 1" />
-        </v-stepper-content>
-
-        <v-stepper-content step="2">
-          <CompanyDetails key="2" v-if="step === 2" />
-        </v-stepper-content>
-
-        <v-stepper-content step="3">
-          <CheckAddress key="3" v-if="step === 3" />
-        </v-stepper-content>
-
-        <v-stepper-content step="4">
-          <CustomersList key="4" v-if="step === 4" />
-        </v-stepper-content>
-
-        <v-stepper-content step="5">
-          <Services key="5" v-if="step === 5" />
-        </v-stepper-content>
-
-        <v-stepper-content step="6">
-          <Tickets key="6" v-if="step === 6" />
-        </v-stepper-content>
-
+      <v-stepper-items flat class="page-content transparent mt-6 mb-12">
+        <transition name="current-component">
+          <component :is="currentComponent" />
+        </transition>
       </v-stepper-items>
     </v-stepper>
 
@@ -96,12 +12,12 @@
       <v-stepper-header
         elevation="0"
         class="homefone text-center mx-auto d-none d-md-block"
-        style="box-shadow: none; position: fixed; top: 100px; width: 950px; z-index: 11;"
+        style="box-shadow: none; position: fixed; top: 100px; width: 100%; height: 48px; z-index: 12;"
       >
         <v-btn
           class="mx-1"
           :class="{ active: first, tab: !first }"
-          @click="step=1"
+          @click="step = 1"
         >
           {{ stepsNames[0] }}
         </v-btn>
@@ -110,7 +26,7 @@
           v-if="refreshed.rsp"
           class="mx-1"
           :class="{ active: second, tab: !second }"
-          @click="step=2"
+          @click="step = 2"
         >
             {{ stepsNames[1] }}
           </v-btn>
@@ -118,7 +34,7 @@
         <v-btn
           class="mx-1"
           :class="{ active: third, tab: !third }"
-          @click="step=3"
+          @click="step = 3"
         >
           {{ stepsNames[2] }}
         </v-btn>
@@ -127,7 +43,7 @@
           v-if="refreshed.customers"
           class="mx-1"
           :class="{ active: fourth, tab: !fourth }"
-          @click="step=4"
+          @click="step = 4"
         >
           {{ stepsNames[3] }}
         </v-btn>
@@ -136,7 +52,7 @@
           v-if="refreshed.services"
           class="mx-1"
           :class="{ active: fifth, tab: !fifth }"
-          @click="step=5"
+          @click="step = 5"
         >
           {{ stepsNames[4] }}
         </v-btn>
@@ -145,7 +61,7 @@
           v-if="refreshed.tickets"
           class="mx-1"
           :class="{ active: six, tab: !six }"
-          @click="step=6"
+          @click="step = 6"
         >
           {{ stepsNames[5] }}
         </v-btn>
@@ -194,18 +110,13 @@ import {
   Tickets
 } from '@/components/dashboard'
 
+import CustomersList from '@/components/customers/CustomersList.vue'
+import CustomerDetails from '@/components/customers/CustomerDetails.vue'
+
 import { stepsNames } from '@/configs'
 
 export default {
   name: 'Home',
-  components: {
-    Dashboard,
-    CompanyDetails,
-    CheckAddress,
-    CustomersList: () => import('@/components/customers/CustomersList.vue'),
-    Services,
-    Tickets
-  },
   data: () => ({
     step: 1,
     stepsNames: stepsNames,
@@ -214,7 +125,16 @@ export default {
       services: false,
       tickets: false,
       customers: false
-    }
+    },
+    pages: [
+      Dashboard,
+      CompanyDetails,
+      CheckAddress,
+      CustomersList,
+      Services,
+      Tickets
+    ],
+    currentComponent: Dashboard
   }),
   computed: {
     first () {
@@ -236,41 +156,77 @@ export default {
       return this.step === 6
     }
   },
+  watch: {
+    step (value) {
+      this.currentComponent = this.pages[value - 1]
+    }
+  },
   methods: {
     refreshCallback (event) {
       this.refreshed[event.route] = true
+    },
+    goToServices () {
+      this.step = 5
+      this.currentComponent = Services
+    },
+    goToCustomer () {
+      this.step = 4
+      this.currentComponent = CustomerDetails
+    },
+    goToCustomersList () {
+      this.step = 4
+      this.currentComponent = CustomersList
     }
-    // callback (event) {
-    //   console.log(event.data)
-    //   this.__worker.removeEventListener('message', this.callback)
-    // },
-    // submit () {
-    //   const result = {}
-    //   for (const sectionName in this.data) {
-    //     result[sectionName] = {}
-    //     for (const propName in this.data[sectionName]) {
-    //       result[sectionName][propName] = this.data[sectionName][propName].value
-    //     }
-    //   }
-    //   // this.__registrate(result)
-    //   // this.__worker.addEventListener('message', this.callback)
-    //   // this.__worker.postMessage({ action: 'registrate', data: result })
-    // }
   },
+
+  beforeDestroy () {
+    this.$root.$off('data-refreshed', this.refreshCallback)
+    this.$root.$off('go-to-services', this.goToServices)
+    this.$root.$off('go-to-customer-details', this.goToCustomer)
+    this.$root.$off('go-to-customers-list', this.goToCustomersList)
+  },
+
   mounted () {
     this.$root.$on('data-refreshed', this.refreshCallback)
+    this.$root.$on('go-to-services', this.goToServices)
+    this.$root.$on('go-to-customer-details', this.goToCustomer)
+    this.$root.$on('go-to-customers-list', this.goToCustomersList)
   }
 }
 </script>
 
 <style>
+
 .tab {
-  background: transparent!important;
+  background: #fbfbfb!important;
   border: solid 1px #900;
+}
+
+.page-content {
+  top:64px;
 }
 
 .active {
   background: #900!important;
   color: #fff!important;
+}
+
+.current-component-enter-active {
+  animation: fade-component .4s .4s ease-in both;
+}
+
+.current-component-leave-active {
+  animation: fade-component .4s reverse ease-out both;
+}
+
+@keyframes fade-component {
+  0% {
+    opacity: 0;
+    transform: translate(-200px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
 }
 </style>

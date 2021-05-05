@@ -1,7 +1,7 @@
 <template>
-  <v-card flat class="transparent pb-12 px-12" v-if="ready">
+  <v-card flat class="transparent pb-12 px-12 mx-auto" max-with="960" v-if="ready">
     <v-row align="start" justify="center" v-if="!edit">
-      <v-col cols="12" md="4" lg="3" xl="2" class="text-center mt-4">
+      <v-col style="max-width: 240px" class="text-center mt-4">
         <fieldset class="field-set">
           <legend>
             Ticket category
@@ -13,12 +13,11 @@
               class="transparent"
               active-class="border"
             >
-              <v-list-item
-                v-for="(item, i) in categories"
-                :key="i"
-              >
+              <v-list-item v-for="item of categories" :key="item">
                 <v-list-item-content>
-                  <v-list-item-title v-text="item"></v-list-item-title>
+                  <v-list-item-title>
+                    {{ item }}
+                  </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list-item-group>
@@ -27,11 +26,11 @@
         </fieldset>
       </v-col>
 
-      <v-col cols="12" md="9" lg="8" xl="6">
+      <v-col style="min-width: calc(100% - 240px)">
 
         <v-data-table
           :headers="headers"
-          :items="items"
+          :items="filteredItems"
           :search="search"
           class="transparent"
         >
@@ -46,25 +45,12 @@
               hide-details
               append-icon="mdi-magnify"
               outlined
-              class="transparent ml-12 mr-0 pb-12 mb-12"
+              class="transparent ml-12 mr-0 pb-8 mb-4"
             ></v-text-field>
           </template>
 
           <template v-slot:item.actions="{ item }">
             <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
-            <!-- <v-icon
-              small
-              class="mr-2"
-              @click="editItem(item)"
-            >
-              mdi-pencil
-            </v-icon> -->
-            <!-- <v-icon
-              small
-              @click="deleteItem(item)"
-            >
-              mdi-delete
-            </v-icon> -->
           </template>
         </v-data-table>
       </v-col>
@@ -113,30 +99,32 @@ export default {
   }),
   computed: {
     filteredItems () {
-      if (!this.category || this.category === '...') return this.tickets
-      return this.tickets
-        .filter(ticket => !this.category || (ticket.category === this.category))
+      const filter = this.categories[this.category]
+      console.log(filter)
+      return this.items
+        .filter(ticket => !filter || (ticket.category === filter))
     }
   },
   methods: {
     getCategories (data) {
+      console.log('CATEGORIES:\n', data)
       this.categories = data.result
     },
     getTickets (data) {
-      const getDate = date => typeof date === 'string' ? date : new Date(data).toISOString().slice(0, 10)
-      this.items = data.result.map((ticket) => {
-        ticket.created = getDate(ticket.created)
-        ticket.modified = getDate(ticket.modified)
-        return ticket
-      })
+      console.log('TICKETS DATA:\n', data)
+      if (!data || !data.result) return []
 
+      this.items = Array.isArray(data) ? data : Array.isArray(data.result) ? data.result : []
       this.ready = true
+    },
+    filterBy (category) {
+      console.log(category, this.categories[category])
+      this.category = typeof category === 'number' ? this.categories[category] : category
+      console.log('Category: ', this.category)
     },
     createNewTicket () {
       const { ticketSchema } = require('@/configs/ticketSchema')
       this.selectedTicket = ticketSchema
-      this.selectedTicket.created = new Date().toISOString().slice(0, 10)
-      this.selectedTicket.modified = new Date().toISOString().slice(0, 10)
       this.edit = true
       this.newTicket = true
     },
@@ -146,6 +134,12 @@ export default {
       this.newTicket = false
     }
   },
+
+  beforeDestroy () {
+    this.$root.$off('categories-received', this.getCategories)
+    this.$root.$off('tickets-list-received', this.getTickets)
+  },
+
   mounted () {
     this.$root.$on('categories-received', this.getCategories)
     this.$root.$on('tickets-list-received', this.getTickets)

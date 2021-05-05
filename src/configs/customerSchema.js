@@ -59,5 +59,16 @@ export const customerSchema = {
       type: 'email',
       value: ''
     }
+  },
+  customerService: {
+    id: '',
+    status: {
+      modified: 0,
+      value: 'Active'
+    },
+    log: {
+      1614814010150: 'Not connected',
+      1615894851478: 'Awaiting for connection'
+    }
   }
 }

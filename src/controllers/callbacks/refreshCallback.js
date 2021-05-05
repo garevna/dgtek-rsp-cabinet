@@ -14,6 +14,7 @@ export function refreshCallback (event) {
   if (action !== 'refresh') return
 
   event.stopImmediatePropagation()
+  if (status === 300) return
   if (status !== 200) return refreshError(route)
 
   window[Symbol.for('vue.prototype')].$refreshed[route] = true

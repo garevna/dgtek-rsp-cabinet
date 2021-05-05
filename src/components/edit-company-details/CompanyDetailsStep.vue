@@ -1,6 +1,7 @@
 <template>
   <v-card flat class="transparent mx-auto" max-width="700" v-if="ready">
     <v-row
+      justify="center"
       v-for="(item, propName) in schema"
       :key="propName"
       class="my-0"
@@ -23,11 +24,6 @@
           :type="type(item)"
           @click:append="showPassword = !showPassword"
         />
-        <!-- <InputWithAutocomplite
-          v-if="item.type === 'address'"
-          :address.sync="item.value"
-          style="display: block;"
-        /> -->
 
         <GeoscapeAutocomplete
           v-if="item.type === 'address'"

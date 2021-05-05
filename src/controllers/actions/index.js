@@ -34,37 +34,43 @@ import {
 import {
   getBuildingByAddress,
   getBuildingById,
-  getFootprintBuildings,
-  getLitBuildings,
+  getBuildingsByStatus,
+  getAddressListByStatus,
   postBuildingDetails,
   putBuildingDetails
 } from './map.worker'
 
 export {
   init,
+
   credentials,
   refreshClientData,
   refreshCustomers,
   refreshServices,
   refreshTickets,
+
   getClientData,
   putClientData,
   putClientCredentials,
+
   getCustomers,
   getCustomerData,
   putCustomer,
   postCustomer,
   deleteCustomer,
+
   getServices,
+
   getTickets,
   getCategories,
   getTicketById,
   postNewTicket,
   saveTicketData,
+
   getBuildingByAddress,
   getBuildingById,
-  getFootprintBuildings,
-  getLitBuildings,
+  getBuildingsByStatus,
+  getAddressListByStatus,
   postBuildingDetails,
   putBuildingDetails
 }

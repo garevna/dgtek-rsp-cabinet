@@ -1,8 +1,6 @@
 <template>
-  <fieldset class="mt-4 pa-4">
-    <legend class="ml-4"><h5>Customer details</h5></legend>
-    <v-card flat class="transparent mt-0">
-      <table width="100%">
+    <v-card flat class="transparent mx-auto">
+      <table>
         <tbody>
           <tr>
             <td width="160" class="d-none d-md-flex">
@@ -100,6 +98,12 @@
               ></v-text-field>
             </td>
           </tr>
+          <!-- <tr>
+            <td class="d-none d-md-flex"> Services </td>
+            <td>
+              <CustomerServices :services.sync="customer.services" />
+            </td>
+          </tr> -->
           <tr style="height: 48px;"></tr>
           <tr style="margin-top: 48px!important">
             <td class="d-none d-md-flex">
@@ -107,9 +111,9 @@
             </td>
               <td colspan="2" class="text-right">
               <v-spacer />
-              <v-btn outlined color="buttons" class="mr-2" @click="assignNewService">
+              <!-- <v-btn outlined color="buttons" class="mr-2" @click="assignNewService">
                 Assign new service
-              </v-btn>
+              </v-btn> -->
               <v-btn dark class="buttons" @click="saveCustomerDetails" :disabled="saveDisabled">
                 Update/save details
               </v-btn>
@@ -118,7 +122,6 @@
         </tbody>
       </table>
     </v-card>
-  </fieldset>
 </template>
 
 <script>
@@ -126,6 +129,7 @@
 import { customerSchema, rules } from '@/configs'
 import { testTextField, getBuildingUniqueCode } from '@/helpers'
 import { SwitchValues } from '@/components/inputs'
+// import { CustomerServices } from '@/components/customers/CustomerServices.vue'
 
 const { customerDetails, commercial } = customerSchema
 
@@ -252,13 +256,13 @@ export default {
       this.$parent.$emit('update:initialCustomer', this.customer)
     }
   },
+
   beforeDestroy () {
     this.$root.$off('building-data-received', this.getBuildingDetails)
-    this.$root.$off('lit-buildings-list', this.getBuildings)
-    this.$root.$off('footprint-buildings-list', this.getBuildings)
     this.$root.$off('customer-updated', this.close)
     this.$root.$off('customer-created', this.close)
   },
+
   mounted () {
     this.customer = this.initialCustomer
     this.buildings = [this.customer.address]
@@ -267,14 +271,9 @@ export default {
     this.customer.buildingId && this.__getBuildingById(this.customer.buildingId)
 
     this.$root.$on('building-data-received', this.getBuildingDetails)
-    this.$root.$on('lit-buildings-list', this.getBuildings)
-    this.$root.$on('footprint-buildings-list', this.getBuildings)
 
     this.$root.$on('customer-updated', this.close)
     this.$root.$on('customer-created', this.close)
-
-    this.__getLitBuildings()
-    this.__getFootprintBuildings()
   }
 }
 </script>

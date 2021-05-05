@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar app flat height="150" class="homefone">
-        <v-card flat class="transparent text-left ml-4" height="50" style="margin-top: -64px">
-          <v-img :src="require('@/assets/dgtek-logo.svg')" width="70" class="mr-8" />
-        </v-card>
-        <h3 class="main-header">DGtek provisioning RSP portal</h3>
+    <v-app-bar app flat height="100" class="main-app-bar-header homefone">
+      <v-card flat class="homefone text-left mt-8 ml-4" height="100">
+        <v-img :src="require('@/assets/dgtek-logo.svg')" width="70" class="mr-8" />
+      </v-card>
+      <h3 class="main-header">DGtek provisioning RSP portal</h3>
 
       <v-progress-linear
         :active="progress"
@@ -12,12 +12,12 @@
         absolute
         top
         color="buttons"
-        style="z-index: 8"
+        style="top: 80px; z-index: 11"
       ></v-progress-linear>
     </v-app-bar>
 
     <v-row>
-      <v-main class="main-content mt-8">
+      <v-main class="main-content mt-0">
         <Home />
       </v-main>
     </v-row>
@@ -92,19 +92,51 @@ export default {
 body {
   overflow: hidden;
   margin-bottom: 88px;
+  background: #fbfbfb!important;
 }
+
 * {
   user-select: none;
 }
+
+.v-toolbar__content, .v-toolbar__extension {
+  background: #fbfbfb!important;
+}
+
+.v-sheet.v-toolbar:not(.v-sheet--outlined) {
+  background: transparent!important;
+  box-shadow: none!important;
+}
+
+.main-app-bar-header {
+  position: fixed;
+  height: 100px;
+  margin-top: 32px;
+  left: 0px;
+  right: 0px;
+  z-index: 15;
+  background: #fbfbfb!important;
+}
+
 .main-header {
   font-weight: 900;
-  margin-top: -64px;
+  margin-top: -32px;
 }
+
+.v-stepper__wrapper {
+  padding-top: 16px;
+}
+
+.theme--light.v-data-table {
+  background-color: transparent!important;
+}
+
 .field-set {
   border: solid 1px #ddd;
   padding: 32px 0;
   box-shadow: 0 0 4px #0003;
 }
+
 .field-set > legend {
   font-size: 14px;
   font-weight: bold;
@@ -115,6 +147,7 @@ body {
   border-radius: 4px;
   padding: 4px 16px;
 }
+
 @media screen and (max-width: 600px) {
   h3 {
     font-size: 20px;

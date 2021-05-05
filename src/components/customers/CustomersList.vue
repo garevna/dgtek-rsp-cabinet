@@ -64,6 +64,7 @@
           :headers="headers"
           :items="filteredItems"
           :search="search"
+          :page.sync="page"
         >
           <template v-slot:item.actions="{ item }">
             <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
@@ -94,6 +95,8 @@
 
 <script>
 
+import { customerHandler, estimatesHandler, customersListPageNumberHandler } from '@/helpers'
+
 export default {
   name: 'CustomersList',
   components: {
@@ -105,13 +108,13 @@ export default {
     selectedCustomerId: null,
     data: null,
     search: '',
+    page: customersListPageNumberHandler(),
     status: null,
     speed: null,
-    services: [],
-    plans: [],
-    service: null,
     plan: null,
     postCode: null,
+    plans: [],
+
     statuses: ['Active', 'Not connected', 'Awaiting for connection'],
     speeds: ['50/50', '150/150', '250/250', '500/500', '1000/1000'],
     headers: [
@@ -125,35 +128,39 @@ export default {
       { text: 'Address', value: 'address' },
       { text: 'Service speed', value: 'serviceSpeed' },
       { text: 'Service status', value: 'serviceStatus' },
-      { text: 'Plan', value: 'plan' },
+      { text: 'Plan', value: 'servicePlan' },
       { text: 'Approx ETA', value: 'approxETA' },
       { text: 'Term', value: 'serviceTerm' },
       { text: 'Actions', value: 'actions', sortable: false }
     ]
   }),
   watch: {
-    edit (val) {
-      console.log('EDIT: ', val)
-    },
     data: {
       deep: true,
       handler (value) {
         console.log('SOURCE DATA CHANGED\n', value)
       }
+    },
+    page (val) {
+      console.log('DATA TABLE PAGE: ', val)
     }
   },
   computed: {
     customers () {
       if (!this.data) return
+
+      console.log(estimatesHandler(this.data[0].buildingId))
+
       return this.data.map(customer => ({
         name: `${customer.firstName} ${customer.lastName}`,
         uniqueCode: customer.uniqueCode,
         postCode: customer.postCode,
         address: `${customer.apartmentNumber}/${customer.address}`,
-        plan: customer.service ? customer.service.serviceName : '',
-        status: customer.service ? customer.service.status : '',
-        approxETA: customer.approxETA,
-        term: customer.service ? customer.service.term : '',
+        serviceSpeed: customer.serviceSpeed || '',
+        servicePlan: customer.servicePlan || '',
+        serviceStatus: customer.serviceStatus || '',
+        approxETA: estimatesHandler(customer.buildingId) || customer.approxETA,
+        serviceTerm: customer.serviceTerm || '',
         id: customer._id
       }))
     },
@@ -173,16 +180,25 @@ export default {
     }
   },
   methods: {
-    getData (data) {
+    async getData (data) {
       console.log('CUSTOMERS LIST REFRESHED\n', data)
-      this.data = data.result
+      this.data = Array.isArray(data) ? data : Array.isArray(data.result) ? data.result : []
+      for (const customer of this.data) {
+        console.log(customer.address)
+        // this.__getBuildingById(customer.buildingId)
+      }
       this.ready = true
     },
-    getServices (data) {
-      this.services = data.result
+    getEstimates (data) {
+      console.log('BUILDINGS LIST:\n', data)
+      const estimates = Array.isArray(data.result) ? data.result.map(item => ({ [item.id]: item.estimatedServiceDeliveryTime })) : []
+      estimatesHandler(estimates)
+      // Object.assign(this.estimates, ...estimates)
+      // console.log('ESTIMATES:\n', this.estimates)
     },
     editItem (item) {
       this.selectedCustomerId = item.id
+      customerHandler(item.id)
       console.log('SELECTED CUSTOMER ID: ', this.selectedCustomerId)
       this.edit = true
     },
@@ -191,12 +207,25 @@ export default {
       this.__getCustomers()
     }
   },
+
+  beforeDestroy () {
+    this.$root.$off('refresh-page', this.forceRerender)
+    this.$root.$off('customers-list-received', this.getData)
+    this.$root.$off('buildings-data-list', this.getEstimates)
+  },
+
+  created () {
+    this.$root.$on('buildings-data-list', this.getEstimates)
+    this.__getBuildingsByStatus('lit')
+    this.__getBuildingsByStatus('footprint')
+    this.__getBuildingsByStatus('build')
+    this.__getBuildingsByStatus('soon')
+  },
+
   mounted () {
     this.$on('refresh-page', this.forceRerender)
     this.$root.$on('customers-list-received', this.getData)
-    this.$root.$on('services-list-received', this.getServices)
     this.__getCustomers()
-    this.__getServices()
   }
 }
 </script>

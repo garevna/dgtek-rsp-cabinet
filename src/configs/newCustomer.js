@@ -13,7 +13,6 @@ export const newCustomer = {
   alternativeEmail: '',
   buildingId: '',
   resellerId: '',
-  serviceId: '',
-  serviceStatus: '',
+  services: [],
   approxETA: ''
 }

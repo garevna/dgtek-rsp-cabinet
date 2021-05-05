@@ -1,25 +1,44 @@
 <template>
-  <v-card flat class="transparent mx-auto" width="960">
-    <v-toolbar class="transparent" style="box-shadow: none">
-      <v-spacer />
-      <v-btn icon large @click="$emit('update:dialog', false)">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
-    </v-toolbar>
-    <EditCustomerDetails
-      v-if="ready"
-      :initialCustomer.sync="customer"
-      :buildingId.sync="buildingId"
-      :buildingPostCode="buildingPostCode"
-    />
-    <EditBuildingDetails
-      v-if="ready"
-      :buildingData="buildingData"
-      :buildingId.sync="buildingId"
-      :postCode.sync="buildingPostCode"
-    />
-    <v-row justify="center" class="my-12">
-      <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn>
+  <v-card flat class="transparent mx-auto my-12" max-width="1008" min-width="1008" v-if="ready">
+    <v-row justify="center" align="center">
+      <v-toolbar>
+        <v-row justify="center" align="center">
+          <v-spacer />
+          <v-btn text @click="section = 'Customer details'"><b>Customer details</b></v-btn>
+          <v-btn text @click="section = 'Service details'"><b>Service details</b></v-btn>
+          <v-btn text @click="section = 'Building details'"><b>Building details</b></v-btn>
+          <v-spacer />
+          <v-btn icon @click="close">
+            <v-icon large>mdi-close</v-icon>
+          </v-btn>
+        </v-row>
+      </v-toolbar>
+    </v-row>
+
+    <v-row justify="center" v-if="ready">
+      <Fieldset legend="Customer details" v-if="section === 'Customer details'">
+        <EditCustomerDetails
+          :initialCustomer.sync="customer"
+          :buildingId.sync="buildingId"
+          :buildingPostCode="buildingPostCode"
+        />
+      </Fieldset>
+
+      <Fieldset legend="Service details" v-if="section === 'Service details'">
+        <CustomerServices
+          :services.sync="customer.services"
+          :address="`${customer.apartmentNumber}/${customer.address}`"
+          :update.sync="update"
+        />
+      </Fieldset>
+
+      <Fieldset legend="Building details" v-if="section === 'Building details'">
+        <EditBuildingDetails
+          :buildingData="buildingData"
+          :buildingId.sync="buildingId"
+          :postCode.sync="buildingPostCode"
+        />
+      </Fieldset>
     </v-row>
   </v-card>
 </template>
@@ -28,27 +47,47 @@
 
 import { newCustomer } from '@/configs'
 import { getBuildingUniqueCode, normalizeAddress } from '@/helpers'
+import Fieldset from '@/components/Fieldset.vue'
 
 export default {
   name: 'CustomerDetails',
   components: {
+    Fieldset,
+    CustomerServices: () => import('@/components/customers/CustomerServices.vue'),
     EditCustomerDetails: () => import('@/components/customers/EditCustomerDetails.vue'),
     EditBuildingDetails: () => import('@/components/customers/EditBuildingDetails.vue')
   },
   props: ['customerId', 'initialAddressData', 'dialog'],
   data: () => ({
     ready: false,
+    section: 'Customer details',
     customer: null,
     buildingData: null,
     buildingId: null,
-    buildingPostCode: null
+    buildingPostCode: null,
+    update: false
   }),
   watch: {
+    'customer.services': {
+      deep: true,
+      handler (data) {
+        console.log('CUSTOMER SERVICES:\n', data)
+      }
+    },
     buildingId (value) {
       Object.assign(this.customer, { buildingId: value })
     },
     buildingPostCode (value) {
       Object.assign(this.customer, { postCode: value })
+    },
+    section (value) {
+      console.log(value)
+    },
+    update (val) {
+      console.log(val)
+      if (val) {
+
+      }
     }
   },
   methods: {
@@ -67,21 +106,14 @@ export default {
     },
     getCustomerEventHandler (data) {
       console.log('CUSTOMER DATA RECEIVED:\n', data)
-      this.customer = data.result
-      const { buildingId } = data.result
+      this.customer = data.result ? data.result : data
+      console.log(this.customer.services)
+      const { buildingId } = data.result ? data.result : data
 
       if (buildingId) return this.__getBuildingById(buildingId)
     },
 
-    // getServices (data) {
-    //   console.log('SERVICES:\n', data)
-    // },
-
-    assignNewService () {
-      //
-    },
     createNewCustomer () {
-      console.log('CREATE NEW CUSTOMER')
       const {
         buildingAddress,
         buildingAddressComponents,
@@ -91,15 +123,14 @@ export default {
         buildingStatus
       } = this.initialAddressData
 
-      console.log(buildingAddress)
-      console.log(buildingAddressComponents)
-
       this.customer = JSON.parse(JSON.stringify(newCustomer))
 
-      this.customer.address = normalizeAddress(buildingAddress)
-      this.customer.buildingId = buildingId || null
-      this.customer.postCode = buildingAddressComponents.postCode
-      this.customer.uniqueCode = `${getBuildingUniqueCode(buildingAddressComponents)}.0}`
+      Object.assign(this.customer, {
+        address: normalizeAddress(buildingAddress),
+        buildingId: buildingId || null,
+        postCode: buildingAddressComponents.postCode,
+        uniqueCode: `${getBuildingUniqueCode(buildingAddressComponents)}.0}`
+      })
 
       this.buildingData = {
         buildingId,
@@ -109,14 +140,19 @@ export default {
         buildingOwner,
         buildingStatus
       }
+    },
+
+    close () {
+      this.$emit('update:dialog', false)
+      this.$root.$emit('go-to-customers-list')
     }
   },
+
   beforeDestroy () {
     this.$root.$off('customer-data-received', this.getCustomerEventHandler)
     this.$root.$off('building-data-received', this.getBuildingEventHandler)
   },
   mounted () {
-    console.log('CUSTOMER DETAILS MOUNTED')
     console.log('CUSTOMER ID: ', this.customerId)
     console.log('INITIAL ADDRESS DATA:\n', this.initialAddressData)
 
@@ -130,9 +166,14 @@ export default {
       this.createNewCustomer()
       this.ready = true
     }
-
-    // this.$root.$on('customer-updated', this.$emit('update:dialog', false))
-    // this.__getServices()
   }
 }
 </script>
+
+<style scoped>
+.border {
+  border: 1px solid #881F1A;
+  background: #fff!important;
+  /* color: #900!important; */
+}
+</style>
