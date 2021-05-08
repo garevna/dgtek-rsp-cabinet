@@ -74,11 +74,12 @@ export default {
       }
     },
     buildingId (value) {
+      console.log('BUILDING ID: ', this.buildingId)
       Object.assign(this.customer, { buildingId: value })
     },
-    // buildingPostCode (value) {
-    //   Object.assign(this.customer, { postCode: value })
-    // },
+    buildingPostCode (value) {
+      Object.assign(this.customer, { postCode: value })
+    },
     section (value) {
       console.log(value)
     },
@@ -93,7 +94,7 @@ export default {
     getCustomerDetails (data) {
       console.log('CUSTOMER DATA RECEIVED:\n', data)
       this.customer = data.result ? data.result : data
-      // this.buildingId = this.customer.buildingId
+      this.buildingId = this.customer.buildingId
       if (!this.customer.buildingId) {
         this.buildingDetails = {
           address: this.customer.address,

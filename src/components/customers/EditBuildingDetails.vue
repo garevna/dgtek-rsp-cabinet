@@ -191,6 +191,7 @@ export default {
   },
 
   mounted () {
+    console.log('BUILDING ID: ', this.buildingId)
     this.$root.$on('building-data-received', this.getBuildingDetails)
     this.$root.$on('buildings-data-saved', this.sendMessage)
     this.$root.$on('new-building-created', this.getNewBuildingId)
