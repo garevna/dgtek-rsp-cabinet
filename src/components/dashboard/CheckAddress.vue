@@ -80,6 +80,7 @@ export default {
     selected: null,
     buildingId: '',
     address: '',
+    status: '',
 
     scrollOptions: {
       duration: 500,
@@ -92,15 +93,17 @@ export default {
     selected: {
       deep: true,
       handler (data) {
+        console.log('SELECTED:\n', data)
         this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
       }
     },
     newCustomer (val) {
       if (!val) return
       console.log('SELECTED:\n', this.selected)
-      if (this.selected.buildingId) {
+      this.selected.status = this.selected.status === 'UnderConstruction' ? 'BuildCommenced' : this.selected.status
+      if (this.selected.id) {
         this.$root.$on('building-data-received', this.getBuildingDetails)
-        this.__getBuildingById(this.selected.buildingId)
+        this.__getBuildingById(this.selected.id)
       } else {
         this.createNewCustomer()
       }
@@ -108,7 +111,7 @@ export default {
     initialAddressData: {
       deep: true,
       handler (val) {
-        console.log('INITIAL ADDRESS DATA:\n', val)
+        console.log('INITIAL ADDRESS DATA CHANGED:\n', val)
       }
     }
   },
@@ -127,12 +130,13 @@ export default {
 
     createNewCustomer () {
       this.initialAddressData = {
-        buildingId: this.selected.buildingId,
-        buildingAddress: this.selected.address,
-        buildingAddressComponents: this.selected.addressComponents,
-        buildingStatus: this.selected.status,
-        buildingManagement: this.selected.management || management,
-        buildingOwner: this.selected.owner || owner
+        buildingId: this.selected.id,
+        address: this.selected.address,
+        addressComponents: this.selected.addressComponents,
+        postCode: this.selected.addressComponents.postCode,
+        status: this.selected.status,
+        management: this.selected.management || management,
+        owner: this.selected.owner || owner
       }
       this.openNewCustomerForm = true
     },
@@ -152,6 +156,7 @@ export default {
 
   beforeDestroy () {
     const container = document.getElementById('container-for-map')
+    if (!container) return
     dgtekMapEvents.forEach(eventName => container.removeEventListener(eventName, this.catchEvent))
   },
 

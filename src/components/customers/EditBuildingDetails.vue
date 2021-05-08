@@ -39,6 +39,7 @@
                 dense
                 hide-details
               />
+
               <v-text-field
                 v-if="prop.type === 'mobile'"
                 v-model="prop.value"
@@ -49,13 +50,21 @@
                 dense
                 hide-details
               ></v-text-field>
+
+              <GeoscapeAutocomplete
+                v-if="prop.type === 'address'"
+                :value.sync="prop.value"
+                style="margin-top: -14px!important; margin-bottom: 8px!important;"
+              />
             </v-col>
           </v-row>
         </v-container>
       </v-card>
       <v-card-actions class="my-8">
         <v-spacer />
-        <v-btn dark class="buttons" @click="saveBuildingDetails">Save</v-btn>
+        <v-btn dark class="buttons" @click="saveBuildingDetails">
+          Update/save details
+        </v-btn>
       </v-card-actions>
     <!-- </fieldset> -->
   </v-card>
@@ -68,6 +77,9 @@ import { testTextField, getBuildingUniqueCode } from '@/helpers'
 
 export default {
   name: 'EditBuildingDetails',
+  components: {
+    GeoscapeAutocomplete: () => import('@/components/inputs/GeoscapeAutocomplete.vue')
+  },
   props: {
     buildingData: Object,
     buildingId: {
@@ -85,10 +97,7 @@ export default {
     buildingDetails: {},
     rules: rules,
     buildingType: null,
-    sections: {
-      management: 'buildingManagement',
-      owner: 'buildingOwner'
-    }
+    sections: ['management', 'owner']
   }),
   computed: {},
   watch: {
@@ -96,33 +105,41 @@ export default {
       deep: true,
       immediate: true,
       handler (data) {
-        this.getData(data)
+        this.getBuildingDetails(data)
       }
     }
   },
   methods: {
-    getData (data) {
-      this.schema.address.value = data.buildingAddress
-      this.schema.addressComponents = Object.assign({}, data.buildingAddressComponents)
-      this.$emit('update:postCode', data.buildingAddressComponents.postCode)
-      this.schema.buildingUniqueCode.value = getBuildingUniqueCode(data.buildingAddressComponents)
-      this.schema.buildingStatus = data.buildingStatus
+    getBuildingDetails (data) {
+      console.log(data)
+      if (!data) return
+      const buildingDetails = data.result ? data.result : data
+      const {
+        address,
+        addressComponents,
+        status
+      } = buildingDetails
 
-      for (const sectionName of Object.keys(this.sections)) {
-        for (const propName in this.schema[sectionName]) {
-          this.schema[sectionName][propName].value = data[this.sections[sectionName]][propName]
+      this.schema.address.value = address
+      this.schema.addressComponents = Object.assign({}, addressComponents)
+      this.$emit('update:postCode', addressComponents.postCode)
+      this.schema.buildingUniqueCode.value = getBuildingUniqueCode(addressComponents)
+      this.schema.status = status === 'UnderConstruction' ? 'BuildCommenced' : status
+
+      for (const section of this.sections) {
+        for (const propName in this.schema[section]) {
+          this.schema[section][propName].value = buildingDetails[section][propName] || ''
         }
       }
     },
+
     getNewBuildingId (data) {
       console.log('NEW BUILDING CREATED EVENT:\n', data)
-      this.$root.$emit('progress-event', false)
       if (data.status === 200) {
         this.$emit('update:buildingId', data.key || data.result)
       }
     },
     sendMessage (event) {
-      this.$root.$emit('progress-event', false)
       console.log('SAVE BUILDING EVENT:\n', event)
       this.$root.$emit('open-message-popup', {
         messageTyle: 'Building details',
@@ -138,13 +155,14 @@ export default {
     rule (item) {
       return this.rules[item.type]
     },
+
     saveBuildingDetails () {
       const result = {
         address: this.schema.address.value,
         addressComponents: this.schema.addressComponents,
         management: {},
         owner: {},
-        status: this.schema.buildingStatus
+        status: this.schema.status
       }
       for (const section of ['management', 'owner']) {
         for (const propName in this.schema[section]) {
@@ -157,21 +175,28 @@ export default {
       this.$root.$emit('progress-event', true)
 
       if (this.buildingData.buildingId) {
+        console.log('PUT')
         this.__putBuildingDetails(this.buildingData.buildingId, result)
       } else {
+        console.log('POST')
         this.__postBuildingDetails(result)
       }
     }
   },
+
   beforeDestroy () {
+    this.$root.$off('building-data-received', this.getBuildingDetails)
     this.$root.$off('buildings-data-saved', this.sendMessage)
     this.$root.$off('new-building-created', this.getNewBuildingId)
   },
-  mounted () {
-    console.warn('BUILDING MOUNTED:\n', this.buildingData)
 
+  mounted () {
+    this.$root.$on('building-data-received', this.getBuildingDetails)
     this.$root.$on('buildings-data-saved', this.sendMessage)
     this.$root.$on('new-building-created', this.getNewBuildingId)
+
+    if (this.buildingId) return this.__getBuildingById(this.buildingId)
+    else this.getBuildingDetails(this.buildingData)
   }
 }
 </script>

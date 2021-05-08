@@ -89,7 +89,6 @@ export default {
       this.ready = true
     },
     returnToCustomerDetails () {
-      console.log(serviceHandler())
       this.$root.$emit('go-to-customer-details')
     }
   },

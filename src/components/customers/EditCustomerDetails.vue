@@ -86,8 +86,8 @@
                 hide-details
               />
               <v-text-field
-                  v-if="prop.type === 'mobile'"
-                  v-model="prop.value"
+                v-if="prop.type === 'mobile'"
+                v-model="prop.value"
                 @input="update(propName, prop.value)"
                 prefix="+61"
                 :rules="[prop.required && !customerDetailsSchema.phoneWork.value ? rules.required : (value) => true, rules.mobile]"
@@ -98,25 +98,22 @@
               ></v-text-field>
             </td>
           </tr>
-          <!-- <tr>
-            <td class="d-none d-md-flex"> Services </td>
-            <td>
-              <CustomerServices :services.sync="customer.services" />
-            </td>
-          </tr> -->
+
           <tr style="height: 48px;"></tr>
+
           <tr style="margin-top: 48px!important">
             <td class="d-none d-md-flex">
-              <!-- <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn> -->
+              <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn>
             </td>
               <td colspan="2" class="text-right">
               <v-spacer />
-              <!-- <v-btn outlined color="buttons" class="mr-2" @click="assignNewService">
-                Assign new service
-              </v-btn> -->
-              <v-btn dark class="buttons" @click="saveCustomerDetails" :disabled="saveDisabled">
+              <v-btn dark class="buttons" @click="saveCustomerDetails" v-if="!saveDisabled">
                 Update/save details
               </v-btn>
+              <v-card-text class="text--buttons" v-if="saveDisabled" style="color: #900">
+                <v-icon color="primary">mdi-alert</v-icon>
+                You should save building details
+              </v-card-text>
             </td>
           </tr>
         </tbody>
@@ -129,7 +126,6 @@
 import { customerSchema, rules } from '@/configs'
 import { testTextField, getBuildingUniqueCode } from '@/helpers'
 import { SwitchValues } from '@/components/inputs'
-// import { CustomerServices } from '@/components/customers/CustomerServices.vue'
 
 const { customerDetails, commercial } = customerSchema
 
@@ -139,15 +135,7 @@ export default {
     SwitchValues
   },
   props: {
-    initialCustomer: Object,
-    buildingId: {
-      type: String,
-      required: false
-    },
-    buildingPostCode: {
-      type: String,
-      required: false
-    }
+    initialCustomer: Object
   },
   data: () => ({
     customer: null,
@@ -161,17 +149,21 @@ export default {
   computed: {
     saveDisabled () {
       return !this.customer || !this.customer.buildingId
+    },
+    buildingId: {
+      get () {
+        return this.customer.buildingId
+      },
+      set (value) {
+        this.customer.buildingId = value
+      }
     }
   },
   watch: {
-    buildingId (value) {
-      console.log('BUILDING ID CHANGED TO: ', value)
-      Object.assign(this.customer, { buildingId: value })
-    },
-    buildingPostCode (value) {
-      console.log('POST CODE CHANGED TO: ', value)
-      Object.assign(this.customer, { postCode: value })
-    },
+    // buildingId (value) {
+    //   console.log('BUILDING ID CHANGED TO: ', value)
+    //   Object.assign(this.customer, { buildingId: value })
+    // },
     customerType: {
       handler (newVal, oldVal) {
         if (newVal && (!this.customer.commercial || !Object.keys(this.customer.commercial))) {
@@ -183,7 +175,7 @@ export default {
       deep: true,
       immediate: true,
       handler (data) {
-        console.log('CUSTOMER:\n', data)
+        console.log('CUSTOMER CHANGED:\n', data)
       }
     }
   },
@@ -194,9 +186,9 @@ export default {
     update (propName, propValue) {
       this.customer[propName] = propValue
     },
-    createBuildingCode (addressComponents) {
-      return getBuildingUniqueCode(addressComponents)
-    },
+    // createBuildingCode (addressComponents) {
+    //   return getBuildingUniqueCode(addressComponents)
+    // },
     createCustomerCode (addressComponents) {
       return `${getBuildingUniqueCode(addressComponents)}.${this.customer.apartmentNumber}`
     },
@@ -204,14 +196,14 @@ export default {
       console.log(this.customer.address)
       this.__getBuildingByAddress(this.customer.address)
     },
-    getBuildingDetails (data) {
-      console.log('BUILDING DETAILS:\n', data)
-      console.log('BUILDING ADDRESS: ', data.address)
-      this.customer.buildingId = data._id
-      this.customer.postCode = data.addressComponents.postCode
-      this.customer.uniqueCode = `${getBuildingUniqueCode(data.addressComponents)}.${this.customer.apartmentNumber || 0}`
-      this.customerDetailsSchema.uniqueCode.value = this.customer.uniqueCode
-    },
+    // getBuildingDetails (data) {
+    //   console.log('BUILDING DETAILS:\n', data)
+    //   console.log('BUILDING ADDRESS: ', data.address)
+    //   this.customer.buildingId = data._id
+    //   this.customer.postCode = data.addressComponents.postCode
+    //   this.customer.uniqueCode = `${getBuildingUniqueCode(data.addressComponents)}.${this.customer.apartmentNumber || 0}`
+    //   this.customerDetailsSchema.uniqueCode.value = this.customer.uniqueCode
+    // },
     rowHeight (item) {
       return item.type === 'textarea' ? 160 : 60
     },
@@ -258,19 +250,20 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('building-data-received', this.getBuildingDetails)
+    // this.$root.$off('building-data-received', this.getBuildingDetails)
     this.$root.$off('customer-updated', this.close)
     this.$root.$off('customer-created', this.close)
   },
 
   mounted () {
+    console.log('INITIAL CUSTOMER:\n', this.initialCustomer)
     this.customer = this.initialCustomer
     this.buildings = [this.customer.address]
     this.createSchema()
-    console.log(this.customer.address)
-    this.customer.buildingId && this.__getBuildingById(this.customer.buildingId)
+    // console.log(this.customer.address)
+    // this.customer.buildingId && this.__getBuildingById(this.customer.buildingId)
 
-    this.$root.$on('building-data-received', this.getBuildingDetails)
+    // this.$root.$on('building-data-received', this.getBuildingDetails)
 
     this.$root.$on('customer-updated', this.close)
     this.$root.$on('customer-created', this.close)
@@ -290,5 +283,8 @@ td {
   /* border: dotted 1px red; */
   font-size: 14px;
   padding: 4px 12px;
+}
+.theme--light.v-application .text--primary {
+  color: #900!important;
 }
 </style>

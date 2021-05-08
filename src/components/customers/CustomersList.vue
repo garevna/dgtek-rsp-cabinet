@@ -70,6 +70,7 @@
             <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
           </template>
         </v-data-table>
+
         <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
@@ -95,7 +96,11 @@
 
 <script>
 
-import { customerHandler, estimatesHandler, customersListPageNumberHandler } from '@/helpers'
+import {
+  customerHandler,
+  estimatesHandler,
+  customersListPageNumberHandler
+} from '@/helpers'
 
 export default {
   name: 'CustomersList',
@@ -140,16 +145,11 @@ export default {
       handler (value) {
         console.log('SOURCE DATA CHANGED\n', value)
       }
-    },
-    page (val) {
-      console.log('DATA TABLE PAGE: ', val)
     }
   },
   computed: {
     customers () {
       if (!this.data) return
-
-      console.log(estimatesHandler(this.data[0].buildingId))
 
       return this.data.map(customer => ({
         name: `${customer.firstName} ${customer.lastName}`,
@@ -183,27 +183,19 @@ export default {
     async getData (data) {
       console.log('CUSTOMERS LIST REFRESHED\n', data)
       this.data = Array.isArray(data) ? data : Array.isArray(data.result) ? data.result : []
-      for (const customer of this.data) {
-        console.log(customer.address)
-        // this.__getBuildingById(customer.buildingId)
-      }
       this.ready = true
     },
     getEstimates (data) {
-      console.log('BUILDINGS LIST:\n', data)
       const estimates = Array.isArray(data.result) ? data.result.map(item => ({ [item.id]: item.estimatedServiceDeliveryTime })) : []
       estimatesHandler(estimates)
-      // Object.assign(this.estimates, ...estimates)
-      // console.log('ESTIMATES:\n', this.estimates)
     },
     editItem (item) {
       this.selectedCustomerId = item.id
       customerHandler(item.id)
-      console.log('SELECTED CUSTOMER ID: ', this.selectedCustomerId)
       this.edit = true
     },
     forceRerender () {
-      console.log('FORCE RERENDER', this.selectedCustomerId)
+      this.ready = false
       this.__getCustomers()
     }
   },

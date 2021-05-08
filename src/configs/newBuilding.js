@@ -15,6 +15,8 @@ export const newBuilding = {
     corporationPhoneWork: '',
     corporationPhoneMobile: '',
     corporationEmailPrimary: '',
-    corporationEmailAlternative: ''
+    corporationEmailAlternative: '',
+    headOfficeAddress: '',
+    managementPSNumber: ''
   }
 }

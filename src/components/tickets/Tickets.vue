@@ -26,7 +26,7 @@
         </fieldset>
       </v-col>
 
-      <v-col style="min-width: calc(100% - 240px)">
+      <v-col style="min-width: calc(100% - 240px)" class="text-right">
 
         <v-data-table
           :headers="headers"
@@ -36,7 +36,7 @@
         >
 
           <template v-slot:top>
-            <v-spacer></v-spacer>
+            <v-spacer />
             <v-text-field
               v-model="search"
               label="Search"

@@ -1,7 +1,7 @@
 <template>
   <v-card flat class="transparent">
     <v-row justify="center" align="start">
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="6" lg="4" xl="3">
         <v-card flat class="transparent">
           <v-card-text class="py-0">
             Total number of active customers: <strong class="primary--text">{{ activeCustomersNumber }}</strong>
@@ -17,51 +17,37 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="12" md="6">
-        <v-card flat class="transparent">
-          <v-card-title class="pt-0">
-            Awaiting for connection customers
-          </v-card-title>
-          <v-list subheader height="360">
-            <v-subheader>Recent chat</v-subheader>
-
-            <v-list-item
-              v-for="chat in recent"
-              :key="chat.title"
-            >
-              <v-list-item-avatar>
-                <v-img
-                  :alt="`${chat.title} avatar`"
-                  :src="chat.avatar"
-                ></v-img>
-              </v-list-item-avatar>
-
-              <v-list-item-content>
-                <v-list-item-title v-text="chat.title"></v-list-item-title>
-              </v-list-item-content>
-
-              <v-list-item-icon>
-                <v-icon :color="chat.active ? 'deep-purple accent-4' : 'grey'">
-                  mdi-message-outline
-                </v-icon>
-              </v-list-item-icon>
-            </v-list-item>
-          </v-list>
-          <v-card-text v-for="customer in awaitingCustomers" :key="customer._id" class="py-0">
-              {{ customer.name }}
-          </v-card-text>
-        </v-card>
+      <v-col cols="12" md="6" lg="4" xl="3">
+        <Fieldset legend="Awaiting for connection customers">
+          <v-simple-table dense fixed-header height="240px">
+            <template v-slot:default>
+              <tbody>
+                <tr v-for="customer in awaitingCustomers" :key="customer">
+                  <td>{{ customer }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </Fieldset>
       </v-col>
     </v-row>
-    <v-row justify="center">
-      <v-card flat class="transparent mx-auto">
-        <v-card-title>
-          Message from DGtek
-        </v-card-title>
-        <v-card-text></v-card-text>
-      </v-card>
+    <v-row justify="center" align="start">
+      <v-col cols="12" md="10" lg="8" xl="6">
+        <Fieldset legend="Message from DGtek" style="margin-top: -60px!important">
+          <v-card flat class="transparent" height="140">
+            ...
+          </v-card>
+        </Fieldset>
+      </v-col>
     </v-row>
-    <v-row justify="center">
+    <v-row justify="center" align="start">
+      <v-col cols="12" md="10" lg="8" xl="6">
+        <Fieldset legend="DGtek promotions" style="margin-top: -60px!important">
+          <v-card flat class="transparent" height="140">
+            ...
+          </v-card>
+        </Fieldset>
+      </v-col>
     </v-row>
     <v-row justify="center">
     </v-row>
@@ -72,33 +58,43 @@
 
 <script>
 
+import Fieldset from '@/components/Fieldset.vue'
+
 export default {
   name: 'Dashboard',
+  components: {
+    Fieldset
+  },
   data: () => ({
     customers: [],
-    activeCustomersNumber: 107,
-    currentMonthlyCharge: '$350',
-    monthlyCharge: '$480',
+    activeCustomersNumber: 0,
+    currentMonthlyCharge: 0,
+    monthlyCharge: 0,
     lastMonthConnectedCustomers: 4,
     recent: []
   }),
   computed: {
     awaitingCustomers () {
-      return this.customers.filter(customer => customer.status === 'Not connected')
+      return !this.customers ? [] : this.customers
+        .filter(customer => customer.status === 'Not connected' || customer.status === 'Awaiting for connection')
+        .map(customer => `${customer.apartmentNumber}/${customer.address}`)
     }
   },
   methods: {
     getCustomers (data) {
       console.log('CUSTOMERS:\n', data)
-      this.customers = data
+      this.customers = data.result
     }
   },
   mounted () {
-    this.$on('customers-list-refreshed', this.getCustomers)
+    this.$root.$on('customers-list-received', this.getCustomers)
     this.__getCustomers()
   }
 }
 </script>
 
 <style scoped>
+/* .fieldset-class {
+  margin-bottom: 16px;
+} */
 </style>

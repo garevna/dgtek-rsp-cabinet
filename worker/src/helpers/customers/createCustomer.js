@@ -1,22 +1,33 @@
 import { post } from '../AJAX'
-import { postNewCustomerError } from '../error-handlers'
+
+import {
+  postNewCustomerError,
+  refreshCustomersListError,
+  getCustomersListError
+} from '../error-handlers'
+
+import { getFromRemoteServer, getCustomers } from './'
 
 export const createCustomer = async function (data) {
-  const [route, action] = ['customers', 'post']
-
-  // self.postMessage({ status: 300, route, action, result: data })
+  const route = 'customers'
 
   const { status, result } = await post('customer', data)
 
-  // self.postMessage({ status: 300, route, action, result })
+  if (status !== 200) return postNewCustomerError(status, result)
 
-  if (status !== 200) return postNewCustomerError(status)
+  const { status: refreshStatus } = getFromRemoteServer()
+
+  if (refreshStatus !== 200) return refreshCustomersListError(refreshStatus)
+
+  const { status: listStatus, result: listResult } = getCustomers()
+
+  if (listStatus !== 200) return getCustomersListError(listStatus)
 
   return {
     status,
     route,
-    action,
-    result,
+    action: 'list',
+    result: listResult,
     message: true,
     messageType: 'New customer',
     messageText: 'New customer has been succesfully created'

@@ -1,12 +1,16 @@
 <template>
   <v-card flat class="transparent mx-auto py-5">
     <v-toolbar class="transparent" style="box-shadow: none">
-      <v-toolbar-title>Ticket</v-toolbar-title>
+      <v-toolbar-title>
+        <v-icon>mdi-card-text-outline</v-icon>
+        Ticket
+      </v-toolbar-title>
       <v-spacer />
-      <v-btn icon>
+      <v-btn icon @click="$emit('update:edit', false)">
         <v-icon large>mdi-close</v-icon>
       </v-btn>
     </v-toolbar>
+    <v-divider class="mb-12" />
     <v-row justify="center">
       <v-col cols="12" md="4" v-if="categories">
         <v-select
@@ -106,7 +110,7 @@
     <v-row class="mt-12">
       <v-btn outlined color="primary" @click="$emit('update:edit', false)">Back to tickets list</v-btn>
       <v-spacer />
-      <v-btn outlined color="primary" @click="save">Update/save details</v-btn>
+      <v-btn dark class="primary" @click="save">Update/save details</v-btn>
     </v-row>
   </v-card>
 </template>
@@ -191,7 +195,6 @@ export default {
   },
   methods: {
     fillCustomerList (data) {
-      console.log(data)
       if (!data || !data.result) return
       this.customersList = data.result.map(customer => `${customer.apartmentNumber}/${customer.address}`)
       this.customersIds = data.result.map(customer => customer._id)
@@ -210,7 +213,6 @@ export default {
       const result = JSON.parse(JSON.stringify(this.ticket))
       delete result.createdDate
       delete result.modifiedDate
-      console.log(result)
       this.__saveTicketData(this.ticket._id, result)
     },
     save () {

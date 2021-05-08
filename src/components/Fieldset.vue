@@ -1,7 +1,7 @@
 <template>
   <fieldset class = "fieldset-class">
     <legend class="legend-class">
-      <h4>{{ legend }}</h4>
+      <h5><small>{{ legend }}</small></h5>
     </legend>
     <slot>...</slot>
   </fieldset>
@@ -23,7 +23,7 @@ export default {
   border-radius: 4px;
   margin-bottom: 48px;
 }
-.legend-class > h4 {
+.legend-class > h5 {
   color: #999;
   background: #fbfbfb;
   padding: 4px 8px;

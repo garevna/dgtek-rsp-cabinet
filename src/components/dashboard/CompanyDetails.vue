@@ -45,7 +45,6 @@ export default {
   }),
   methods: {
     getData (data) {
-      console.log('COMPANY DETAILS GET DATA\n', data)
       const details = data.company ? data : data.result ? data.result : {}
       for (const step in details) {
         if (step === 'activeSesions') continue
@@ -65,7 +64,6 @@ export default {
           result[stepName][propName] = step[propName].value
         }
       }
-      console.log('Client data to be saved\n', result)
       this.__putClientData(result)
     },
     saveCredentials () {
@@ -85,12 +83,8 @@ export default {
     }
   },
   mounted () {
-    console.warn('COMPANY DETAILS MOUNTED')
     this.__getClientData()
     this.$root.$on('client-data-received', this.getData)
   }
 }
 </script>
-
-<style scoped>
-</style>

@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" max-width="480px" class="pa-4">
     <v-card flat>
-      <v-toolbar dense dark color="#999">
+      <v-toolbar dense color="#999">
         <v-icon class="mr-4"> $message </v-icon>
         <v-toolbar-title> Message </v-toolbar-title>
         <v-spacer></v-spacer>

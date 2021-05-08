@@ -1,6 +1,6 @@
 {
   "name": "dgtek-rsp-cabinet",
-  "version": "1.0.1",
+  "version": "4.0.0",
   "scripts": {
     "worker-dev": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode development -w && yarn remove crypto-js",
     "worker": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode production && yarn remove crypto-js",
@@ -13,9 +13,7 @@
     "dgtek-map": "^1.4.1",
     "dgtek-styles": "^0.0.8",
     "vue": "2.6.11",
-    "vue-router": "^3.5.1",
-    "vuetify": "^2.4.9",
-    "vuex": "^3.6.2"
+    "vuetify": "^2.4.9"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

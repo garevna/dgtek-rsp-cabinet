@@ -5,7 +5,7 @@
       <h5>{{ addressData.address }}</h5>
       <p>check results</p>
       <p>Status: {{ addressData.event }}</p>
-      <p>Estimated service delivery time: {{ estimatedServiceDeliveryTime }}</p>
+      <p>Estimated service delivery time: {{ addressData.estimatedServiceDeliveryTime || 'Not defined' }}</p>
 
     </v-card-text>
 
@@ -55,12 +55,7 @@ export default {
   ],
   computed: {
     newCustomerDisabled () {
-      console.log(this.addressData.event)
-      console.log(buildingStatusConfig[this.addressData.event])
       return buildingStatusConfig[this.addressData.event].newCustomerDisabled
-    },
-    estimatedServiceDeliveryTime () {
-      return this.addressData.buildingId && this.addressData.estimatedServiceDeliveryTime ? this.addressData.estimatedServiceDeliveryTime : 'Not defined'
     }
   }
 }

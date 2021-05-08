@@ -79,6 +79,16 @@ export const buildingSchema = {
       title: 'Owners corporation email alternative',
       type: 'email',
       value: ''
+    },
+    headOfficeAddress: {
+      title: 'Owners corporation Head Office address',
+      type: 'address',
+      value: ''
+    },
+    managementPSNumber: {
+      title: 'Owners corporation Management PS number',
+      type: 'phone',
+      value: ''
     }
   }
 }

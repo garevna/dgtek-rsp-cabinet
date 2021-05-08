@@ -17,11 +17,12 @@
 
     <v-row justify="center" v-if="ready">
       <Fieldset legend="Customer details" v-if="section === 'Customer details'">
-        <EditCustomerDetails
+        <!-- <EditCustomerDetails
           :initialCustomer.sync="customer"
           :buildingId.sync="buildingId"
           :buildingPostCode="buildingPostCode"
-        />
+        /> -->
+        <EditCustomerDetails :initialCustomer.sync="customer" />
       </Fieldset>
 
       <Fieldset legend="Service details" v-if="section === 'Service details'">
@@ -34,9 +35,8 @@
 
       <Fieldset legend="Building details" v-if="section === 'Building details'">
         <EditBuildingDetails
-          :buildingData="buildingData"
+          :buildingData="buildingDetails"
           :buildingId.sync="buildingId"
-          :postCode.sync="buildingPostCode"
         />
       </Fieldset>
     </v-row>
@@ -62,9 +62,8 @@ export default {
     ready: false,
     section: 'Customer details',
     customer: null,
-    buildingData: null,
+    buildingDetails: null,
     buildingId: null,
-    buildingPostCode: null,
     update: false
   }),
   watch: {
@@ -77,9 +76,9 @@ export default {
     buildingId (value) {
       Object.assign(this.customer, { buildingId: value })
     },
-    buildingPostCode (value) {
-      Object.assign(this.customer, { postCode: value })
-    },
+    // buildingPostCode (value) {
+    //   Object.assign(this.customer, { postCode: value })
+    // },
     section (value) {
       console.log(value)
     },
@@ -91,54 +90,48 @@ export default {
     }
   },
   methods: {
-    getBuildingEventHandler (data) {
-      console.log('CUSTOMER DETAILS COMPONENT HAS RECEIVED THE BUILDING DATA: ', data)
-      this.buildingData = {
-        buildingId: data._id,
-        buildingAddress: normalizeAddress(data.address),
-        buildingAddressComponents: data.addressComponents,
-        buildingManagement: JSON.parse(JSON.stringify(data.management)),
-        buildingOwner: JSON.parse(JSON.stringify(data.owner)),
-        buildingStatus: data.status
-      }
-      this.ready = true
-      console.log('BUILDING DATA:\n', this.buildingData)
-    },
-    getCustomerEventHandler (data) {
+    getCustomerDetails (data) {
       console.log('CUSTOMER DATA RECEIVED:\n', data)
       this.customer = data.result ? data.result : data
-      console.log(this.customer.services)
-      const { buildingId } = data.result ? data.result : data
-
-      if (buildingId) return this.__getBuildingById(buildingId)
+      // this.buildingId = this.customer.buildingId
+      if (!this.customer.buildingId) {
+        this.buildingDetails = {
+          address: this.customer.address,
+          addressComponents: this.customer.addressComponents,
+          uniqueCode: getBuildingUniqueCode(this.customer.addressComponents),
+          status: this.status
+        }
+      }
+      this.ready = true
     },
 
     createNewCustomer () {
       const {
-        buildingAddress,
-        buildingAddressComponents,
+        address,
+        addressComponents,
+        postCode,
         buildingId,
-        buildingManagement,
-        buildingOwner,
-        buildingStatus
+        management,
+        owner,
+        status
       } = this.initialAddressData
 
       this.customer = JSON.parse(JSON.stringify(newCustomer))
 
       Object.assign(this.customer, {
-        address: normalizeAddress(buildingAddress),
-        buildingId: buildingId || null,
-        postCode: buildingAddressComponents.postCode,
-        uniqueCode: `${getBuildingUniqueCode(buildingAddressComponents)}.0}`
+        address: normalizeAddress(address),
+        buildingId,
+        postCode,
+        uniqueCode: `${getBuildingUniqueCode(addressComponents)}.0}`
       })
 
-      this.buildingData = {
+      this.buildingDetails = {
         buildingId,
-        buildingAddress: normalizeAddress(buildingAddress),
-        buildingAddressComponents,
-        buildingManagement,
-        buildingOwner,
-        buildingStatus
+        address: normalizeAddress(address),
+        addressComponents,
+        management,
+        owner,
+        status
       }
     },
 
@@ -149,20 +142,16 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('customer-data-received', this.getCustomerEventHandler)
-    this.$root.$off('building-data-received', this.getBuildingEventHandler)
+    this.$root.$off('customer-data-received', this.getCustomerDetails)
   },
   mounted () {
-    console.log('CUSTOMER ID: ', this.customerId)
-    console.log('INITIAL ADDRESS DATA:\n', this.initialAddressData)
-
     if (this.customerId) {
-      this.$root.$on('customer-data-received', this.getCustomerEventHandler)
-      this.$root.$on('building-data-received', this.getBuildingEventHandler)
+      console.log('CUSTOMER ID: ', this.customerId)
+      this.$root.$on('customer-data-received', this.getCustomerDetails)
       this.__getCustomerData(this.customerId)
     } else {
+      console.log('INITIAL ADDRESS DATA:\n', this.initialAddressData)
       if (!this.initialAddressData) return console.warn('Error: prop "initialAddressData" not defined')
-      this.buildingData = JSON.parse(JSON.stringify(this.initialAddressData))
       this.createNewCustomer()
       this.ready = true
     }

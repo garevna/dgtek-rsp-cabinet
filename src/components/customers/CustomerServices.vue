@@ -14,11 +14,14 @@
               <th class="text-left">
                 Service name
               </th>
-              <th class="text-left">
+              <th class="text-center">
                 Service status
               </th>
-              <th class="text-left">
+              <th class="text-center">
                 Status modified
+              </th>
+              <th class="text-center">
+                History
               </th>
             </tr>
           </thead>
@@ -33,8 +36,15 @@
                 </v-btn>
               </td>
               <td>{{ item.name }}</td>
-              <td>{{ item.status }}</td>
+              <td>
+                <v-btn text color="primary" @click="changeStatusRequest(item)">
+                  {{ item.status }}
+                </v-btn>
+              </td>
               <td>{{ new Date(item.modified).toISOString().slice(0, 10) }}</td>
+              <td>
+
+              </td>
             </tr>
           </tbody>
         </template>
@@ -52,6 +62,13 @@
     </v-card>
 
     <Services v-else :opened.sync="showServices" />
+    <ServiceDeliveryUpdate
+      v-if="dialog"
+      :dialog.sync="dialog"
+      :serviceData="selected"
+      :address="address"
+      :requiredStatus.sync="selected.requiredStatus"
+    />
   </v-container>
 </template>
 
@@ -60,15 +77,20 @@
 import { serviceHandler, showServiceSelectHandler } from '@/helpers'
 import { Services } from '@/components/dashboard'
 
+import ServiceDeliveryUpdate from '@/components/popups/ServiceDeliveryUpdate.vue'
+
 export default {
   name: 'CustomerServices',
   components: {
-    Services
+    Services,
+    ServiceDeliveryUpdate
   },
   props: ['services', 'address', 'update'],
   data: () => ({
     schema: [],
-    showServices: false
+    showServices: false,
+    dialog: false,
+    selected: null
   }),
   watch: {
     showServices (newValue, oldValue) {
@@ -92,7 +114,6 @@ export default {
           }
         })
       }
-      console.log(this.schema)
       this.$emit('update:services', this.schema)
     }
   },
@@ -134,6 +155,11 @@ export default {
     },
     activate (service) {
       console.log('activate', service)
+    },
+    changeStatusRequest (item) {
+      console.log(item)
+      this.selected = item
+      this.dialog = true
     }
   },
 

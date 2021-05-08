@@ -1,9 +1,15 @@
 import { getRecordByKey, putRecordByKey } from '../db'
 import { put } from '../AJAX'
-import { getCustomerDataError, putCustomerDataError } from '../error-handlers'
+import {
+  getCustomerDataError,
+  putCustomerDataError,
+  refreshCustomersListError,
+  getCustomersListError
+} from '../error-handlers'
+import { getFromRemoteServer, getCustomers } from './'
 
 export const updateCustomer = async function (id, data) {
-  const [route, action] = ['customers', 'update']
+  const route = 'customers'
 
   const { status: getStatus, result: getResult } = await getRecordByKey('customers', id)
 
@@ -11,23 +17,27 @@ export const updateCustomer = async function (id, data) {
 
   const response = Object.assign({}, getResult, data)
 
-  // self.postMessage({ status: 300, route, action, result: response })
-
   const { status: putStatus } = await putRecordByKey('customers', id, response)
 
   if (putStatus !== 200) return putCustomerDataError(putStatus)
 
   const { status, result } = await put(`customer/${id}`, response)
 
-  // self.postMessage({ status: 300, route, action, result })
+  if (status !== 200) return putCustomerDataError(status, result)
 
-  if (status !== 200) return putCustomerDataError(status)
+  const { status: refreshStatus } = getFromRemoteServer()
+
+  if (refreshStatus !== 200) return refreshCustomersListError(refreshStatus)
+
+  const { status: listStatus, result: listResult } = getCustomers()
+
+  if (listStatus !== 200) return getCustomersListError(listStatus)
 
   return {
     status,
     route,
-    action,
-    result,
+    action: 'list',
+    result: listResult,
     message: true,
     messageType: 'Customer details',
     messageText: 'Customer details were succesfully updated'
