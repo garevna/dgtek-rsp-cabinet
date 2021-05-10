@@ -6,7 +6,7 @@ import {
   getCustomersListError
 } from '../error-handlers'
 
-import { getFromRemoteServer, getCustomers } from './'
+import { getFromRemoteServer, getAllCustomers } from './'
 
 export const createCustomer = async function (data) {
   const route = 'customers'
@@ -19,7 +19,7 @@ export const createCustomer = async function (data) {
 
   if (refreshStatus !== 200) return refreshCustomersListError(refreshStatus)
 
-  const { status: listStatus, result: listResult } = getCustomers()
+  const { status: listStatus, result: listResult } = getAllCustomers()
 
   if (listStatus !== 200) return getCustomersListError(listStatus)
 
@@ -30,6 +30,6 @@ export const createCustomer = async function (data) {
     result: listResult,
     message: true,
     messageType: 'New customer',
-    messageText: 'New customer has been succesfully created'
+    messageText: 'New customer has been successfully created'
   }
 }

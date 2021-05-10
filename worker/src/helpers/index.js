@@ -1,9 +1,31 @@
-import { init } from './init'
-import { hash, encrypt, decrypt } from './crypto'
+// import { init } from './init'
+import { init, hash, encrypt, decrypt } from './crypto'
+
+import {
+  getWeekNumber,
+  getWeekDay,
+  getWeekStartDate,
+  getWeekEndDate,
+  getWeekObject,
+  getNextWeekDate,
+  getPrevWeekDate,
+  getNextWeekObject,
+  getPrevWeekObject
+} from './dateFunctions'
 
 export {
   init,
   hash,
   encrypt,
-  decrypt
+  decrypt,
+
+  getWeekNumber,
+  getWeekDay,
+  getWeekStartDate,
+  getWeekEndDate,
+  getWeekObject,
+  getNextWeekDate,
+  getPrevWeekDate,
+  getNextWeekObject,
+  getPrevWeekObject
 }

@@ -4,7 +4,9 @@ import {
   getCustomer,
   createCustomer,
   updateCustomer,
-  deleteCustomer
+  updateCustomerServices,
+  deleteCustomer,
+  activateServiceRequest
 } from '../helpers/customers'
 
 class CustomersController {
@@ -30,6 +32,14 @@ class CustomersController {
 
   async createCustomer (request) {
     self.postMessage(await createCustomer(request.data))
+  }
+
+  async updateCustomerServices (request) {
+    self.postMessage(await updateCustomerServices(request.key, request.data))
+  }
+
+  async activateServiceRequest (request) {
+    self.postMessage(await activateServiceRequest(request))
   }
 }
 

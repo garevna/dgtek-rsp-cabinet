@@ -4,6 +4,7 @@ import { getCustomersListError } from './getCustomersListError'
 import { postNewCustomerError } from './postNewCustomerError'
 import { putCustomerDataError } from './putCustomerDataError'
 import { refreshCustomersListError } from './refreshCustomersListError'
+import { activateServiceRequestError } from './activateServiceRequestError'
 
 export {
   deleteCustomerError,
@@ -11,5 +12,6 @@ export {
   getCustomersListError,
   postNewCustomerError,
   putCustomerDataError,
-  refreshCustomersListError
+  refreshCustomersListError,
+  activateServiceRequestError
 }

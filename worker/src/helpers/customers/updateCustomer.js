@@ -3,10 +3,11 @@ import { put } from '../AJAX'
 import {
   getCustomerDataError,
   putCustomerDataError,
-  refreshCustomersListError,
+  // refreshCustomersListError,
   getCustomersListError
 } from '../error-handlers'
-import { getFromRemoteServer, getCustomers } from './'
+
+import { /* getFromRemoteServer, */ getAllCustomers } from './'
 
 export const updateCustomer = async function (id, data) {
   const route = 'customers'
@@ -25,11 +26,11 @@ export const updateCustomer = async function (id, data) {
 
   if (status !== 200) return putCustomerDataError(status, result)
 
-  const { status: refreshStatus } = getFromRemoteServer()
+  // const { status: refreshStatus } = getFromRemoteServer()
+  //
+  // if (refreshStatus !== 200) return refreshCustomersListError(refreshStatus)
 
-  if (refreshStatus !== 200) return refreshCustomersListError(refreshStatus)
-
-  const { status: listStatus, result: listResult } = getCustomers()
+  const { status: listStatus, result: listResult } = getAllCustomers()
 
   if (listStatus !== 200) return getCustomersListError(listStatus)
 
@@ -40,6 +41,6 @@ export const updateCustomer = async function (id, data) {
     result: listResult,
     message: true,
     messageType: 'Customer details',
-    messageText: 'Customer details were succesfully updated'
+    messageText: 'Customer details were successfully updated'
   }
 }

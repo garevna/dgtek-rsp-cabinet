@@ -17,11 +17,12 @@ export const routes = {
   customers: {
     refresh: customersController.getFromRemote,
     list: customersController.getAllCustomers,
-    services: customersController.getCustomerServices,
+    services: customersController.updateCustomerServices,
     get: customersController.getCustomer,
     post: customersController.createCustomer,
     delete: customersController.deleteCustomer,
-    put: customersController.updateCustomer
+    put: customersController.updateCustomer,
+    activate: customersController.activateServiceRequest
   },
   crypto: {
     init: cryptoController.init,

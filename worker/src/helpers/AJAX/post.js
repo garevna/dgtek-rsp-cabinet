@@ -17,5 +17,9 @@ export const post = async (path, data) => {
     body: JSON.stringify(data)
   })
 
-  return { status: response.status, result: await response.json() }
+  const result = await response.json()
+
+  self.postMessage({ status: 300, result: { path, status: response.status, result } })
+
+  return { status: response.status, result }
 }
