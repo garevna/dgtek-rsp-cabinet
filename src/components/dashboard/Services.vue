@@ -73,7 +73,15 @@ export default {
       deep: true,
       handler (data) {
         console.log(data[0])
-        serviceHandler(data[0]._id, data[0].serviceName)
+        const { _id: serviceId, serviceName, status: serviceStatus, subscriptionFee: servicePlan, contractTerm: serviceTerm } = data[0]
+        serviceHandler({
+          serviceId,
+          serviceName,
+          serviceSpeed: `${data[0].upstreamSpeed}/${data[0].downstreamSpeed}`,
+          serviceStatus,
+          servicePlan,
+          serviceTerm
+        })
         console.log(serviceHandler())
       }
     }

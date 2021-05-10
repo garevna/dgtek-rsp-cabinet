@@ -9,7 +9,9 @@ export const events = {
     list: 'customers-list-received',
     get: 'customer-data-received',
     post: 'customer-created',
-    put: 'customer-updated'
+    put: 'customer-updated',
+    activate: 'customer-service-activated',
+    services: 'customer-services-updated'
   },
   services: {
     refresh: 'services-list-refreshed',

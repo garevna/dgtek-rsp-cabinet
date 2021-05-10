@@ -39,7 +39,7 @@
                     clearable
                     dense
                     color="primary"
-                    style="width: 140px"
+                    style="width: 120px"
                   ></v-select>
                 </td>
                 <td>
@@ -99,6 +99,7 @@
 import {
   customerHandler,
   estimatesHandler,
+  // serviceHandler,
   customersListPageNumberHandler
 } from '@/helpers'
 
@@ -118,7 +119,6 @@ export default {
     speed: null,
     plan: null,
     postCode: null,
-    plans: [],
 
     statuses: ['Active', 'Not connected', 'Awaiting for connection'],
     speeds: ['50/50', '150/150', '250/250', '500/500', '1000/1000'],
@@ -165,7 +165,17 @@ export default {
       }))
     },
     postalCodes () {
-      return this.customers.map(customer => customer.postCode)
+      const result = []
+      const set = new Set(this.customers.map(customer => customer.postCode))
+      set.forEach((item) => { result.push(item) })
+      return result
+    },
+    plans () {
+      const result = []
+      const set = new Set(this.customers.map(customer => customer.servicePlan))
+      console.log(set)
+      set.forEach((item) => { item && result.push(item) })
+      return result
     },
     selectedCustomersNumber () {
       return this.filteredItems.length
@@ -176,7 +186,7 @@ export default {
         .filter(customer => !this.status || (customer.serviceStatus === this.status))
         .filter(customer => !this.speed || (customer.serviceSpeed === this.speed))
         .filter(customer => !this.postCode || (customer.postCode === this.postCode))
-        .filter(customer => !this.plan || (customer.plan === this.plan))
+        .filter(customer => !this.plan || (customer.servicePlan === this.plan))
     }
   },
   methods: {
@@ -194,16 +204,36 @@ export default {
       customerHandler(item.id)
       this.edit = true
     },
-    forceRerender () {
-      this.ready = false
-      this.__getCustomers()
+    updateCustomerServices (data) {
+      console.log('CUSTOMERS LIST: customer-services-updated RESPONSE:\n', data)
+
+      const {
+        _id,
+        services,
+        serviceSpeed,
+        serviceStatus,
+        servicePlan,
+        serviceTerm
+      } = data
+
+      const index = this.customers.findIndex(customer => customer.id === _id)
+      if (index === -1) return
+      this.customers.splice(index, 1, Object.assign(this.customers[index], {
+        services,
+        serviceSpeed,
+        serviceStatus,
+        servicePlan,
+        serviceTerm
+      }))
+
+      console.log(this.customers[index])
     }
   },
 
   beforeDestroy () {
-    this.$root.$off('refresh-page', this.forceRerender)
     this.$root.$off('customers-list-received', this.getData)
     this.$root.$off('buildings-data-list', this.getEstimates)
+    this.$root.$off('customer-services-updated', this.updateCustomerServices)
   },
 
   created () {
@@ -215,8 +245,8 @@ export default {
   },
 
   mounted () {
-    this.$on('refresh-page', this.forceRerender)
     this.$root.$on('customers-list-received', this.getData)
+    this.$root.$on('customer-services-updated', this.updateCustomerServices)
     this.__getCustomers()
   }
 }

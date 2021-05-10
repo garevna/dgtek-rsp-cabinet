@@ -10,7 +10,8 @@ import {
 
 import {
   refreshServices,
-  getServices
+  getServices,
+  getServiceById
 } from './services'
 
 import {
@@ -19,7 +20,9 @@ import {
   getCustomers,
   postCustomer,
   putCustomer,
-  refreshCustomers
+  updateCustomerServices,
+  refreshCustomers,
+  sendServiceActivationRequest
 } from './customers'
 
 import {
@@ -58,8 +61,11 @@ export {
   putCustomer,
   postCustomer,
   deleteCustomer,
+  updateCustomerServices,
+  sendServiceActivationRequest,
 
   getServices,
+  getServiceById,
 
   getTickets,
   getCategories,

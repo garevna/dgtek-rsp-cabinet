@@ -27,21 +27,21 @@
           </thead>
           <tbody>
             <tr
-              v-for="item of services"
-              :key="item.id"
+              v-for="item of schema"
+              :key="item.serviceId"
             >
               <td>
-                <v-btn icon @click="disconnect(service)">
+                <v-btn icon @click="disconnect(item)">
                   <v-icon color="primary">mdi-delete</v-icon>
                 </v-btn>
               </td>
-              <td>{{ item.name }}</td>
+              <td>{{ item.serviceName }}</td>
               <td>
-                <v-btn text color="primary" @click="changeStatusRequest(item)">
-                  {{ item.status }}
+                <v-btn text color="primary" @click="changeStatusRequest(item)" :disabled="item.status !== 'Not connected'">
+                  {{ item.serviceStatus }}
                 </v-btn>
               </td>
-              <td>{{ new Date(item.modified).toISOString().slice(0, 10) }}</td>
+              <td>{{ item.serviceStatusModified }}</td>
               <td>
 
               </td>
@@ -55,7 +55,7 @@
           Assign new service
         </v-btn>
         <v-spacer />
-        <v-btn dark class="buttons" @click="$emit('update:update', true)">
+        <v-btn dark class="buttons" @click="updateCustomerServices">
           Update/save details
         </v-btn>
       </v-row>
@@ -65,9 +65,9 @@
     <ServiceDeliveryUpdate
       v-if="dialog"
       :dialog.sync="dialog"
-      :serviceData="selected"
+      :serviceData.sync="selected"
       :address="address"
-      :requiredStatus.sync="selected.requiredStatus"
+      :customerId="customerId"
     />
   </v-container>
 </template>
@@ -79,99 +79,168 @@ import { Services } from '@/components/dashboard'
 
 import ServiceDeliveryUpdate from '@/components/popups/ServiceDeliveryUpdate.vue'
 
+const showError = function () {
+  this.$root.$emit('open-error-popup', {
+    errorType: 'Assign service to customer',
+    errorMessage: 'Attempt to duplicate service'
+  })
+}
+
 export default {
   name: 'CustomerServices',
+
   components: {
     Services,
     ServiceDeliveryUpdate
   },
-  props: ['services', 'address', 'update'],
+
+  props: ['services', 'address', 'update', 'customerId'],
+
   data: () => ({
+    customerServices: [],
+    customerServiceDescriptions: [],
     schema: [],
+    details: {},
     showServices: false,
     dialog: false,
-    selected: null
+    selected: null,
+    submit: false
   }),
+
   watch: {
-    showServices (newValue, oldValue) {
-      if (serviceHandler()) {
-        const { serviceName, serviceId } = serviceHandler()
-        if (!serviceId) return
-        if (this.schema.find(item => item.id === serviceId)) {
-          this.$root.$emit('open-error-popup', {
-            errorType: 'Add customer service',
-            errorMessage: 'Attempt to duplicate service'
-          })
-          return
-        }
-        this.schema.push({
-          id: serviceId,
-          name: serviceName,
-          status: 'Not connected',
-          modified: Date.now(),
-          log: {
-            [Date.now()]: 'Not connected'
-          }
-        })
+    selected: {
+      deep: true,
+      handler (val) {
+        console.log('SELECTED SERVICE:\n', val)
       }
-      this.$emit('update:services', this.schema)
+    },
+    showServices (newVal, oldVal) {
+      console.log('SHOW SERVICES: ', oldVal, '-->', newVal)
+      if (oldVal && !newVal) {
+        console.log(serviceHandler())
+        if (!serviceHandler()) return
+        this.assignNewService()
+      }
     }
   },
+
   methods: {
+    showError: showError,
     getServiceDetails (data) {
-      const { serviceName, _id } = data
-      const service = this.services.find(item => item.id === _id)
+      console.log('SERVICE DATA:\n', data)
+
+      const { serviceName, _id: serviceId } = data
+
+      const service = this.services.find(item => item.id === serviceId)
+      console.log(service)
+
       if (!service) return
       this.schema.push({
+        serviceId,
         serviceName,
-        serviceStatus: service.status.value,
-        serviceStatusModified: service.status.modified
+        serviceStatus: service.status,
+        serviceStatusModified: new Date(service.modified).toISOString().slice(0, 10)
       })
     },
-    createSchema () {
-      for (const service of this.services) {
-        console.log('SERVICE ID: ', service.id)
-        this.__getServiceById(service.id)
-      }
-    },
+
     assignNewService () {
-      const { serviceId, serviceName } = serviceHandler()
-      console.log(serviceId, serviceName)
-      let services = this.schema
-      services = services.map((item) => {
-        delete item.name
-        return item
+      console.log(serviceHandler())
+
+      const {
+        serviceId,
+        serviceName,
+        serviceSpeed,
+        servicePlan,
+        serviceTerm
+      } = serviceHandler()
+
+      if (this.services.find(service => service.id === serviceId)) return this.showError()
+
+      this.customerServices.push({
+        id: serviceId,
+        modified: Date.now(),
+        status: 'Not connected',
+        log: {
+          [Date.now()]: 'Not connected'
+        }
       })
-      this.$emit('update:services', services)
+
+      console.log(this.customerServices)
+
+      this.schema.push({
+        serviceId,
+        serviceStatusModified: (new Date()).toISOString().slice(0, 10),
+        serviceName,
+        serviceSpeed,
+        serviceStatus: 'Not connected',
+        servicePlan,
+        serviceTerm
+      })
+
+      console.log(this.schema)
     },
+
     selectService () {
       showServiceSelectHandler('set')
       this.showServices = true
-      // this.$root.$emit('go-to-services')
     },
 
     disconnect (service) {
       console.log('disconnect', service)
     },
-    activate (service) {
-      console.log('activate', service)
-    },
+
     changeStatusRequest (item) {
-      console.log(item)
+      if (item.status !== 'Not connected') return
       this.selected = item
+      console.log('SELECTED SERVICE:\n', this.selected)
       this.dialog = true
+    },
+
+    updateCustomerServices () {
+      console.log(this.customerServices)
+
+      this.__updateCustomerServices(this.customerId, this.customerServices)
     }
+
+    // getResponse (event) {
+    //   console.log('customer-services-updated RESPONSE:\n', event)
+    //   // this.$root.$emit('customer-services-updated', this.schema)
+    // }
   },
 
   beforeDestroy () {
     this.$root.$off('service-details-received', this.getServiceDetails)
-    this.$root.$off('customer-updated', this.close)
+    // this.$root.$off('customer-services-updated', this.getResponse)
     this.$root.$off('customer-created', this.close)
   },
 
   mounted () {
+    console.log(this.services)
+    this.customerServices = this.services.map(item => ({
+      id: item.id,
+      status: item.status,
+      modified: item.modified,
+      log: item.log
+    }))
+    this.$emit('update:services', this.customerServices)
+    console.log(this.services)
     this.$root.$on('service-details-received', this.getServiceDetails)
     this.$root.$on('service-selected', this.assignNewService)
+    // this.$root.$on('customer-services-updated', this.getResponse)
+    for (const service of this.services) {
+      console.log(service.id)
+      if (service.name) {
+        delete service.name
+      }
+      this.__getServiceById(service.id)
+    }
   }
 }
+
 </script>
+
+<style>
+.theme--light.v-btn.v-btn--disabled {
+  color: #888 !important;
+}
+</style>

@@ -160,10 +160,6 @@ export default {
     }
   },
   watch: {
-    // buildingId (value) {
-    //   console.log('BUILDING ID CHANGED TO: ', value)
-    //   Object.assign(this.customer, { buildingId: value })
-    // },
     customerType: {
       handler (newVal, oldVal) {
         if (newVal && (!this.customer.commercial || !Object.keys(this.customer.commercial))) {
@@ -186,9 +182,6 @@ export default {
     update (propName, propValue) {
       this.customer[propName] = propValue
     },
-    // createBuildingCode (addressComponents) {
-    //   return getBuildingUniqueCode(addressComponents)
-    // },
     createCustomerCode (addressComponents) {
       return `${getBuildingUniqueCode(addressComponents)}.${this.customer.apartmentNumber}`
     },
@@ -196,14 +189,6 @@ export default {
       console.log(this.customer.address)
       this.__getBuildingByAddress(this.customer.address)
     },
-    // getBuildingDetails (data) {
-    //   console.log('BUILDING DETAILS:\n', data)
-    //   console.log('BUILDING ADDRESS: ', data.address)
-    //   this.customer.buildingId = data._id
-    //   this.customer.postCode = data.addressComponents.postCode
-    //   this.customer.uniqueCode = `${getBuildingUniqueCode(data.addressComponents)}.${this.customer.apartmentNumber || 0}`
-    //   this.customerDetailsSchema.uniqueCode.value = this.customer.uniqueCode
-    // },
     rowHeight (item) {
       return item.type === 'textarea' ? 160 : 60
     },
@@ -236,12 +221,8 @@ export default {
     getBuildings (data) {
       this.buildings.push(...data)
     },
-    assignNewService () {
-      //
-    },
     saveCustomerDetails () {
       if (!this.customerType) this.customer.commercial = {}
-      console.log(this.customer)
       this.customer._id ? this.__putCustomer(this.customer._id, this.customer) : this.__postCustomer(this.customer)
     },
     close () {
@@ -250,20 +231,14 @@ export default {
   },
 
   beforeDestroy () {
-    // this.$root.$off('building-data-received', this.getBuildingDetails)
     this.$root.$off('customer-updated', this.close)
     this.$root.$off('customer-created', this.close)
   },
 
   mounted () {
-    console.log('INITIAL CUSTOMER:\n', this.initialCustomer)
     this.customer = this.initialCustomer
     this.buildings = [this.customer.address]
     this.createSchema()
-    // console.log(this.customer.address)
-    // this.customer.buildingId && this.__getBuildingById(this.customer.buildingId)
-
-    // this.$root.$on('building-data-received', this.getBuildingDetails)
 
     this.$root.$on('customer-updated', this.close)
     this.$root.$on('customer-created', this.close)

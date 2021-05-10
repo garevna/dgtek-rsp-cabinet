@@ -20,11 +20,13 @@ export function createRspWorker () {
     if (event.data.action === 'init' || event.data.action === 'credentials') return
 
     const { route, action, status, result } = event.data
+    window[Symbol.for('vue.instance')].$root.$emit('progress-event', false)
 
     if (status === 200) {
       const eventName = rspWorkerEvents[route][action]
 
-      window[Symbol.for('vue.instance')].$root.$emit('progress-event', false)
+      console.log(route, action, eventName)
+
       window[Symbol.for('vue.instance')].$root.$emit(eventName, result)
 
       if (event.data.message) {
@@ -35,7 +37,6 @@ export function createRspWorker () {
       }
     } else {
       const { errorType, errorMessage } = event.data.error ? event.data : rspWorkerErrors[route][action]
-
       window[Symbol.for('vue.instance')].$root.$emit('open-error-popup', {
         errorType,
         errorMessage

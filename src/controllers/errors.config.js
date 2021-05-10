@@ -35,6 +35,10 @@ export const errors = {
     put: {
       errorType: 'Customer',
       errorMessage: 'Customer data update failed'
+    },
+    activate: {
+      errorType: 'Customer service activation',
+      errorMessage: 'Operation failed. You service delivery update request has not been sent.'
     }
   },
   tickets: {

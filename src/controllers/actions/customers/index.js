@@ -3,7 +3,9 @@ import { getCustomerData } from './getCustomerData'
 import { getCustomers } from './getCustomers'
 import { postCustomer } from './postCustomer'
 import { putCustomer } from './putCustomer'
+import { updateCustomerServices } from './updateCustomerServices'
 import { refreshCustomers } from './refreshCustomers'
+import { sendServiceActivationRequest } from './sendServiceActivationRequest'
 
 export {
   deleteCustomer,
@@ -11,5 +13,7 @@ export {
   getCustomers,
   postCustomer,
   putCustomer,
-  refreshCustomers
+  updateCustomerServices,
+  refreshCustomers,
+  sendServiceActivationRequest
 }

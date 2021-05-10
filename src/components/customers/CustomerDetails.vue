@@ -5,7 +5,9 @@
         <v-row justify="center" align="center">
           <v-spacer />
           <v-btn text @click="section = 'Customer details'"><b>Customer details</b></v-btn>
-          <v-btn text @click="section = 'Service details'"><b>Service details</b></v-btn>
+          <v-btn text @click="section = 'Service details'" :disabled="serviceDetailsDisabled">
+            <b>Service details</b>
+          </v-btn>
           <v-btn text @click="section = 'Building details'"><b>Building details</b></v-btn>
           <v-spacer />
           <v-btn icon @click="close">
@@ -17,20 +19,21 @@
 
     <v-row justify="center" v-if="ready">
       <Fieldset legend="Customer details" v-if="section === 'Customer details'">
-        <!-- <EditCustomerDetails
-          :initialCustomer.sync="customer"
-          :buildingId.sync="buildingId"
-          :buildingPostCode="buildingPostCode"
-        /> -->
         <EditCustomerDetails :initialCustomer.sync="customer" />
       </Fieldset>
 
       <Fieldset legend="Service details" v-if="section === 'Service details'">
         <CustomerServices
           :services.sync="customer.services"
+          :customerId="customerId"
           :address="`${customer.apartmentNumber}/${customer.address}`"
-          :update.sync="update"
         />
+        <!-- <v-card-text v-else>
+          <p style="color: #900">
+            <v-icon color="primary">mdi-alert</v-icon>
+            <small>You should primarily save the building details, and then update the customer' details, before assigning services to the customer.</small>
+          </p>
+        </v-card-text> -->
       </Fieldset>
 
       <Fieldset legend="Building details" v-if="section === 'Building details'">
@@ -66,33 +69,21 @@ export default {
     buildingId: null,
     update: false
   }),
+  computed: {
+    serviceDetailsDisabled () {
+      return !this.customer.buildingId || !this.customerId
+    }
+  },
   watch: {
-    'customer.services': {
-      deep: true,
-      handler (data) {
-        console.log('CUSTOMER SERVICES:\n', data)
-      }
-    },
     buildingId (value) {
-      console.log('BUILDING ID: ', this.buildingId)
       Object.assign(this.customer, { buildingId: value })
     },
     buildingPostCode (value) {
       Object.assign(this.customer, { postCode: value })
-    },
-    section (value) {
-      console.log(value)
-    },
-    update (val) {
-      console.log(val)
-      if (val) {
-
-      }
     }
   },
   methods: {
     getCustomerDetails (data) {
-      console.log('CUSTOMER DATA RECEIVED:\n', data)
       this.customer = data.result ? data.result : data
       this.buildingId = this.customer.buildingId
       if (!this.customer.buildingId) {
@@ -147,11 +138,9 @@ export default {
   },
   mounted () {
     if (this.customerId) {
-      console.log('CUSTOMER ID: ', this.customerId)
       this.$root.$on('customer-data-received', this.getCustomerDetails)
       this.__getCustomerData(this.customerId)
     } else {
-      console.log('INITIAL ADDRESS DATA:\n', this.initialAddressData)
       if (!this.initialAddressData) return console.warn('Error: prop "initialAddressData" not defined')
       this.createNewCustomer()
       this.ready = true

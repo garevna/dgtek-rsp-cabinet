@@ -1,14 +1,43 @@
 export const serviceHandler = (function () {
-  let serviceId = null
+  let serviceId = ''
   let serviceName = ''
-  return function (id, name) {
-    if (!id && !name) return { serviceId, serviceName }
-    if (id === 'reset' || name === 'reset') {
-      serviceId = null
+  let serviceSpeed = ''
+  let serviceStatus = ''
+  let servicePlan = ''
+  let serviceTerm = ''
+
+  return function (data) {
+    if (!data) {
+      return {
+        serviceId,
+        serviceName,
+        serviceSpeed,
+        serviceStatus,
+        servicePlan,
+        serviceTerm
+      }
+    }
+    if (data === 'reset') {
+      serviceId = ''
       serviceName = ''
+      serviceSpeed = ''
+      serviceStatus = ''
+      servicePlan = ''
+      serviceTerm = ''
     } else {
-      serviceId = id
-      serviceName = name
+      serviceId = data.serviceId || serviceId
+      serviceName = data.serviceName || serviceName
+      serviceSpeed = data.serviceSpeed || serviceSpeed
+      serviceStatus = data.serviceStatus || serviceStatus
+      servicePlan = data.servicePlan || servicePlan
+      serviceTerm = data.serviceTerm || serviceTerm
+
+      console.log(serviceId)
+      console.log(serviceName)
+      console.log(serviceSpeed)
+      console.log(serviceStatus)
+      console.log(servicePlan)
+      console.log(serviceTerm)
     }
   }
 })()
