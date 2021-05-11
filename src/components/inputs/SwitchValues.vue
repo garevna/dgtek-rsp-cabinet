@@ -13,10 +13,9 @@
 
 export default {
   name: 'SwitchValues',
+
   props: ['label', 'value', 'states'],
-  // data: () => ({
-  //   switchValue: false
-  // }),
+
   computed: {
     localValue: {
       get () {
@@ -26,9 +25,6 @@ export default {
         this.$emit('update:value', val)
       }
     }
-  },
-  mounted () {
-    console.log(this.states)
   }
 }
 

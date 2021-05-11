@@ -72,7 +72,6 @@ export default {
     selected: {
       deep: true,
       handler (data) {
-        console.log(data[0])
         const { _id: serviceId, serviceName, status: serviceStatus, subscriptionFee: servicePlan, contractTerm: serviceTerm } = data[0]
         serviceHandler({
           serviceId,
@@ -82,14 +81,12 @@ export default {
           servicePlan,
           serviceTerm
         })
-        console.log(serviceHandler())
       }
     }
   },
 
   methods: {
     getData (data) {
-      console.log('SERVICES COMPONENT RECEIVE THE DATA:\n', data)
       this.items = Array.isArray(data) ? data : data.result ? data.result : []
       this.items.forEach(item => {
         item.speed = `${item.downstreamSpeed}/${item.upstreamSpeed}Mbps`

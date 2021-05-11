@@ -46,7 +46,6 @@ export default {
     value: {
       immediate: true,
       handler (val) {
-        console.log(val)
         this.address = val
       }
     },

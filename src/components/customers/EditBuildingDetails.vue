@@ -111,7 +111,6 @@ export default {
   },
   methods: {
     getBuildingDetails (data) {
-      console.log(data)
       if (!data) return
       const buildingDetails = data.result ? data.result : data
       const {
@@ -134,13 +133,11 @@ export default {
     },
 
     getNewBuildingId (data) {
-      console.log('NEW BUILDING CREATED EVENT:\n', data)
       if (data.status === 200) {
         this.$emit('update:buildingId', data.key || data.result)
       }
     },
     sendMessage (event) {
-      console.log('SAVE BUILDING EVENT:\n', event)
       this.$root.$emit('open-message-popup', {
         messageTyle: 'Building details',
         messageText: 'Data updated'
@@ -170,15 +167,11 @@ export default {
         }
       }
 
-      console.log('Building id: ', this.buildingData.buildingId)
-      console.log(result)
       this.$root.$emit('progress-event', true)
 
-      if (this.buildingData.buildingId) {
-        console.log('PUT')
-        this.__putBuildingDetails(this.buildingData.buildingId, result)
+      if (this.buildingId) {
+        this.__putBuildingDetails(this.buildingId, result)
       } else {
-        console.log('POST')
         this.__postBuildingDetails(result)
       }
     }
@@ -191,7 +184,6 @@ export default {
   },
 
   mounted () {
-    console.log('BUILDING ID: ', this.buildingId)
     this.$root.$on('building-data-received', this.getBuildingDetails)
     this.$root.$on('buildings-data-saved', this.sendMessage)
     this.$root.$on('new-building-created', this.getNewBuildingId)

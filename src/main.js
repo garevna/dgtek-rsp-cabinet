@@ -35,8 +35,10 @@ instance.sendMessageToWorker = function (message) {
   window[Symbol.for('vue.instance')].__worker.postMessage(message)
 }
 
-Vue.prototype.sendMessageToWorker = instance.sendMessageToWorker
-Vue.prototype.$sendMessageToWorker = instance.sendMessageToWorker
+Object.assign(Vue.prototype, {
+  sendMessageToWorker: instance.sendMessageToWorker,
+  $sendMessageToWorker: instance.sendMessageToWorker
+})
 
 instance.__worker.addEventListener('message', initCallback)
 init()

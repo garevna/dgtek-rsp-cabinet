@@ -93,13 +93,11 @@ export default {
     selected: {
       deep: true,
       handler (data) {
-        console.log('SELECTED:\n', data)
         this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
       }
     },
     newCustomer (val) {
       if (!val) return
-      console.log('SELECTED:\n', this.selected)
       this.selected.status = this.selected.status === 'UnderConstruction' ? 'BuildCommenced' : this.selected.status
       if (this.selected.id) {
         this.$root.$on('building-data-received', this.getBuildingDetails)
@@ -107,17 +105,16 @@ export default {
       } else {
         this.createNewCustomer()
       }
-    },
-    initialAddressData: {
-      deep: true,
-      handler (val) {
-        console.log('INITIAL ADDRESS DATA CHANGED:\n', val)
-      }
     }
+    // initialAddressData: {
+    //   deep: true,
+    //   handler (val) {
+    //     console.log('INITIAL ADDRESS DATA CHANGED:\n', val)
+    //   }
+    // }
   },
   methods: {
     getBuildingDetails (eventData) {
-      console.log(eventData)
       Object.assign(this.selected, {
         management: eventData.management,
         owner: eventData.owner
@@ -142,15 +139,15 @@ export default {
     },
 
     catchEvent (event) {
-      console.group('Event handler')
-      console.log('Event type: ', event.type)
-      console.log('Event data:\n', event.data)
+      // console.group('Event handler')
+      // console.log('Event type: ', event.type)
+      // console.log('Event data:\n', event.data)
 
       if (Object.keys(buildingStatusConfig).indexOf(event.type) !== -1) {
-        console.log('EVENT AVAILABLE', event.type, event.data.address)
+        // console.log('EVENT AVAILABLE', event.type, event.data.address)
         this.selected = Object.assign(event.data, { event: event.type })
       }
-      console.groupEnd('Event handler')
+      // console.groupEnd('Event handler')
     }
   },
 

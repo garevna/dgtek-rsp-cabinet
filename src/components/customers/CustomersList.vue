@@ -124,7 +124,7 @@ export default {
     plan: null,
     postCode: null,
 
-    statuses: ['Active', 'Not connected', 'Awaiting for confirmation', 'Awaiting for connection'],
+    statuses: ['Active', 'Not connected', 'Awaiting confirmation', 'Awaiting for connection'],
     speeds: ['50/50', '150/150', '250/250', '500/500', '1000/1000'],
     headers: [
       {
@@ -143,14 +143,14 @@ export default {
       { text: 'Actions', value: 'actions', sortable: false }
     ]
   }),
-  watch: {
-    data: {
-      deep: true,
-      handler (value) {
-        console.log('SOURCE DATA CHANGED\n', value)
-      }
-    }
-  },
+  // watch: {
+  //   data: {
+  //     deep: true,
+  //     handler (value) {
+  //       console.log('SOURCE DATA CHANGED\n', value)
+  //     }
+  //   }
+  // },
   computed: {
     tableHeight () {
       return window.innerHeight - 360

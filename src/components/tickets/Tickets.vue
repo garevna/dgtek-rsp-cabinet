@@ -100,27 +100,20 @@ export default {
   computed: {
     filteredItems () {
       const filter = this.categories[this.category]
-      console.log(filter)
       return this.items
         .filter(ticket => !filter || (ticket.category === filter))
     }
   },
   methods: {
     getCategories (data) {
-      console.log('CATEGORIES:\n', data)
-      this.categories = data.result
+      this.categories = data
     },
     getTickets (data) {
-      console.log('TICKETS DATA:\n', data)
-      if (!data || !data.result) return []
-
-      this.items = Array.isArray(data) ? data : Array.isArray(data.result) ? data.result : []
+      this.items = data || []
       this.ready = true
     },
     filterBy (category) {
-      console.log(category, this.categories[category])
       this.category = typeof category === 'number' ? this.categories[category] : category
-      console.log('Category: ', this.category)
     },
     createNewTicket () {
       const { ticketSchema } = require('@/configs/ticketSchema')

@@ -31,13 +31,6 @@ export const serviceHandler = (function () {
       serviceStatus = data.serviceStatus || serviceStatus
       servicePlan = data.servicePlan || servicePlan
       serviceTerm = data.serviceTerm || serviceTerm
-
-      console.log(serviceId)
-      console.log(serviceName)
-      console.log(serviceSpeed)
-      console.log(serviceStatus)
-      console.log(servicePlan)
-      console.log(serviceTerm)
     }
   }
 })()

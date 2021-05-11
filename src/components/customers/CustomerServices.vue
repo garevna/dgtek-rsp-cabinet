@@ -37,7 +37,7 @@
               </td>
               <td>{{ item.serviceName }}</td>
               <td>
-                <v-btn text color="primary" @click="sendActivationRequest(item)" :disabled="!item.modified && item.serviceStatus !== 'Not connected'">
+                <v-btn text color="primary" @click="sendActivationRequest(item)" :disabled="item.modified || item.serviceStatus !== 'Not connected'">
                   {{ item.serviceStatus }}
                 </v-btn>
               </td>
@@ -108,7 +108,6 @@ export default {
     selected: {
       deep: true,
       handler (service) {
-        console.log('SELECTED SERVICE:\n', service)
         const index = this.schema.findIndex(item => item.serviceId === service.serviceId)
         this.schema.splice(index, 1, Object.assign({}, this.schema[index], {
           serviceStatus: service.serviceStatus,
@@ -117,9 +116,7 @@ export default {
       }
     },
     showServices (newVal, oldVal) {
-      console.log('SHOW SERVICES: ', oldVal, '-->', newVal)
       if (oldVal && !newVal) {
-        console.log(serviceHandler())
         if (!serviceHandler()) return
         this.assignNewService()
       }
@@ -129,12 +126,9 @@ export default {
   methods: {
     showError: showError,
     getServiceDetails (data) {
-      console.log('SERVICE DATA:\n', data)
-
       const { serviceName, _id: serviceId } = data
 
       const service = this.services.find(item => item.id === serviceId)
-      console.log(service)
 
       if (!service) return
       this.schema.push({
@@ -146,8 +140,6 @@ export default {
     },
 
     assignNewService () {
-      console.log(serviceHandler())
-
       const {
         serviceId,
         serviceName,
@@ -189,19 +181,14 @@ export default {
     },
 
     sendActivationRequest (item) {
-      console.log(item)
-
       if (item.serviceStatus !== 'Not connected') return
 
       this.selectedService = this.customerServices.find(service => service.id === item.serviceId)
       this.selected = item
-      console.log('SELECTED SERVICE:\n', this.selected)
       this.dialog = true
     },
 
     updateCustomerServices () {
-      console.log(this.customerServices)
-
       this.__updateCustomerServices(this.customerId, this.customerServices)
       this.schema.forEach((item) => { item.modified = false })
     }
@@ -213,19 +200,18 @@ export default {
   },
 
   mounted () {
-    console.log(this.services)
     this.customerServices = this.services.map(item => ({
       id: item.id,
       status: item.status,
       modified: item.modified,
       log: item.log
     }))
+
     this.$emit('update:services', this.customerServices)
-    console.log(this.services)
+
     this.$root.$on('service-details-received', this.getServiceDetails)
     this.$root.$on('service-selected', this.assignNewService)
     for (const service of this.services) {
-      console.log(service.id)
       if (service.name) {
         delete service.name
       }

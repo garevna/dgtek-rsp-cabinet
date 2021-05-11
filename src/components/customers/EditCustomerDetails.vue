@@ -166,14 +166,14 @@ export default {
           this.customer.commercial = this.commercialSchema
         }
       }
-    },
-    customer: {
-      deep: true,
-      immediate: true,
-      handler (data) {
-        console.log('CUSTOMER CHANGED:\n', data)
-      }
     }
+    // customer: {
+    //   deep: true,
+    //   immediate: true,
+    //   handler (data) {
+    //     console.log('CUSTOMER CHANGED:\n', data)
+    //   }
+    // }
   },
   methods: {
     changeUniqueCode () {

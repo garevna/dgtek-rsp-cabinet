@@ -9,6 +9,7 @@
       outlined
       dense
       :loading="loading"
+      v-model="selectedAddress"
     ></v-combobox>
     <v-list dense max-height="360" style="overflow-y: auto">
       <v-list-item
@@ -31,6 +32,7 @@ export default {
 
   data: () => ({
     buildings: null,
+    selectedAddress: null,
     eventType: null,
     ready: false
   }),
@@ -38,6 +40,13 @@ export default {
   computed: {
     title () {
       return this.type === 'lit' ? 'On-net buildings' : 'Upcoming buildings'
+    }
+  },
+
+  watch: {
+    selectedAddress (address) {
+      const item = this.buildings.find(building => building.address === address)
+      this.clickListItem(item)
     }
   },
 

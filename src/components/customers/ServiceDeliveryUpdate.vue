@@ -91,18 +91,6 @@ export default {
 
     getResponse (updatedCustomerServices) {
       this.submited = true
-      console.log(updatedCustomerServices)
-      // const serviceSpeed = updatedCustomerServices[0]
-      // this.$root.$emit('customer-services-updated', {
-      //   _id: this.customerId,
-      //   services: updatedCustomerServices,
-      //   serviceSpeed,
-      //   serviceStatus,
-      //   servicePlan,
-      //   serviceTerm
-      //   customerId: this.customerId,
-      //   customerServices: updatedCustomerServices
-      // })
       const service = updatedCustomerServices.find(item => item.id === this.serviceData.serviceId)
       this.$emit('update:serviceData', Object.assign({}, this.serviceData, {
         serviceStatus: service.status,
@@ -120,7 +108,6 @@ export default {
   },
 
   mounted () {
-    console.log('SERVICE DETAILS\n', this.serviceData)
     this.$root.$on('service-activation-request-sent', this.getResponse)
   }
 }

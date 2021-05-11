@@ -74,14 +74,14 @@ export default {
       })
     }
   },
-  watch: {
-    schema: {
-      deep: true,
-      handler (val) {
-        console.log('RSP DATA CHANGED:\n', val)
-      }
-    }
-  },
+  // watch: {
+  //   schema: {
+  //     deep: true,
+  //     handler (val) {
+  //       console.log('RSP DATA CHANGED:\n', val)
+  //     }
+  //   }
+  // },
   mounted () {
     this.__getClientData()
     this.$root.$on('client-data-received', this.getData)

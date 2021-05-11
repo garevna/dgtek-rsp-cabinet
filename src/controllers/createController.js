@@ -13,6 +13,4 @@ export const createController = function () {
   Object.keys(actions).forEach(key => Object.assign(window[Symbol.for('vue.prototype')], {
     [`__${key}`]: actions[key]
   }))
-
-  console.log(window[Symbol.for('vue.prototype')])
 }

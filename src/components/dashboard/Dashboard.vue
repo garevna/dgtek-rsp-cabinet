@@ -76,14 +76,13 @@ export default {
   computed: {
     awaitingCustomers () {
       return !this.customers ? [] : this.customers
-        .filter(customer => customer.status === 'Not connected' || customer.status === 'Awaiting for connection')
+        .filter(customer => customer.status === 'Awaiting for connection')
         .map(customer => `${customer.apartmentNumber}/${customer.address}`)
     }
   },
   methods: {
     getCustomers (data) {
-      console.log('CUSTOMERS:\n', data)
-      this.customers = data.result
+      this.customers = data
     }
   },
   mounted () {
