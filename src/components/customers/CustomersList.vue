@@ -65,24 +65,28 @@
           :items="filteredItems"
           :search="search"
           :page.sync="page"
+          :height="tableHeight"
+          fixed-header
         >
           <template v-slot:item.actions="{ item }">
             <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
           </template>
         </v-data-table>
 
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          dense
-          outlined
-          hide-details
-          style="display: inline-block; width: 280px"
-        ></v-text-field>
+        <div style="margin-top: -48px">
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            dense
+            outlined
+            hide-details
+            style="display: inline-block; width: 280px"
+          ></v-text-field>
 
-        <span class="ml-12"><small>Total selected customers: {{ selectedCustomersNumber }}</small></span>
+          <span class="ml-12"><small>Total selected customers: {{ selectedCustomersNumber }}</small></span>
+        </div>
       </v-card>
     </v-row>
     <v-row v-else justify="center">
@@ -120,7 +124,7 @@ export default {
     plan: null,
     postCode: null,
 
-    statuses: ['Active', 'Not connected', 'Awaiting for connection'],
+    statuses: ['Active', 'Not connected', 'Awaiting for confirmation', 'Awaiting for connection'],
     speeds: ['50/50', '150/150', '250/250', '500/500', '1000/1000'],
     headers: [
       {
@@ -148,6 +152,9 @@ export default {
     }
   },
   computed: {
+    tableHeight () {
+      return window.innerHeight - 360
+    },
     customers () {
       if (!this.data) return
 
@@ -165,17 +172,12 @@ export default {
       }))
     },
     postalCodes () {
-      const result = []
       const set = new Set(this.customers.map(customer => customer.postCode))
-      set.forEach((item) => { result.push(item) })
-      return result
+      return Array.from(set)
     },
     plans () {
-      const result = []
-      const set = new Set(this.customers.map(customer => customer.servicePlan))
-      console.log(set)
-      set.forEach((item) => { item && result.push(item) })
-      return result
+      const set = new Set(this.customers.map(customer => customer.servicePlan).filter(item => item))
+      return Array.from(set)
     },
     selectedCustomersNumber () {
       return this.filteredItems.length
@@ -191,7 +193,6 @@ export default {
   },
   methods: {
     async getData (data) {
-      console.log('CUSTOMERS LIST REFRESHED\n', data)
       this.data = Array.isArray(data) ? data : Array.isArray(data.result) ? data.result : []
       this.ready = true
     },
@@ -205,8 +206,6 @@ export default {
       this.edit = true
     },
     updateCustomerServices (data) {
-      console.log('CUSTOMERS LIST: customer-services-updated RESPONSE:\n', data)
-
       const {
         _id,
         services,
@@ -225,8 +224,6 @@ export default {
         servicePlan,
         serviceTerm
       }))
-
-      console.log(this.customers[index])
     }
   },
 

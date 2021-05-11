@@ -1,22 +1,15 @@
-import {
-  getCustomerDataError,
-  putCustomerDataError
-} from '../error-handlers'
-
 import { getCustomer, updateCustomer } from './'
 
 export const updateServiceStatus = async function (customerId, serviceId, newStatus) {
   const [route, action] = ['customers', 'status']
 
-  self.postMessage({ status: 300, route, action, customerId, serviceId, newStatus })
-
   if (!customerId || !serviceId) return { status: 422, route, action, result: `Invalid request: customer ${customerId}, service ${serviceId}` }
 
-  const { status: getStatus, result: customerData } = await getCustomer(customerId)
+  const getResponse = await getCustomer(customerId)
 
-  self.postMessage({ status: 300, route, action, result: { getStatus, customerData } })
+  if (getResponse.status !== 200) return getResponse
 
-  if (getStatus !== 200) return getCustomerDataError(getStatus)
+  const { result: customerData } = getResponse
 
   const { services } = customerData
 
@@ -28,18 +21,14 @@ export const updateServiceStatus = async function (customerId, serviceId, newSta
     log: Object.assign(services[index].log, { [Date.now()]: newStatus })
   }))
 
-  self.postMessage({ status: 300, route, action, services })
+  const response = await updateCustomer(customerId, Object.assign(customerData, { services }))
 
-  const { status: updateStatus, result: updateResult } = await updateCustomer(customerId, Object.assign(customerData, { services }))
-
-  self.postMessage({ status: 300, route, action: 'update service status', response: { updateStatus, updateResult } })
-
-  if (updateStatus !== 200) putCustomerDataError(updateStatus)
+  if (response.status !== 200) return response
 
   return {
-    status: updateStatus,
+    status: response.status,
     route,
     action,
-    result: customerData.services
+    result: services
   }
 }

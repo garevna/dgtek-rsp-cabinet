@@ -68,9 +68,9 @@
       </v-stepper-header>
     </v-row>
 
-    <v-bottom-navigation fixed flat height="90" class="homefone pt-2">
-      <v-container fluid class="mt-2">
-        <v-row justify="center" class="mb-3" style="width: 100%">
+    <v-bottom-navigation fixed flat height="24">
+      <!-- <v-container fluid class="mt-2"> -->
+        <!-- <v-row justify="center" class="mb-3" style="width: 100%">
             <v-btn
               v-if="step > 1"
               @click="step--"
@@ -87,15 +87,15 @@
               <v-icon color="buttons">$pageNext</v-icon>
               Next
             </v-btn>
-        </v-row>
-        <v-row justify="center" class="mt-2 mx-0 px-0" style="width: 100%; background: #aaa;">
+        </v-row> -->
+        <v-row justify="center" class="mx-0 px-0" style="width: 100%; background: #aaa;">
           <p class="text-center" style="color: #efefef;">
             <small>
               <sub>2021 &copy; Dgtek Pty. Ltd ABN 61 600 896 115</sub>
             </small>
           </p>
         </v-row>
-      </v-container>
+      <!-- </v-container> -->
     </v-bottom-navigation>
   </v-container>
 </template>

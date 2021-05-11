@@ -3,9 +3,9 @@ import Vue from 'vue'
 import { createController } from './controllers/createController'
 
 import {
+  events,
   createMapWorker,
-  createRspWorker,
-  events
+  createRspWorker
 } from './controllers'
 
 import configPlugin from '../config'
@@ -33,12 +33,6 @@ Vue.prototype.$addWorkerListener = function (routeName, actionName) {
 
 Object.keys(events)
   .forEach(route => Object.keys(events[route]).forEach(action => Vue.prototype.$addWorkerListener(route, action)))
-
-Vue.prototype.$sendMessageToWorker = function (message) {
-  const { route, action, key, data } = message
-  window[Symbol.for('vue.prototype')].$dispatchProgressEvent(true)
-  window[Symbol.for('vue.prototype')].__worker.postMessage({ route, action, key, data })
-}
 
 createController()
 

@@ -10,13 +10,9 @@ import {
 export const updateCustomerServices = async function (id, data) {
   const [route, action] = ['customers', 'services']
 
-  self.postMessage({ status: 300, request: { key: id, data } })
-
   const { status: getStatus, result: getResult } = await getRecordByKey('customers', id)
 
   if (getStatus !== 200) return getCustomerDataError(getStatus)
-
-  self.postMessage({ status: 300, getCustomerResult: getResult })
 
   const response = Object.assign({}, getResult, { services: data })
 
@@ -27,8 +23,6 @@ export const updateCustomerServices = async function (id, data) {
   if (putStatus !== 200) return putCustomerDataError(putStatus)
 
   const { status, result } = await put(`customer/${id}`, response)
-
-  self.postMessage({ status: 300, putToRemoteServerResponse: result })
 
   if (status !== 200) return putCustomerDataError(status, result)
 
@@ -50,9 +44,6 @@ export const updateCustomerServices = async function (id, data) {
     status,
     route,
     action,
-    result: customer,
-    message: true,
-    messageType: 'Customer services',
-    messageText: 'Customer services were successfully updated'
+    result: customer
   }
 }

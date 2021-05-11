@@ -36,6 +36,7 @@ instance.sendMessageToWorker = function (message) {
 }
 
 Vue.prototype.sendMessageToWorker = instance.sendMessageToWorker
+Vue.prototype.$sendMessageToWorker = instance.sendMessageToWorker
 
 instance.__worker.addEventListener('message', initCallback)
 init()

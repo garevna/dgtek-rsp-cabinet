@@ -37,7 +37,7 @@
               </td>
               <td>{{ item.serviceName }}</td>
               <td>
-                <v-btn text color="primary" @click="changeStatusRequest(item)" :disabled="item.status !== 'Not connected'">
+                <v-btn text color="primary" @click="sendActivationRequest(item)" :disabled="!item.modified && item.serviceStatus !== 'Not connected'">
                   {{ item.serviceStatus }}
                 </v-btn>
               </td>
@@ -77,8 +77,6 @@
 import { serviceHandler, showServiceSelectHandler } from '@/helpers'
 import { Services } from '@/components/dashboard'
 
-import ServiceDeliveryUpdate from '@/components/popups/ServiceDeliveryUpdate.vue'
-
 const showError = function () {
   this.$root.$emit('open-error-popup', {
     errorType: 'Assign service to customer',
@@ -91,14 +89,13 @@ export default {
 
   components: {
     Services,
-    ServiceDeliveryUpdate
+    ServiceDeliveryUpdate: () => import(/* webpackChunkName: 'service-delivery-update' */ '@/components/customers/ServiceDeliveryUpdate.vue')
   },
 
   props: ['services', 'address', 'update', 'customerId'],
 
   data: () => ({
     customerServices: [],
-    customerServiceDescriptions: [],
     schema: [],
     details: {},
     showServices: false,
@@ -110,8 +107,13 @@ export default {
   watch: {
     selected: {
       deep: true,
-      handler (val) {
-        console.log('SELECTED SERVICE:\n', val)
+      handler (service) {
+        console.log('SELECTED SERVICE:\n', service)
+        const index = this.schema.findIndex(item => item.serviceId === service.serviceId)
+        this.schema.splice(index, 1, Object.assign({}, this.schema[index], {
+          serviceStatus: service.serviceStatus,
+          serviceStatusModified: service.serviceStatusModified
+        }))
       }
     },
     showServices (newVal, oldVal) {
@@ -165,8 +167,6 @@ export default {
         }
       })
 
-      console.log(this.customerServices)
-
       this.schema.push({
         serviceId,
         serviceStatusModified: (new Date()).toISOString().slice(0, 10),
@@ -174,10 +174,9 @@ export default {
         serviceSpeed,
         serviceStatus: 'Not connected',
         servicePlan,
-        serviceTerm
+        serviceTerm,
+        modified: true
       })
-
-      console.log(this.schema)
     },
 
     selectService () {
@@ -189,8 +188,12 @@ export default {
       console.log('disconnect', service)
     },
 
-    changeStatusRequest (item) {
-      if (item.status !== 'Not connected') return
+    sendActivationRequest (item) {
+      console.log(item)
+
+      if (item.serviceStatus !== 'Not connected') return
+
+      this.selectedService = this.customerServices.find(service => service.id === item.serviceId)
       this.selected = item
       console.log('SELECTED SERVICE:\n', this.selected)
       this.dialog = true
@@ -200,17 +203,12 @@ export default {
       console.log(this.customerServices)
 
       this.__updateCustomerServices(this.customerId, this.customerServices)
+      this.schema.forEach((item) => { item.modified = false })
     }
-
-    // getResponse (event) {
-    //   console.log('customer-services-updated RESPONSE:\n', event)
-    //   // this.$root.$emit('customer-services-updated', this.schema)
-    // }
   },
 
   beforeDestroy () {
     this.$root.$off('service-details-received', this.getServiceDetails)
-    // this.$root.$off('customer-services-updated', this.getResponse)
     this.$root.$off('customer-created', this.close)
   },
 
@@ -226,7 +224,6 @@ export default {
     console.log(this.services)
     this.$root.$on('service-details-received', this.getServiceDetails)
     this.$root.$on('service-selected', this.assignNewService)
-    // this.$root.$on('customer-services-updated', this.getResponse)
     for (const service of this.services) {
       console.log(service.id)
       if (service.name) {

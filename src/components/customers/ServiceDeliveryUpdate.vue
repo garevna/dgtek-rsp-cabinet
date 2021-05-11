@@ -21,13 +21,13 @@
 
       <v-row align="center" justify="center">
         <v-card-text class="text-center">
-          <p><small>Service: </small><b>{{ serviceData.name }}</b></p>
+          <p><small>Service: </small><b>{{ serviceData.serviceName }}</b></p>
         </v-card-text>
       </v-row>
 
       <v-row align="center" justify="center" v-if="!submited">
         <v-card-text class="text-center">
-          <p><small>Current status: </small><b>{{ serviceData.status }}</b></p>
+          <p><small>Current delivery status: </small><b>{{ serviceData.serviceStatus }}</b></p>
         </v-card-text>
       </v-row>
 
@@ -62,12 +62,15 @@
 
 export default {
   name: 'ServiceDeliveryUpdate',
+
   props: ['dialog', 'address', 'serviceData', 'customerId'],
+
   data: () => ({
     status,
     disableClose: false,
     submited: false
   }),
+
   computed: {
     opened: {
       get () {
@@ -78,17 +81,33 @@ export default {
       }
     }
   },
+
   methods: {
     sendRequest () {
       this.disableClose = true
       this.submited = false
-      this.__sendServiceActivationRequest({ customerId: this.customerId, serviceId: this.serviceData.id })
+      this.__sendServiceActivationRequest({ customerId: this.customerId, serviceId: this.serviceData.serviceId })
     },
-    getResponse (event) {
-      this.disableClose = false
+
+    getResponse (updatedCustomerServices) {
       this.submited = true
-      console.log(event)
-      this.$emit('update:serviceData', event)
+      console.log(updatedCustomerServices)
+      // const serviceSpeed = updatedCustomerServices[0]
+      // this.$root.$emit('customer-services-updated', {
+      //   _id: this.customerId,
+      //   services: updatedCustomerServices,
+      //   serviceSpeed,
+      //   serviceStatus,
+      //   servicePlan,
+      //   serviceTerm
+      //   customerId: this.customerId,
+      //   customerServices: updatedCustomerServices
+      // })
+      const service = updatedCustomerServices.find(item => item.id === this.serviceData.serviceId)
+      this.$emit('update:serviceData', Object.assign({}, this.serviceData, {
+        serviceStatus: service.status,
+        serviceStatusModified: new Date(service.modified).toISOString().slice(0, 10)
+      }))
       this.opened = false
     },
     reset () {

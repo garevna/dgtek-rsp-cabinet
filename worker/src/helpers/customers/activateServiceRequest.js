@@ -17,8 +17,6 @@ import {
 export const activateServiceRequest = async function (data) {
   const [route, action] = ['customers', 'activate']
 
-  self.postMessage({ status: 300, route, action, data })
-
   const { customerId, serviceId } = data.serviceId ? data : data.data
 
   if (!customerId || !serviceId) return { status: 422, route, action, result: `Invalid request: customer ${customerId}, service ${serviceId}` }
@@ -36,15 +34,11 @@ export const activateServiceRequest = async function (data) {
     }
   })
 
-  self.postMessage({ status: 300, route, action, reqData })
-
   const { status, result } = await post(`scheduling/${customerId}`, reqData)
-
-  self.postMessage({ status: 300, route, action, response: { status, result } })
 
   if (status !== 200) return activateServiceRequestError(status, result)
 
-  const { result: services } = await updateServiceStatus(customerId, serviceId, 'Avaiting for confirmation')
+  const { result: services } = await updateServiceStatus(customerId, serviceId, 'Awaiting confirmation')
 
   return {
     status,
@@ -52,7 +46,7 @@ export const activateServiceRequest = async function (data) {
     action,
     result: services,
     message: true,
-    messageType: 'Service activation',
+    messageType: 'Customer service delivery update',
     messageText: 'You service delivery update request has been sent.'
   }
 }

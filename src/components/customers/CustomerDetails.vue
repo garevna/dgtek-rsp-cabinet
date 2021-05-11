@@ -72,6 +72,14 @@ export default {
   computed: {
     serviceDetailsDisabled () {
       return !this.customer.buildingId || !this.customerId
+    },
+    selectedCustomerServices: {
+      get () {
+        return this.customer ? this.customer.services : []
+      },
+      set (val) {
+        console.warn('CUSTOMER SERVICES CHANGED\n', val)
+      }
     }
   },
   watch: {
