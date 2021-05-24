@@ -27,7 +27,8 @@ import {
   postNewCustomerError,
   putCustomerDataError,
   refreshCustomersListError,
-  activateServiceRequestError
+  activateServiceRequestError,
+  schedulingServiceRequestError
 } from './customers'
 
 export {
@@ -43,6 +44,7 @@ export {
   putCustomerDataError,
   deleteCustomerError,
   activateServiceRequestError,
+  schedulingServiceRequestError,
 
   refreshTicketsListError,
   getCategoriesError,

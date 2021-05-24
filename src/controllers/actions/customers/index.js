@@ -6,6 +6,7 @@ import { putCustomer } from './putCustomer'
 import { updateCustomerServices } from './updateCustomerServices'
 import { refreshCustomers } from './refreshCustomers'
 import { sendServiceActivationRequest } from './sendServiceActivationRequest'
+import { sendSchedulingRequest } from './sendSchedulingRequest'
 
 export {
   deleteCustomer,
@@ -15,5 +16,6 @@ export {
   putCustomer,
   updateCustomerServices,
   refreshCustomers,
-  sendServiceActivationRequest
+  sendServiceActivationRequest,
+  sendSchedulingRequest
 }

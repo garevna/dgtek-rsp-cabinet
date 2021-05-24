@@ -1,6 +1,8 @@
 import { init } from './init'
 import { credentials } from './credentials'
 
+import { getFreeLotsOfSchedule } from './getFreeLotsOfSchedule'
+
 import {
   getClientData,
   putClientCredentials,
@@ -22,7 +24,8 @@ import {
   putCustomer,
   updateCustomerServices,
   refreshCustomers,
-  sendServiceActivationRequest
+  sendServiceActivationRequest,
+  sendSchedulingRequest
 } from './customers'
 
 import {
@@ -63,6 +66,7 @@ export {
   deleteCustomer,
   updateCustomerServices,
   sendServiceActivationRequest,
+  sendSchedulingRequest,
 
   getServices,
   getServiceById,
@@ -78,5 +82,7 @@ export {
   getBuildingsByStatus,
   getAddressListByStatus,
   postBuildingDetails,
-  putBuildingDetails
+  putBuildingDetails,
+
+  getFreeLotsOfSchedule
 }

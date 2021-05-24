@@ -22,7 +22,8 @@ export const routes = {
     post: customersController.createCustomer,
     delete: customersController.deleteCustomer,
     put: customersController.updateCustomer,
-    activate: customersController.activateServiceRequest
+    activate: customersController.activateServiceRequest,
+    scheduling: customersController.scheduling
   },
   crypto: {
     init: cryptoController.init,
@@ -33,6 +34,9 @@ export const routes = {
     refresh: servicesController.refresh,
     list: servicesController.list,
     get: servicesController.get
+  },
+  schedule: {
+    get: servicesController.getFreeLotsForSchedule
   },
   tickets: {
     refresh: ticketsController.refresh,

@@ -6,12 +6,11 @@ import {
   getWeekDay,
   getWeekStartDate,
   getWeekEndDate,
-  getWeekObject,
   getNextWeekDate,
   getPrevWeekDate,
   getNextWeekObject,
   getPrevWeekObject
-} from './dateFunctions'
+} from 'garevna-date-functions'
 
 export {
   init,
@@ -23,7 +22,6 @@ export {
   getWeekDay,
   getWeekStartDate,
   getWeekEndDate,
-  getWeekObject,
   getNextWeekDate,
   getPrevWeekDate,
   getNextWeekObject,

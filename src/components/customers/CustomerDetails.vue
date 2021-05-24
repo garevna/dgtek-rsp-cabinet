@@ -4,11 +4,15 @@
       <v-toolbar>
         <v-row justify="center" align="center">
           <v-spacer />
-          <v-btn text @click="section = 'Customer details'"><b>Customer details</b></v-btn>
-          <v-btn text @click="section = 'Service details'" :disabled="serviceDetailsDisabled">
-            <b>Service details</b>
+          <v-btn text @click="section = 'Customer details'">
+            <b :style="{ color: section === 'Customer details' ? '#900' : '#999' }">Customer details</b>
           </v-btn>
-          <v-btn text @click="section = 'Building details'"><b>Building details</b></v-btn>
+          <v-btn text @click="section = 'Service details'" :disabled="serviceDetailsDisabled">
+            <b :style="{ color: section === 'Service details' ? '#900' : '#999' }">Service details</b>
+          </v-btn>
+          <v-btn text @click="section = 'Building details'">
+            <b :style="{ color: section === 'Building details' ? '#900' : '#999' }">Building details</b>
+          </v-btn>
           <v-spacer />
           <v-btn icon @click="close">
             <v-icon large>mdi-close</v-icon>
@@ -63,7 +67,7 @@ export default {
   props: ['customerId', 'initialAddressData', 'dialog'],
   data: () => ({
     ready: false,
-    section: 'Customer details',
+    section: 'Service details',
     customer: null,
     buildingDetails: null,
     buildingId: null,
@@ -101,11 +105,18 @@ export default {
           uniqueCode: getBuildingUniqueCode(this.customer.addressComponents),
           status: this.status
         }
+
+        this.section = 'Building details'
+      } else {
+        this.section = this.serviceDetailsDisabled ? 'Customer details' : 'Service details'
       }
+
       this.ready = true
     },
 
     createNewCustomer () {
+      this.section = 'Building details'
+
       const {
         address,
         addressComponents,

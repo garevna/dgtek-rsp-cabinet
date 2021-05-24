@@ -10,6 +10,38 @@ import { initCallback, refreshCallback } from '@/controllers/callbacks'
 
 import { setBuildingHandlers } from '@/helpers/map.worker'
 
+import {
+  getWeekDay,
+  getWeekNumber,
+  getWeekStartDate,
+  getWeekEndDate,
+
+  getFormattedISODate,
+  getFormattedDate,
+
+  getNextWeekDate,
+  getPrevWeekDate,
+
+  getWeekStartDateByWeekNumber,
+  getWeekEndDateByWeekNumber
+} from 'garevna-date-functions'
+
+Object.assign(Vue.prototype, {
+  getWeekDay,
+  getWeekNumber,
+  getWeekStartDate,
+  getWeekEndDate,
+
+  getFormattedISODate,
+  getFormattedDate,
+
+  getNextWeekDate,
+  getPrevWeekDate,
+
+  getWeekStartDateByWeekNumber,
+  getWeekEndDateByWeekNumber
+})
+
 Vue.config.productionTip = false
 
 Vue.component('error-message', ErrorMessage)

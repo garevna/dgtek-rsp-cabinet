@@ -85,18 +85,20 @@ export default {
   methods: {
     sendRequest () {
       this.disableClose = true
-      this.submited = false
+      this.submited = true
       this.__sendServiceActivationRequest({ customerId: this.customerId, serviceId: this.serviceData.serviceId })
     },
 
     getResponse (updatedCustomerServices) {
-      this.submited = true
+      console.log('UPDATED CUSTOMER SERVICES:\n', updatedCustomerServices)
+      // this.submited = true
       const service = updatedCustomerServices.find(item => item.id === this.serviceData.serviceId)
       this.$emit('update:serviceData', Object.assign({}, this.serviceData, {
         serviceStatus: service.status,
         serviceStatusModified: new Date(service.modified).toISOString().slice(0, 10)
       }))
-      this.opened = false
+      console.log('SERVICE DATA:', this.serviceData)
+      this.disableClose = false
     },
     reset () {
       this.opened = false

@@ -7,6 +7,7 @@ import { getAllCustomers } from './getAllCustomers'
 import { getFromRemoteServer } from './getFromRemoteServer'
 import { activateServiceRequest } from './activateServiceRequest'
 import { updateServiceStatus } from './updateServiceStatus'
+import { schedulingRequest } from './schedulingRequest'
 
 export {
   getFromRemoteServer,
@@ -17,5 +18,6 @@ export {
   deleteCustomer,
   updateCustomerServices,
   activateServiceRequest,
-  updateServiceStatus
+  updateServiceStatus,
+  schedulingRequest
 }

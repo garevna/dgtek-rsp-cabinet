@@ -1,6 +1,7 @@
 <template>
   <v-card flat class="transparent">
-    <v-row justify="center" align="start">
+    <LotSelection />
+    <!-- <v-row justify="center" align="start">
       <v-col cols="12" md="6" lg="4" xl="3">
         <v-card flat class="transparent">
           <v-card-text class="py-0">
@@ -52,18 +53,20 @@
     <v-row justify="center">
     </v-row>
     <v-row justify="center">
-    </v-row>
+    </v-row> -->
   </v-card>
 </template>
 
 <script>
 
-import Fieldset from '@/components/Fieldset.vue'
+// import Fieldset from '@/components/Fieldset.vue'
+import LotSelection from '@/components/schedule/LotSelection.vue'
 
 export default {
   name: 'Dashboard',
   components: {
-    Fieldset
+    // Fieldset,
+    LotSelection
   },
   data: () => ({
     customers: [],

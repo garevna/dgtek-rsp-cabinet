@@ -68,6 +68,15 @@
           :height="tableHeight"
           fixed-header
         >
+          <template v-slot:item.serviceStatus="{ item }">
+            <v-icon :color="getIcon(item.serviceStatus).color" small class="mr-1">
+              {{ getIcon(item.serviceStatus).icon }}
+            </v-icon>
+            <span @click="editItem(item)" style="cursor: pointer">
+              {{ item.serviceStatus }}
+            </span>
+          </template>
+
           <template v-slot:item.actions="{ item }">
             <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
           </template>
@@ -124,7 +133,7 @@ export default {
     plan: null,
     postCode: null,
 
-    statuses: ['Active', 'Not connected', 'Awaiting confirmation', 'Awaiting for connection'],
+    statuses: ['Active', 'Awaiting for connection', 'Awaiting for confirmation', 'Awaiting for scheduling', 'In job queue', 'Unable to connect', 'Not connected'],
     speeds: ['50/50', '150/150', '250/250', '500/500', '1000/1000'],
     headers: [
       {
@@ -143,14 +152,7 @@ export default {
       { text: 'Actions', value: 'actions', sortable: false }
     ]
   }),
-  // watch: {
-  //   data: {
-  //     deep: true,
-  //     handler (value) {
-  //       console.log('SOURCE DATA CHANGED\n', value)
-  //     }
-  //   }
-  // },
+
   computed: {
     tableHeight () {
       return window.innerHeight - 360
@@ -192,6 +194,29 @@ export default {
     }
   },
   methods: {
+    getIcon (status) {
+      const icons = {
+        Active: 'mdi-check-network-outline',
+        'Awaiting for connection': 'mdi-calendar-question',
+        'Awaiting for confirmation': 'mdi-calendar-clock',
+        'Awaiting confirmation': 'mdi-calendar-clock',
+        'Awaiting for scheduling': 'mdi-calendar-question',
+        'In job queue': 'mdi-calendar-check',
+        'Unable to connect': 'mdi-minus-network',
+        'Not connected': 'mdi-alert'
+      }
+      const colors = {
+        Active: '#999',
+        'Awaiting for connection': '#999',
+        'Awaiting for confirmation': '#999',
+        'Awaiting confirmation': '#999',
+        'Awaiting for scheduling': 'primary',
+        'In job queue': '#999',
+        'Unable to connect': '#777',
+        'Not connected': '#f00'
+      }
+      return { icon: icons[status], color: colors[status] }
+    },
     async getData (data) {
       this.data = Array.isArray(data) ? data : Array.isArray(data.result) ? data.result : []
       this.ready = true
