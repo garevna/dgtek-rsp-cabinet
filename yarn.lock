@@ -4377,6 +4377,11 @@ functional-red-black-tree@^1.0.1:
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
 
+garevna-date-functions@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/garevna-date-functions/-/garevna-date-functions-1.1.5.tgz#37f6e44d9f8184173c69c9463be35f4912e1129e"
+  integrity sha512-h+XUoQo61Z9PL7akTP046es373VlmBIaxrAM70pLIQ/PosMGhHi0B5Da+1QrIyMooISYs0E/l9FNSa7oOtQWAQ==
+
 gensync@^1.0.0-beta.1:
   version "1.0.0-beta.2"
   resolved "https://registry.yarnpkg.com/gensync/-/gensync-1.0.0-beta.2.tgz#32a6ee76c3d7f52d46b2b1ae5d93fea8580a25e0"

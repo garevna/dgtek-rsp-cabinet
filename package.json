@@ -12,6 +12,7 @@
   "dependencies": {
     "dgtek-map": "^1.4.1",
     "dgtek-styles": "^0.0.8",
+    "garevna-date-functions": "^1.1.5",
     "vue": "2.6.11",
     "vuetify": "^2.4.9"
   },
