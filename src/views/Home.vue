@@ -1,5 +1,5 @@
 <template>
-  <v-container class="homefone">
+  <v-container fluid class="homefone">
     <v-stepper v-model="step" class="homefone" style="box-shadow: none;">
       <v-stepper-items flat class="page-content transparent mt-6 mb-12">
         <transition name="current-component">
@@ -186,7 +186,7 @@ export default {
     this.$root.$off('go-to-customers-list', this.goToCustomersList)
   },
 
-  mounted () {
+  created () {
     this.$root.$on('data-refreshed', this.refreshCallback)
     this.$root.$on('go-to-services', this.goToServices)
     this.$root.$on('go-to-customer-details', this.goToCustomer)

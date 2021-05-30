@@ -23,8 +23,9 @@ export function createRspWorker () {
     window[Symbol.for('vue.instance')].$root.$emit('progress-event', false)
 
     if (status === 200) {
+      // console.log(route, action)
       const eventName = rspWorkerEvents[route][action]
-
+      // console.log(eventName)
       window[Symbol.for('vue.instance')].$root.$emit(eventName, result)
 
       if (event.data.message) {

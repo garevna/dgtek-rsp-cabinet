@@ -25,7 +25,8 @@ import {
   updateCustomerServices,
   refreshCustomers,
   sendServiceActivationRequest,
-  sendSchedulingRequest
+  sendSchedulingRequest,
+  getCustomersServicesInfo
 } from './customers'
 
 import {
@@ -67,6 +68,7 @@ export {
   updateCustomerServices,
   sendServiceActivationRequest,
   sendSchedulingRequest,
+  getCustomersServicesInfo,
 
   getServices,
   getServiceById,

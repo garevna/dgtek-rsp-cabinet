@@ -7,7 +7,9 @@ import {
   updateCustomerServices,
   deleteCustomer,
   activateServiceRequest,
-  schedulingRequest
+  schedulingRequest,
+  // getFreeLotsForSchedule,
+  getAllActiveServices
 } from '../helpers/customers'
 
 class CustomersController {
@@ -64,6 +66,14 @@ class CustomersController {
     self.postMessage(response)
     const { result: services } = response
     self.postMessage(await updateCustomerServices(customerId, services))
+  }
+
+  // async getScheduleLots () {
+  //   self.postMessage(await getFreeLotsForSchedule())
+  // }
+
+  async getActiveServicesInfo () {
+    self.postMessage(await getAllActiveServices())
   }
 }
 

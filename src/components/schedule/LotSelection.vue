@@ -144,8 +144,6 @@ export default {
 
   methods: {
     sendRequest () {
-      console.log(this.result)
-
       this.$emit('update:serviceData', Object.assign({}, this.serviceData, {
         modified: Date.now(),
         lots: this.result,
@@ -157,7 +155,6 @@ export default {
         lots: this.result
       })
 
-      console.log(this.serviceData)
       this.popup = false
     },
     submit () {
@@ -182,7 +179,6 @@ export default {
     },
 
     available (lot = 'am') {
-      console.log('Selected slot: ', this.selectedSlot)
       if (!this.selectedSlot) return false
       return this.lots[this.selectedSlot][lot]
     },
@@ -230,24 +226,21 @@ export default {
       ]
     },
     getLots (data) {
-      console.log('FREE LOTS:\n', data)
       this.lots = data
       this.ready = true
     },
     showResponse (response) {
-      console.log('SCHEDULING REQUEST SENT!!!')
-      console.log(response)
       this.$emit('update:dialog', false)
     }
   },
 
   beforeDestroy () {
-    this.$root.$off('free-lots-received', this.getLots)
+    this.$root.$off('schedule-lots-received', this.getLots)
     this.$root.$off('scheduling-request-sent', this.showResponse)
   },
   mounted () {
     this.$root.$on('scheduling-request-sent', this.showResponse)
-    this.$root.$on('free-lots-received', this.getLots)
+    this.$root.$on('schedule-lots-received', this.getLots)
     this.__getFreeLotsOfSchedule()
   }
 }

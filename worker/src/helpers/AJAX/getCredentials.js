@@ -1,11 +1,16 @@
-import { hostHandler } from '../env'
+import { hostHandler, apiKeyHandler } from '../env'
 
 export const getCredentials = async function () {
   if (!navigator.onLine) return { status: 0, result: 'Offline mode' }
 
   const [route, action] = ['rsp', 'credentials']
 
-  const response = await fetch(`${hostHandler()}/credentials`)
+  const response = await fetch(`${hostHandler()}/credentials`, {
+    method: 'GET',
+    headers: {
+      Authorization: apiKeyHandler()
+    }
+  })
   const result = (await (response.json())).data
 
   if (response.status !== 200) {

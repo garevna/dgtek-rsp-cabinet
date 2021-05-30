@@ -8,6 +8,8 @@ import { refreshCustomers } from './refreshCustomers'
 import { sendServiceActivationRequest } from './sendServiceActivationRequest'
 import { sendSchedulingRequest } from './sendSchedulingRequest'
 
+import { getCustomersServicesInfo } from './getCustomersServicesInfo'
+
 export {
   deleteCustomer,
   getCustomerData,
@@ -17,5 +19,7 @@ export {
   updateCustomerServices,
   refreshCustomers,
   sendServiceActivationRequest,
-  sendSchedulingRequest
+  sendSchedulingRequest,
+
+  getCustomersServicesInfo
 }

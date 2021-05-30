@@ -39,9 +39,10 @@
                 </v-btn>
               </td>
               <td>{{ item.serviceName }}</td>
-              <td>
+              <td width="140">
                 <v-btn
                   text
+                  small
                   color="primary"
                   @click="changeStatus(item)"
                   :disabled="disable(item)"
@@ -49,16 +50,18 @@
                   {{ item.serviceStatus }}
                 </v-btn>
               </td>
-              <td width="120">{{ item.serviceStatusModified }}</td>
-              <td width="280">
-                <p v-if="item.lots && item.lots.length === 2" style="width: 248px">
-                  <small class="schedule-slot schedule-slot--first">{{ item.lots[0].date }}({{ item.lots[0].period }})</small>
-                  <small class="schedule-slot">{{ item.lots[1].date }}({{ item.lots[1].period }})</small>
-                </p>
+              <td width="140">{{ item.serviceStatusModified }}</td>
+              <td width="220">
+                <li v-if="item.lots && item.lots.length === 2">
+                  {{ item.lots[0].date }} <small>({{ item.lots[0].period.toUpperCase() }})</small>
+                </li>
+                <li v-if="item.lots && item.lots.length === 2">
+                  {{ item.lots[1].date }} <small>({{ item.lots[1].period.toUpperCase() }})</small>
+                </li>
               </td>
-              <td>
+              <td width="160">
                 <p v-if="item.installation && item.installation.date">
-                  {{ item.installation.date }}({{ item.installation.period }})
+                  <small style="color: #900"><b>{{ item.installation.date }}({{ item.installation.period.toUpperCase() }})</b></small>
                 </p>
               </td>
             </tr>
@@ -137,7 +140,6 @@ export default {
     selected: {
       deep: true,
       handler (service) {
-        console.log('SERVICE DATA UPDATED:\n', service)
         const index = this.schema.findIndex(item => item.serviceId === service.serviceId)
         this.schema.splice(index, 1, Object.assign({}, this.schema[index], {
           serviceStatus: service.serviceStatus,
@@ -169,7 +171,6 @@ export default {
     },
 
     getServiceDetails (data) {
-      console.log('SERVICE DETAILS RECEIVED')
       const { serviceName, _id: serviceId } = data
 
       const service = this.services.find(item => item.id === serviceId)
@@ -294,8 +295,16 @@ export default {
   border: solid 1px #999;
   padding: 4px;
   border-radius: 4px;
+  list-style-type: none;
+  text-align: center;
 }
-.schedule-slot--first {
-  margin-right: 4px;
+</style>
+
+<style scoped>
+td {
+  text-align: center;
+}
+small {
+  font-size: 70%;
 }
 </style>

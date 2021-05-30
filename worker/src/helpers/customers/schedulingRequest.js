@@ -6,14 +6,6 @@ import { schedulingServiceRequestError } from '../error-handlers'
 
 import { updateServiceStatus } from './'
 
-import {
-  getWeekNumber,
-  getWeekStartDate,
-  getWeekEndDate
-} from '../'
-
-// import { getServiceById, putService } from '../services'
-
 export const schedulingRequest = async function (data) {
   const [route, action] = ['customers', 'scheduling']
 
@@ -21,19 +13,11 @@ export const schedulingRequest = async function (data) {
 
   if (!customerId || !serviceId) return { status: 422, route, action, result: `Invalid request: customer ${customerId}, service ${serviceId}` }
 
-  const date = new Date()
-
-  const reqData = Object.assign({}, { customerId, serviceId }, {
+  const reqData = Object.assign({}, { customerId, serviceId, lots }, {
     resellerId: idHandler(),
     status: 'Awaiting for confirmation',
     request: 'scheduling',
-    weekNumber: getWeekNumber(date),
-    weekDetails: {
-      start: getWeekStartDate(date),
-      end: getWeekEndDate(date)
-    },
-    modified: Date.now(),
-    lots
+    modified: Date.now()
   })
 
   const { status, result } = await post(`scheduling/${customerId}`, reqData)

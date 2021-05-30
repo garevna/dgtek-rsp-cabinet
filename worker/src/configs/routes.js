@@ -23,7 +23,8 @@ export const routes = {
     delete: customersController.deleteCustomer,
     put: customersController.updateCustomer,
     activate: customersController.activateServiceRequest,
-    scheduling: customersController.scheduling
+    scheduling: customersController.scheduling,
+    info: customersController.getActiveServicesInfo
   },
   crypto: {
     init: cryptoController.init,
@@ -47,5 +48,8 @@ export const routes = {
   },
   categories: {
     get: ticketsController.getCategories
+  },
+  lots: {
+    get: customersController.getScheduleLots
   }
 }

@@ -35,5 +35,8 @@ export const events = {
     post: 'new-building-created',
     getById: 'building-data-received',
     getByAddress: 'building-data-received'
+  },
+  lots: {
+    get: 'schedule-lots-received'
   }
 }

@@ -102,9 +102,9 @@
           <tr style="height: 48px;"></tr>
 
           <tr style="margin-top: 48px!important">
-            <td class="d-none d-md-flex">
+            <!-- <td class="d-none d-md-flex">
               <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn>
-            </td>
+            </td> -->
               <td colspan="2" class="text-right">
               <v-spacer />
               <v-btn dark class="buttons" @click="saveCustomerDetails" v-if="!saveDisabled">
@@ -124,7 +124,7 @@
 <script>
 
 import { customerSchema, rules } from '@/configs'
-import { testTextField, getBuildingUniqueCode } from '@/helpers'
+import { testTextField } from '@/helpers'
 import { SwitchValues } from '@/components/inputs'
 
 const { customerDetails, commercial } = customerSchema
@@ -135,6 +135,7 @@ export default {
     SwitchValues
   },
   props: {
+    dialog: Boolean,
     initialCustomer: Object
   },
   data: () => ({
@@ -167,26 +168,18 @@ export default {
         }
       }
     }
-    // customer: {
-    //   deep: true,
-    //   immediate: true,
-    //   handler (data) {
-    //     console.log('CUSTOMER CHANGED:\n', data)
-    //   }
-    // }
   },
   methods: {
     changeUniqueCode () {
-      this.createCustomerCode()
+      const code = `${this.customer.uniqueCode.split('.').slice(0, -1).join('.')}.${this.customer.apartmentNumber}`
+      this.customer.uniqueCode = code
+      this.customerDetailsSchema.uniqueCode.value = code
     },
     update (propName, propValue) {
       this.customer[propName] = propValue
     },
-    createCustomerCode (addressComponents) {
-      return `${getBuildingUniqueCode(addressComponents)}.${this.customer.apartmentNumber}`
-    },
+
     updateBuildingId () {
-      console.log(this.customer.address)
       this.__getBuildingByAddress(this.customer.address)
     },
     rowHeight (item) {
@@ -210,6 +203,7 @@ export default {
       }
     },
     getCustomerData (data) {
+      console.log(data)
       this.customer = data.result
       this.createSchema()
 

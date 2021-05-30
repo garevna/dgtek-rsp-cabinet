@@ -25,12 +25,32 @@
         :items="items"
         :search="search"
         single-select
+        single-expand
+        :expanded.sync="expanded"
+        show-expand
         item-key="serviceName"
         :show-select="showSelect"
         v-model="selected"
       >
-        <template v-slot:item.actions="{ item }">
-          <v-btn outlined @click="editItem(item)" dark class="primary">Select</v-btn>
+        <template v-slot:item.active="{ item }">
+          <v-chip color="primary" outlined v-if="item.active">
+            {{ item.active }}
+          </v-chip>
+        </template>
+
+        <template v-slot:item.pending="{ item }">
+          <v-chip color="#777" outlined v-if="item.pending">
+            {{ item.pending }}
+          </v-chip>
+        </template>
+
+        <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length" v-if="item.promo" class="pa-4">
+            <h5>PROMO</h5>
+            <p><small>
+              {{ item.promo }}
+            </small></p>
+          </td>
         </template>
       </v-data-table>
 
@@ -51,6 +71,7 @@ export default {
     items: null,
     search: null,
     selected: [],
+    expanded: [],
     showSelect: showServiceSelectHandler(),
     headers: [
       {
@@ -58,13 +79,16 @@ export default {
         align: 'start',
         value: 'serviceName'
       },
+      { text: 'Active', value: 'active' },
+      { text: 'Pending', value: 'pending' },
       { text: 'Speed (Mbps)', value: 'speed' },
       { text: 'Data (MB)', value: 'dataLimit' },
       { text: 'Term (months)', value: 'contractTerm' },
       { text: 'Connection fee', value: 'connectionFee' },
       { text: 'Router fee', value: 'routerFee' },
       { text: 'Service fee', value: 'subscriptionFee' },
-      { text: 'PROMO', value: 'promo' }
+      { text: 'PROMO', value: 'data-table-expand' }
+      // { text: 'PROMO', value: 'promo' }
     ]
   }),
 
@@ -90,6 +114,8 @@ export default {
       this.items = Array.isArray(data) ? data : data.result ? data.result : []
       this.items.forEach(item => {
         item.speed = `${item.downstreamSpeed}/${item.upstreamSpeed}Mbps`
+        item.active = this.$root.servicesInfo.activeServices[item.serviceName] ? this.$root.servicesInfo.activeServices[item.serviceName] : ''
+        item.pending = this.$root.servicesInfo.pendingConnections[item.serviceName] ? this.$root.servicesInfo.pendingConnections[item.serviceName] : ''
       })
       this.ready = true
     },
@@ -106,6 +132,7 @@ export default {
   mounted () {
     this.$root.$on('services-list-received', this.getData)
     this.__getServices()
+    // console.log(this.$root.servicesInfo)
   }
 }
 </script>

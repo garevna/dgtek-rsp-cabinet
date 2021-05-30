@@ -6,5 +6,6 @@ export const customers = {
   put: 'customer-updated',
   activate: 'service-activation-request-sent',
   scheduling: 'scheduling-request-sent',
-  services: 'customer-services-updated'
+  services: 'customer-services-updated',
+  info: 'services-info-received'
 }

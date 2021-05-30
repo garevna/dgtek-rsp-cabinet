@@ -23,7 +23,8 @@ import {
   getPrevWeekDate,
 
   getWeekStartDateByWeekNumber,
-  getWeekEndDateByWeekNumber
+  getWeekEndDateByWeekNumber,
+  getWeekDatesByWeekNumber
 } from 'garevna-date-functions'
 
 Object.assign(Vue.prototype, {
@@ -39,7 +40,8 @@ Object.assign(Vue.prototype, {
   getPrevWeekDate,
 
   getWeekStartDateByWeekNumber,
-  getWeekEndDateByWeekNumber
+  getWeekEndDateByWeekNumber,
+  getWeekDatesByWeekNumber
 })
 
 Vue.config.productionTip = false
@@ -51,6 +53,8 @@ const instance = new Vue({
   vuetify,
   render: h => h(App)
 }).$mount('#app')
+
+instance.showMainMenu = true
 
 window[Symbol.for('vue.instance')] = instance
 
@@ -73,6 +77,7 @@ Object.assign(Vue.prototype, {
 })
 
 instance.__worker.addEventListener('message', initCallback)
+
 init()
 
 /* ===================== MAP WORKER ========================= */

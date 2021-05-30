@@ -8,7 +8,7 @@ import {
 
 export function credentialCallback (event) {
   const { status, action } = event.data
-  if (action !== 'credentials') return console.log('credentialCallback not removed')
+  if (action !== 'credentials') return /* console.log('credentialCallback not removed') */
   if (status === 200) {
     window[Symbol.for('rsp.worker')].addEventListener('message', refreshCallback)
 

@@ -17,7 +17,12 @@ export const get = async function (path) {
     }
   })
 
+  const res = await response.json()
+
+  // self.postMessage({ status: 300, action: 'GET', res })
+
   if (response.status !== 200) return getCustomerDataError(response.status)
 
-  return { status: 200, result: (await (response.json())).data }
+  // return { status: 200, result: (await (response.json())).data }
+  return { status: 200, result: res.data }
 }

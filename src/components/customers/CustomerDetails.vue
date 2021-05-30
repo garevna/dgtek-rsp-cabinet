@@ -1,5 +1,5 @@
 <template>
-  <v-card flat class="transparent mx-auto my-12" max-width="1008" min-width="1008" v-if="ready">
+  <v-card flat class="transparent mx-auto mb-12 pt-8" max-width="1008" min-width="1008" v-if="ready">
     <v-row justify="center" align="center">
       <v-toolbar>
         <v-row justify="center" align="center">
@@ -46,6 +46,9 @@
           :buildingId.sync="buildingId"
         />
       </Fieldset>
+    </v-row>
+    <v-row justify="center">
+      <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn>
     </v-row>
   </v-card>
 </template>
@@ -133,7 +136,7 @@ export default {
         address: normalizeAddress(address),
         buildingId,
         postCode,
-        uniqueCode: `${getBuildingUniqueCode(addressComponents)}.0}`
+        uniqueCode: `${getBuildingUniqueCode(addressComponents)}.0`
       })
 
       this.buildingDetails = {
@@ -153,8 +156,14 @@ export default {
   },
 
   beforeDestroy () {
+    this.$root.showMainMenu = true
     this.$root.$off('customer-data-received', this.getCustomerDetails)
   },
+
+  beforeMount () {
+    this.$root.showMainMenu = false
+  },
+
   mounted () {
     if (this.customerId) {
       this.$root.$on('customer-data-received', this.getCustomerDetails)

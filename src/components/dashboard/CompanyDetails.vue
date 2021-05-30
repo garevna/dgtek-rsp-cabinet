@@ -36,7 +36,7 @@ import { schema } from '@/configs'
 export default {
   name: 'CompanyDetails',
   components: {
-    CompanyDetailsStep: () => import('@/components/edit-company-details/CompanyDetailsStep')
+    CompanyDetailsStep: () => import('@/components/edit-company-details/CompanyDetailsStep.vue')
   },
   data: () => ({
     ready: false,
