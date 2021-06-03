@@ -9,6 +9,7 @@ import { sendServiceActivationRequest } from './sendServiceActivationRequest'
 import { sendSchedulingRequest } from './sendSchedulingRequest'
 
 import { getCustomersServicesInfo } from './getCustomersServicesInfo'
+import { getCustomersListForTicket } from './getCustomersListForTicket'
 
 export {
   deleteCustomer,
@@ -21,5 +22,7 @@ export {
   sendServiceActivationRequest,
   sendSchedulingRequest,
 
-  getCustomersServicesInfo
+  getCustomersServicesInfo,
+
+  getCustomersListForTicket
 }

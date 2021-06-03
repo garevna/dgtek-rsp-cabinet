@@ -49,7 +49,7 @@ export default {
       for (const step in details) {
         if (step === 'activeSesions') continue
         for (const prop in details[step]) {
-          if (prop === 'password' || prop === 'role') continue
+          if (step === '_id' || prop === 'password' || prop === 'role') continue
           this.schema[step][prop].value = details[step][prop]
         }
       }

@@ -67,19 +67,37 @@
       </v-col>
     </v-row>
 
-    <v-row v-if="category === 'Customer issue' || category === 'Service issue'">
-      <v-col cols="3" class="text-right">
-        <p>Customer</p>
-      </v-col>
-      <v-col cols="9" v-if="customersList">
-        <v-select
-          :items="customersList"
-          v-model="customer"
-          outlined
-          chips
-          hide-details
-        />
-      </v-col>
+    <v-row v-if="category === 'Customer issue' || category === 'Service issue'" class="mb-8">
+      <table width="600" class="mx-auto">
+        <tr>
+          <td width="100"> Customer </td>
+          <td width="420">
+            <div v-if="value" class="customer-info mb-5 py-2 px-4">
+              {{ customer.apartmentNumber }}/{{ customer.address }}
+              <p><small>{{ customer.uniqueCode }}</small></p>
+              <p><small>{{ customer.firstName }} {{ customer.lastName }}</small></p>
+            </div>
+            <v-combobox
+              v-else
+              :items="customersList"
+              label="Customers"
+              outlined
+              dense
+              color="primary"
+              :value="value"
+              @update:search-input="onInput"
+              @change="selectCustomer"
+              hide-details
+            ></v-combobox>
+          </td>
+          <td>
+            <v-btn text @click="change" v-if="value">
+              <v-icon color="primary" class="mr-2">mdi-pencil</v-icon>
+              Edit
+            </v-btn>
+          </td>
+        </tr>
+      </table>
     </v-row>
 
     <v-row>
@@ -121,12 +139,19 @@ export default {
   name: 'EditTicket',
   props: ['ticket', 'categories', 'newTicket', 'edit'],
   data: () => ({
+    customersList: [],
+    postCode: '',
     severities: ['Low', 'Medium', 'Hight'],
     priorities: ['Low', 'Medium', 'Hight'],
-    customersList: null,
+    customers: null,
     customersIds: null,
-    customer: null
+    customer: null,
+    customerAddress: '',
+    customerName: '',
+    customerUniqueCode: '',
+    value: ''
   }),
+
   computed: {
     category: {
       get () {
@@ -185,41 +210,45 @@ export default {
       }
     }
   },
-  watch: {
-    customer (val) {
-      if (!this.customersList) return
-      const index = this.customersList.findIndex(item => item === val)
-      if (index === -1) return
-      this.customerId = this.customersIds[index]
-    }
-  },
+
   methods: {
+    change () {
+      this.value = ''
+    },
+    onInput (value) {
+      value && value.length > 3 && this.getList(value)
+    },
+    selectCustomer (value) {
+      this.customerAddress = value
+      const index = this.customers.findIndex(item => item.address === value.split('/')[1])
+      if (index !== -1) this.ticket.customerId = this.customers[index]._id
+    },
+    getList (partOfAddress) {
+      partOfAddress && this.__getCustomersListForTicket(partOfAddress)
+    },
     fillCustomerList (data) {
-      if (!data || !data.result) return
-      this.customersList = data.result.map(customer => `${customer.apartmentNumber}/${customer.address}`)
-      this.customersIds = data.result.map(customer => customer._id)
-      const index = this.customersIds.findIndex(item => item === this.ticket.customerId)
-      this.customer = index !== -1 ? this.customersList[index] : null
+      this.customers = data
+      if (!data.length) return
+      this.customersList = data.map(customer => `${customer.apartmentNumber}/${customer.address}`)
+      this.customersList = data.map(customer => `${customer.apartmentNumber}/${customer.address}`)
+      this.customersIds = data.map(customer => customer._id)
     },
     postNewTicket () {
       this.update('created', new Date().valueOf())
       const result = JSON.parse(JSON.stringify(this.ticket))
-      delete result.createdDate
-      delete result.modifiedDate
       this.__postNewTicket(result)
     },
     updateTicket () {
       this.update('modified', new Date().valueOf())
-      const result = JSON.parse(JSON.stringify(this.ticket))
-      delete result.createdDate
-      delete result.modifiedDate
-      this.__saveTicketData(this.ticket._id, result)
+      this.__saveTicketData(this.ticket._id, this.ticket)
     },
     save () {
       this.newTicket ? this.postNewTicket() : this.updateTicket()
     },
-    callback (data) {
-      this.customerName = `${data.apartmentNumber}/${data.address} (${data.firstName} ${data.lastName})`
+    updateCustomerInfo (data) {
+      const { apartmentNumber, address, firstName, lastName, uniqueCode, _id } = data
+      this.customer = { apartmentNumber, address, firstName, lastName, uniqueCode, _id }
+      this.value = address
     },
     update (prop, value) {
       this.$emit('update:ticket', Object.assign({}, this.ticket, { [prop]: value }))
@@ -227,12 +256,27 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('customers-list-received', this.fillCustomerList)
+    this.$root.$off('customers-list-for-ticket-received', this.fillCustomerList)
+    this.$root.$off('customer-data-received', this.updateCustomerInfo)
   },
 
   mounted () {
-    this.$root.$on('customers-list-received', this.fillCustomerList)
-    this.__getCustomers()
+    if (this.ticket && this.ticket.customerId) {
+      this.__getCustomerData(this.ticket.customerId)
+    } else {
+      this.edit = true
+    }
+    this.$root.$on('customers-list-for-ticket-received', this.fillCustomerList)
+    this.$root.$on('customer-data-received', this.updateCustomerInfo)
   }
 }
 </script>
+
+<style scoped>
+.customer-info {
+  border: solid 1px #ddd;
+  border-radius: 4px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+}
+</style>

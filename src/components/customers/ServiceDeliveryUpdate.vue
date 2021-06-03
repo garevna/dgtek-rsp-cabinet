@@ -86,7 +86,7 @@ export default {
     sendRequest () {
       this.disableClose = true
       this.submited = true
-      this.__sendServiceActivationRequest({ customerId: this.customerId, serviceId: this.serviceData.serviceId })
+      this.__sendServiceActivationRequest(this.customerId, this.serviceData.serviceId)
     },
 
     getResponse (updatedCustomerServices) {

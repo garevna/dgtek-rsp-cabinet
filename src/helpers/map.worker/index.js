@@ -6,6 +6,10 @@ import { buildingsMessageHandler } from './buildingsMessageHandler'
 
 export const setBuildingHandlers = function () {
   window[Symbol.for('map.worker')].addEventListener('message', function (event) {
+    if (!event.data) {
+      event.stopImmediatePropagation()
+      return
+    }
     if (event.data.status === 300) {
       event.stopImmediatePropagation()
       return console.log('DEBUGGING MESSAGE FROM WORKER:\n', event.data)

@@ -7,5 +7,6 @@ export const customers = {
   activate: 'service-activation-request-sent',
   scheduling: 'scheduling-request-sent',
   services: 'customer-services-updated',
-  info: 'services-info-received'
+  info: 'services-info-received',
+  short: 'customers-list-for-ticket-received'
 }
