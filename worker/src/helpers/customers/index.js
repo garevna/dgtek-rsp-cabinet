@@ -11,6 +11,8 @@ import { schedulingRequest } from './schedulingRequest'
 
 import { getAllActiveServices } from './getAllActiveServices'
 
+import { getShortListOfCustomers } from './getShortListOfCustomers'
+
 export {
   getFromRemoteServer,
   getAllCustomers,
@@ -23,5 +25,7 @@ export {
   updateServiceStatus,
   schedulingRequest,
 
-  getAllActiveServices
+  getAllActiveServices,
+
+  getShortListOfCustomers
 }

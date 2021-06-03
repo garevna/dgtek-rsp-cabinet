@@ -13,7 +13,7 @@ export const putRecordByKey = async (storeName, recordKey, payload) => new Promi
 
       Object.assign(store.put(payload, recordKey), {
         onsuccess: () => resolve({ status: 200, result: payload }),
-        onerror: () => resolve({ status: 708, result: 'IndexedDB saving data error' })
+        onerror: () => resolve({ status: 500, result: 'IndexedDB saving data error' })
       })
     })
 })

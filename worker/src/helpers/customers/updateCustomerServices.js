@@ -16,8 +16,6 @@ export const updateCustomerServices = async function (id, data) {
 
   const response = Object.assign({}, getResult, { services: data })
 
-  self.postMessage({ status: 300, dataToBeSaved: response })
-
   const { status: putStatus } = await putRecordByKey('customers', id, response)
 
   if (putStatus !== 200) return putCustomerDataError(putStatus)

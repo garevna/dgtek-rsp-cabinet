@@ -17,6 +17,7 @@ export const routes = {
   customers: {
     refresh: customersController.getFromRemote,
     list: customersController.getAllCustomers,
+    short: customersController.getCustomersListForTicket,
     services: customersController.updateCustomerServices,
     get: customersController.getCustomer,
     post: customersController.createCustomer,

@@ -55,9 +55,10 @@ export const getAllActiveServices = async () => {
       const cursor = event.target.result
       if (cursor) {
         const customer = cursor.value
-        const active = customer.services.filter(service => service.status === 'Active')
+        const active = Array.isArray(customer.services) ? customer.services.filter(service => service.status === 'Active') : []
         // const pending = customer.services.filter(service => pendingConnectionTypes.includes(service.status))
-        const pending = customer.services.filter(service => service.status === 'In job queue')
+        const pending = Array.isArray(customer.services) ? customer.services.filter(service => service.status === 'In job queue') : []
+
         result.newCustomersLastMonth += active.filter(service => service.modified > month[0] && service.modified < month[1]).length
         if (active.length > 0) {
           result.activeCustomersNumber += 1

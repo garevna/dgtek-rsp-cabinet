@@ -6,6 +6,7 @@ import { putCustomerDataError } from './putCustomerDataError'
 import { refreshCustomersListError } from './refreshCustomersListError'
 import { activateServiceRequestError } from './activateServiceRequestError'
 import { schedulingServiceRequestError } from './schedulingServiceRequestError'
+import { invalidServiceDeliveryStatusRequest } from './invalidServiceDeliveryStatusRequest'
 
 export {
   deleteCustomerError,
@@ -15,5 +16,6 @@ export {
   putCustomerDataError,
   refreshCustomersListError,
   activateServiceRequestError,
-  schedulingServiceRequestError
+  schedulingServiceRequestError,
+  invalidServiceDeliveryStatusRequest
 }

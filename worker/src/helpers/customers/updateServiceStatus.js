@@ -1,19 +1,29 @@
 import { getCustomer, updateCustomer } from './'
+import { invalidServiceDeliveryStatusRequest } from '../error-handlers'
 
 export const updateServiceStatus = async function (customerId, serviceId, newStatus) {
   const [route, action] = ['customers', 'status']
 
-  if (!customerId || !serviceId) return { status: 422, route, action, result: `Invalid request: customer ${customerId}, service ${serviceId}` }
+  if (!customerId || !serviceId) return invalidServiceDeliveryStatusRequest(customerId, serviceId)
 
-  const getResponse = await getCustomer(customerId)
+  const res = await getCustomer(customerId)
 
-  if (getResponse.status !== 200) return getResponse
+  if (res.status !== 200) return res
 
-  const { result: customerData } = getResponse
+  const { result: customerData } = res
 
   const { services } = customerData
 
   const index = services.findIndex(service => service.id === serviceId)
+
+  if (index === -1) {
+    return {
+      status: 500,
+      error: true,
+      errorType: 'Service activation',
+      errorMessage: 'Service was not found'
+    }
+  }
 
   services.splice(index, 1, Object.assign(services[index], {
     modified: Date.now(),

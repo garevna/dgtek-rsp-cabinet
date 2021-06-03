@@ -7,6 +7,8 @@ import {
 export const put = async (path, data) => {
   if (!navigator.onLine) return { status: 0, result: 'Offline mode: Data has not been saved. Try later' }
 
+  // self.postMessage({ status: 300, message: 'DATA', data: JSON.parse(JSON.stringify(data)) })
+
   const response = await fetch(`${hostHandler()}/${path}`, {
     method: 'PUT',
     headers: {
@@ -17,5 +19,9 @@ export const put = async (path, data) => {
     body: JSON.stringify(data)
   })
 
-  return { status: response.status, result: await response.json() }
+  const result = await response.json()
+
+  // self.postMessage({ status: 300, message: 'PUT TO REMOTE SERVER', response: { status: response.status, result } })
+
+  return { status: response.status, result }
 }

@@ -12,29 +12,33 @@ import { getAllCustomers } from './'
 export const updateCustomer = async function (id, data) {
   const route = 'customers'
 
-  const { status: getStatus, result: getResult } = await getRecordByKey('customers', id)
+  const response = await getRecordByKey('customers', id)
 
-  if (getStatus !== 200) return getCustomerDataError(getStatus)
+  if (response.status !== 200) return getCustomerDataError(response.status)
 
-  const response = Object.assign({}, getResult, data)
+  const customer = Object.assign({}, response.result, data)
 
-  const { status: putStatus } = await putRecordByKey('customers', id, response)
+  const { phoneWork = '...', phoneMobile = '...', alternativeEmail = '...', status = 'status', approxETA = '...' } = customer
 
-  if (putStatus !== 200) return putCustomerDataError(putStatus)
+  Object.assign(customer, { phoneWork, phoneMobile, alternativeEmail, status, approxETA })
 
-  const { status, result } = await put(`customer/${id}`, response)
+  const { status: localStatus } = await putRecordByKey('customers', id, customer)
 
-  if (status !== 200) return putCustomerDataError(status, result)
+  if (localStatus !== 200) return putCustomerDataError(localStatus)
 
-  const listResponse = await getAllCustomers()
+  const { status: putStatus, result } = await put(`customer/${id}`, customer)
 
-  if (listResponse.status !== 200) return listResponse
+  if (putStatus !== 200) return putCustomerDataError(putStatus, result)
+
+  const res = await getAllCustomers()
+
+  if (res.status !== 200) return res
 
   return {
-    status,
+    status: 200,
     route,
     action: 'list',
-    result: listResponse.result,
+    result: res.result,
     message: true,
     messageType: 'Customer details',
     messageText: 'Customer details were successfully updated'

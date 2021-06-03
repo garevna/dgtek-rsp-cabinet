@@ -2,40 +2,28 @@ import { post } from '../AJAX'
 
 import { idHandler } from '../env'
 
-import { activateServiceRequestError } from '../error-handlers'
+import {
+  invalidServiceDeliveryStatusRequest,
+  activateServiceRequestError
+} from '../error-handlers'
 
 import { updateServiceStatus } from './'
 
-import {
-  getWeekNumber,
-  getWeekStartDate,
-  getWeekEndDate
-} from '../'
+import { getWeekNumber } from 'garevna-date-functions'
 
-// import { getServiceById, putService } from '../services'
-
-export const activateServiceRequest = async function (data) {
+export const activateServiceRequest = async function (customerId, serviceId) {
   const [route, action] = ['customers', 'activate']
 
-  const { customerId, serviceId } = data.serviceId ? data : data.data
+  if (!customerId || !serviceId) return invalidServiceDeliveryStatusRequest(customerId, serviceId)
 
-  if (!customerId || !serviceId) return { status: 422, route, action, result: `Invalid request: customer ${customerId}, service ${serviceId}` }
-
-  const date = new Date()
-
-  const reqData = Object.assign({}, { customerId, serviceId }, {
+  const { status, result } = await post('scheduling', {
+    customerId,
+    serviceId,
     resellerId: idHandler(),
     status: 'Awaiting for connection',
-    request: 'booking',
-    weekNumber: getWeekNumber(date),
-    weekDetails: {
-      start: getWeekStartDate(date),
-      end: getWeekEndDate(date)
-    },
-    modified: Date.now()
+    modified: Date.now(),
+    weekNumber: getWeekNumber(new Date())
   })
-
-  const { status, result } = await post(`scheduling/${customerId}`, reqData)
 
   if (status !== 200) return activateServiceRequestError(status, result)
 

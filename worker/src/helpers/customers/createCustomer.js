@@ -17,8 +17,6 @@ export const createCustomer = async function (data) {
 
   const response = await getAllCustomers()
 
-  // self.postMessage({ status: 300, route, action: 'list', response })
-
   if (response.status !== 200) return response
 
   return {

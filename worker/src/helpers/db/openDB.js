@@ -11,5 +11,11 @@ export const openDB = () => new Promise((resolve) => Object.assign(indexedDB.ope
     status: 200,
     result: event.target.result
   }),
-  onerror: event => resolve({ status: 700, result: null })
+  onerror: event => resolve({
+    status: 500,
+    result: null,
+    error: true,
+    errorType: 'Local DB',
+    errorMessage: 'Error opening the local DB'
+  })
 }))

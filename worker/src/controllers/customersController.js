@@ -8,7 +8,7 @@ import {
   deleteCustomer,
   activateServiceRequest,
   schedulingRequest,
-  // getFreeLotsForSchedule,
+  getShortListOfCustomers,
   getAllActiveServices
 } from '../helpers/customers'
 
@@ -46,18 +46,21 @@ class CustomersController {
     }))
   }
 
-  async activateServiceRequest (request) {
-    const { customerId } = request.customerId ? request : request.data
+  async getCustomersListForTicket (postCode, addressPart) {
+    self.postMessage(await getShortListOfCustomers(postCode, addressPart))
+  }
 
-    const response = await activateServiceRequest(request)
+  async activateServiceRequest ({ customerId, serviceId }) {
+    self.postMessage({ status: 300, message: 'CUSTOMER CONTROLLER', customerId, serviceId })
+    const response = await activateServiceRequest(customerId, serviceId)
 
-    const { result: services } = response
+    self.postMessage({ status: 300, message: 'CUSTOMER CONTROLLER: ACTIVATION RESPONSE', response })
 
     self.postMessage(response)
 
-    self.postMessage(await updateCustomerServices(customerId, services))
+    const { result: services } = response
 
-    // self.postMessage(await activateServiceRequest(request))
+    self.postMessage(await updateCustomerServices(customerId, services))
   }
 
   async scheduling (request) {
