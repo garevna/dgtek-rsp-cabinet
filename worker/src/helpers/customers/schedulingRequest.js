@@ -1,38 +1,33 @@
-import { post } from '../AJAX'
+// import { post } from '../AJAX'
 
-import { idHandler } from '../env'
+// import { idHandler } from '../env'
 
-import { schedulingServiceRequestError } from '../error-handlers'
-
-import { updateServiceStatus } from './'
+// const { schedulingServiceRequestError } = require('../error-handlers').default
 
 export const schedulingRequest = async function (data) {
   const [route, action] = ['customers', 'scheduling']
 
-  const { customerId, serviceId, lots } = data.serviceId ? data : data.data
+  const { customerId, serviceId, lots } = data
 
   if (!customerId || !serviceId) return { status: 422, route, action, result: `Invalid request: customer ${customerId}, service ${serviceId}` }
 
-  const reqData = Object.assign({}, { customerId, serviceId, lots }, {
-    resellerId: idHandler(),
-    status: 'Awaiting for confirmation',
-    request: 'scheduling',
-    modified: Date.now()
-  })
+  /* rudimentary */
 
-  const { status, result } = await post(`scheduling/${customerId}`, reqData)
+  // const reqData = Object.assign({}, { customerId, serviceId, lots }, {
+  //   resellerId: idHandler(),
+  //   status: 'Awaiting for confirmation',
+  //   request: 'scheduling',
+  //   modified: Date.now(),
+  //   weekNumber: self.getWeekNumber(new Date())
+  // })
 
-  if (status !== 200) return schedulingServiceRequestError(status, result)
+  // const { status, result } = await post('scheduling', reqData)
 
-  const { result: services } = await updateServiceStatus(customerId, serviceId, 'Awaiting for confirmation')
+  /* actual (must be) */
 
-  return {
-    status,
-    route,
-    action,
-    result: services,
-    message: true,
-    messageType: 'Customer service delivery status update',
-    messageText: 'Your scheduling request has been sent.'
-  }
+  // const { status, result } = await post('scheduling', { customerId, serviceId })
+
+  // if (status !== 200) return schedulingServiceRequestError(status, result)
+
+  return await self.controller.updateServiceStatus(customerId, serviceId, 'Awaiting for confirmation', lots)
 }

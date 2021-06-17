@@ -90,14 +90,11 @@ export default {
     },
 
     getResponse (updatedCustomerServices) {
-      console.log('UPDATED CUSTOMER SERVICES:\n', updatedCustomerServices)
-      // this.submited = true
       const service = updatedCustomerServices.find(item => item.id === this.serviceData.serviceId)
       this.$emit('update:serviceData', Object.assign({}, this.serviceData, {
         serviceStatus: service.status,
         serviceStatusModified: new Date(service.modified).toISOString().slice(0, 10)
       }))
-      console.log('SERVICE DATA:', this.serviceData)
       this.disableClose = false
     },
     reset () {

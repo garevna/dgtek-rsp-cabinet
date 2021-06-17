@@ -38,7 +38,6 @@
                 :rules="[rules.required, rules.abn]"
                 outlined
                 dense
-                hide-details
               />
             </td>
           </tr>
@@ -53,6 +52,7 @@
               <v-text-field
                 v-model="customer.apartmentNumber"
                 @input="changeUniqueCode"
+                :rules="[rules.required]"
                 label="apt"
                 outlined
                 dense
@@ -203,7 +203,6 @@ export default {
       }
     },
     getCustomerData (data) {
-      console.log(data)
       this.customer = data.result
       this.createSchema()
 
@@ -236,6 +235,8 @@ export default {
 
     this.$root.$on('customer-updated', this.close)
     this.$root.$on('customer-created', this.close)
+
+    this.$vuetify.goTo(0)
   }
 }
 </script>

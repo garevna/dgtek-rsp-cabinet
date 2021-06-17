@@ -1,5 +1,6 @@
 import { searchRecords } from '../db'
-import { getCustomersListError } from '../error-handlers'
+
+const { getCustomersListError } = require('../error-handlers').default
 
 export const getShortListOfCustomers = async function (data) {
   const [route, action] = ['customers', 'short']

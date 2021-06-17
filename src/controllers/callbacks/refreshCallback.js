@@ -1,23 +1,19 @@
 import { refreshError } from './'
 
-window[Symbol.for('vue.prototype')].$refreshed = {
-  rsp: false,
-  customers: false,
-  categories: false,
-  tickets: false,
-  services: false
-}
-
 export function refreshCallback (event) {
-  const { status, route, action } = event.data
-
-  if (action !== 'refresh') return
+  const { status, route } = event.data
 
   event.stopImmediatePropagation()
-  if (status === 300) return
+
   if (status !== 200) return refreshError(route)
 
-  window[Symbol.for('vue.prototype')].$refreshed[route] = true
+  const [proto, instance] = [window[Symbol.for('vue.prototype')], window[Symbol.for('vue.instance')]]
 
-  window[Symbol.for('vue.instance')].$root.$emit('data-refreshed', { route })
+  proto.$refreshed[route] = true
+
+  instance.$root.$emit('data-refreshed', { route })
+
+  if (Object.keys(proto.$refreshed).filter(key => !proto.$refreshed[key]).length) {
+    instance.dispatchProgressEvent(false)
+  }
 }

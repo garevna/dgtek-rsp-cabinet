@@ -1,9 +1,10 @@
 import { get } from '../AJAX'
 import { putRecordByKey, clearStore } from '../db'
 import { idHandler } from '../env'
-import { refreshClientDataError } from '../error-handlers'
 
-export const getFromRemoteServer = async function () {
+const { refreshClientDataError } = require('../error-handlers').default
+
+export const refreshClientDetails = async function () {
   const [route, action] = ['rsp', 'refresh']
 
   const response = await get(`user/${idHandler()}`)

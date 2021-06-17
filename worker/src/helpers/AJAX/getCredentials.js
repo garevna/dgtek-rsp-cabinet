@@ -18,7 +18,6 @@ export const getCredentials = async function () {
       status: response.status,
       route,
       action,
-      result,
       error: true,
       errorType: 'Authentification error',
       errorMessage: 'Invalid credentials'

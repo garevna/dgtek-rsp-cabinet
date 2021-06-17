@@ -4,41 +4,26 @@ import vuetify from './plugins/vuetify'
 
 import ErrorMessage from '@/components/popups/error.vue'
 import Message from '@/components/popups/message.vue'
+import Confirmation from '@/components/popups/Confirmation.vue'
 
-import { init } from '@/controllers/actions'
-import { initCallback, refreshCallback } from '@/controllers/callbacks'
+import { credentials } from '@/controllers/actions'
+
+// import { init, credentials } from '@/controllers/actions'
+// import { initCallback, refreshCallback } from '@/controllers/callbacks'
 
 import { setBuildingHandlers } from '@/helpers/map.worker'
 
 import {
-  getWeekDay,
   getWeekNumber,
-  getWeekStartDate,
-  getWeekEndDate,
-
-  getFormattedISODate,
-  getFormattedDate,
-
-  getNextWeekDate,
-  getPrevWeekDate,
-
+  getWeekDay,
   getWeekStartDateByWeekNumber,
   getWeekEndDateByWeekNumber,
   getWeekDatesByWeekNumber
 } from 'garevna-date-functions'
 
 Object.assign(Vue.prototype, {
-  getWeekDay,
   getWeekNumber,
-  getWeekStartDate,
-  getWeekEndDate,
-
-  getFormattedISODate,
-  getFormattedDate,
-
-  getNextWeekDate,
-  getPrevWeekDate,
-
+  getWeekDay,
   getWeekStartDateByWeekNumber,
   getWeekEndDateByWeekNumber,
   getWeekDatesByWeekNumber
@@ -48,6 +33,7 @@ Vue.config.productionTip = false
 
 Vue.component('error-message', ErrorMessage)
 Vue.component('simple-message', Message)
+Vue.component('confirmation-popup', Confirmation)
 
 const instance = new Vue({
   vuetify,
@@ -62,8 +48,6 @@ instance.dispatchProgressEvent = function (value) {
   instance.$root.$emit('progress-event', { progress: value })
 }
 
-window[Symbol.for('rsp.worker')].addEventListener('message', refreshCallback)
-
 instance.__worker.dispatchProgressEvent = instance.dispatchProgressEvent
 
 instance.sendMessageToWorker = function (message) {
@@ -76,9 +60,12 @@ Object.assign(Vue.prototype, {
   $sendMessageToWorker: instance.sendMessageToWorker
 })
 
-instance.__worker.addEventListener('message', initCallback)
-
-init()
+window.addEventListener('message', (event) => {
+  if (!event.data.credentials) return
+  credentials(event)
+  console.log('SOURCE ORIGIN: ', event.origin)
+  event.source.postMessage('OK', event.origin)
+})
 
 /* ===================== MAP WORKER ========================= */
 

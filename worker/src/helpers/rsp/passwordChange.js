@@ -1,7 +1,8 @@
 import { hash, encrypt } from '../crypto'
 import { loginHandler, passwordHandler, credentialsHandler } from '../env'
 import { post } from '../AJAX'
-import { putClientCredentialsError } from '../error-handlers'
+
+const { putClientCredentialsError } = require('../error-handlers').default
 
 export const passwordChange = async function (request) {
   const { login, newPass, userPhone } = request.data

@@ -1,31 +1,18 @@
-import { deleteCustomer } from './deleteCustomer'
-import { createCustomer } from './createCustomer'
-import { updateCustomer } from './updateCustomer'
-import { updateCustomerServices } from './updateCustomerServices'
-import { getCustomer } from './getCustomer'
-import { getAllCustomers } from './getAllCustomers'
-import { getFromRemoteServer } from './getFromRemoteServer'
-import { activateServiceRequest } from './activateServiceRequest'
-import { updateServiceStatus } from './updateServiceStatus'
-import { schedulingRequest } from './schedulingRequest'
+const modules = {}
 
-import { getAllActiveServices } from './getAllActiveServices'
+const context = require.context('./', false)
 
-import { getShortListOfCustomers } from './getShortListOfCustomers'
+let modulesNames = context.keys()
+  .filter(key => key !== './' && key !== './index' && key !== './index.js')
+  .map(key => key.split('.js').join(''))
 
-export {
-  getFromRemoteServer,
-  getAllCustomers,
-  getCustomer,
-  createCustomer,
-  updateCustomer,
-  deleteCustomer,
-  updateCustomerServices,
-  activateServiceRequest,
-  updateServiceStatus,
-  schedulingRequest,
+modulesNames = Array.from(new Set(modulesNames))
 
-  getAllActiveServices,
+modulesNames.forEach((moduleName) => {
+  const name = moduleName.split('./').join('')
+  modules[name] = context(moduleName)
+})
 
-  getShortListOfCustomers
-}
+const result = Object.assign({}, ...Object.keys(modules).map(key => ({ [key]: modules[key][key] })))
+
+export default result

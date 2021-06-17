@@ -2,12 +2,13 @@ import { getRecordByKey, putRecordByKey } from '../db'
 
 import { put } from '../AJAX'
 
-import {
+const {
   getCustomerDataError,
-  putCustomerDataError
-} from '../error-handlers'
+  putCustomerDataError,
+  duplicatedCustomerError
+} = require('../error-handlers').default
 
-import { getAllCustomers } from './'
+// import { getAllCustomers } from './'
 
 export const updateCustomer = async function (id, data) {
   const route = 'customers'
@@ -22,15 +23,17 @@ export const updateCustomer = async function (id, data) {
 
   Object.assign(customer, { phoneWork, phoneMobile, alternativeEmail, status, approxETA })
 
+  const { status: remoteStatus } = await put(`customer/${id}`, customer)
+
+  if (remoteStatus === 409) return duplicatedCustomerError(409, customer.uniqueCode)
+
+  if (remoteStatus !== 200) return putCustomerDataError(remoteStatus, customer.uniqueCode)
+
   const { status: localStatus } = await putRecordByKey('customers', id, customer)
 
-  if (localStatus !== 200) return putCustomerDataError(localStatus)
+  if (localStatus !== 200) return putCustomerDataError(localStatus, customer.uniqueCode)
 
-  const { status: putStatus, result } = await put(`customer/${id}`, customer)
-
-  if (putStatus !== 200) return putCustomerDataError(putStatus, result)
-
-  const res = await getAllCustomers()
+  const res = await self.controller.getAllCustomers()
 
   if (res.status !== 200) return res
 
@@ -41,6 +44,6 @@ export const updateCustomer = async function (id, data) {
     result: res.result,
     message: true,
     messageType: 'Customer details',
-    messageText: 'Customer details were successfully updated'
+    messageText: `Customer ${customer.uniqueCode} details were successfully updated`
   }
 }

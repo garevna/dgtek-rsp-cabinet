@@ -10,7 +10,10 @@ const rspWorkerEvents = {
   tickets,
   services,
   lots,
-  rsp
+  rsp,
+  dashboard: {
+    info: 'dashboard-services-info'
+  }
 }
 
 export {

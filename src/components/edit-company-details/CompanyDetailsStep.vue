@@ -28,7 +28,7 @@
         <GeoscapeAutocomplete
           v-if="item.type === 'address'"
           :value.sync="item.value"
-          style="margin-top: -14px!important; margin-bottom: 8px!important;"
+          style="margin-top: -4px!important; margin-bottom: 8px!important;"
         />
 
         <v-textarea
@@ -58,12 +58,14 @@ export default {
     data: Object,
     step: String
   },
+
   data: () => ({
     ready: false,
     schema: {},
     showPassword: false,
     rules
   }),
+
   watch: {
     data: {
       deep: true,
@@ -81,6 +83,7 @@ export default {
       }
     }
   },
+
   methods: {
     appendIcon (item) {
       return item.type !== 'password' ? '' : this.showPassword ? 'mdi-eye' : 'mdi-eye-off'
@@ -100,7 +103,11 @@ export default {
       return testTextField(item.type)
     },
     rule (item) {
+      console.log(item)
       return this.rules[item.type]
+    },
+    required (item) {
+      // if (item.type)
     }
   }
 }

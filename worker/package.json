@@ -6,7 +6,8 @@
     "worker-prod": "yarn add crypto-js && webpack --config webpack.config.worker.js --mode production && yarn remove crypto-js"
   },
   "dependencies": {
-    "core-js": "^3.10.1"
+    "core-js": "^3.10.1",
+    "garevna-date-functions": "^1.1.5"
   },
   "devDependencies": {
     "@babel/polyfill": "^7.12.1",

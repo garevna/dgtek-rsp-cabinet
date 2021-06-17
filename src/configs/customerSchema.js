@@ -14,11 +14,13 @@ export const customerSchema = {
   customerAddress: {
     apartmentNumber: {
       title: 'Apt number',
+      required: true,
       type: 'simple-text',
       value: ''
     },
     address: {
       title: 'Address',
+      required: true,
       type: 'address',
       value: ''
     }
@@ -26,36 +28,43 @@ export const customerSchema = {
   customerDetails: {
     firstName: {
       title: 'First name',
+      required: true,
       type: 'simple-text',
       value: ''
     },
     lastName: {
       title: 'Last Name',
+      required: true,
       type: 'simple-text',
       value: ''
     },
     uniqueCode: {
       title: 'Unique code',
+      required: true,
       type: 'simple-text',
       value: ''
     },
     phoneWork: {
       title: 'Phone (work)',
+      required: true,
       type: 'phone',
       value: ''
     },
     phoneMobile: {
       title: 'Phone (mobile)',
+      required: false,
       type: 'mobile',
       value: ''
     },
     primaryEmail: {
       title: 'Email (primary)',
+      required: true,
       type: 'email',
       value: ''
     },
     alternativeEmail: {
       title: 'Email (alternative)',
+      required: false,
       type: 'email',
       value: ''
     }
@@ -63,12 +72,11 @@ export const customerSchema = {
   customerService: {
     id: '',
     status: {
-      modified: 0,
-      value: 'Active'
+      modified: Date.now(),
+      value: 'Not connected'
     },
     log: {
-      1614814010150: 'Not connected',
-      1615894851478: 'Awaiting for connection'
+      [Date.now()]: 'Not connected'
     }
   }
 }

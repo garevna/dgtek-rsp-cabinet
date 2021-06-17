@@ -1,12 +1,11 @@
-import { getCustomer, updateCustomer } from './'
-import { invalidServiceDeliveryStatusRequest } from '../error-handlers'
+const { invalidServiceDeliveryStatusRequest } = require('../error-handlers').default
 
-export const updateServiceStatus = async function (customerId, serviceId, newStatus) {
+export const updateServiceStatus = async function (customerId, serviceId, newStatus, lots = []) {
   const [route, action] = ['customers', 'status']
 
-  if (!customerId || !serviceId) return invalidServiceDeliveryStatusRequest(customerId, serviceId)
+  if (!customerId || !serviceId || !newStatus) return invalidServiceDeliveryStatusRequest(customerId, serviceId)
 
-  const res = await getCustomer(customerId)
+  const res = await self.controller.getCustomer(customerId)
 
   if (res.status !== 200) return res
 
@@ -18,7 +17,7 @@ export const updateServiceStatus = async function (customerId, serviceId, newSta
 
   if (index === -1) {
     return {
-      status: 500,
+      status: 404,
       error: true,
       errorType: 'Service activation',
       errorMessage: 'Service was not found'
@@ -28,10 +27,11 @@ export const updateServiceStatus = async function (customerId, serviceId, newSta
   services.splice(index, 1, Object.assign(services[index], {
     modified: Date.now(),
     status: newStatus,
+    lots,
     log: Object.assign(services[index].log, { [Date.now()]: newStatus })
   }))
 
-  const response = await updateCustomer(customerId, Object.assign(customerData, { services }))
+  const response = await self.controller.updateCustomer(customerId, Object.assign(customerData, { services }))
 
   if (response.status !== 200) return response
 
@@ -39,6 +39,9 @@ export const updateServiceStatus = async function (customerId, serviceId, newSta
     status: response.status,
     route,
     action,
-    result: services
+    result: services,
+    message: true,
+    messageType: 'Customer service delivery status update',
+    messageText: 'Your scheduling request has been sent.'
   }
 }

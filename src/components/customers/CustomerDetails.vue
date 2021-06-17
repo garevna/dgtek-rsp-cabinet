@@ -67,7 +67,7 @@ export default {
     EditCustomerDetails: () => import('@/components/customers/EditCustomerDetails.vue'),
     EditBuildingDetails: () => import('@/components/customers/EditBuildingDetails.vue')
   },
-  props: ['customerId', 'initialAddressData', 'dialog'],
+  props: ['customerId', 'initialAddressData', 'dialog', 'sectionName'],
   data: () => ({
     ready: false,
     section: 'Service details',
@@ -173,6 +173,10 @@ export default {
       this.createNewCustomer()
       this.ready = true
     }
+
+    this.section = this.sectionName ? this.sectionName : 'Customer details'
+
+    this.$vuetify.goTo(0)
   }
 }
 </script>

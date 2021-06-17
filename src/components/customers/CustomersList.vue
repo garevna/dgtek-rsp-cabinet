@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <v-row v-if="!edit" justify="center">
-      <v-card flat class="transparent pb-12 px-12" v-if="ready">
-        <v-card-title>
+      <v-card flat class="transparent pb-12 px-12 mx-auto" v-if="ready">
+        <v-row justify="center" class="mt-8 mb-2">
           <table>
             <tbody>
               <tr>
@@ -57,7 +57,12 @@
               </tr>
             </tbody>
           </table>
-        </v-card-title>
+          <v-spacer />
+          <v-btn text @click="refresh" class="mr-12 mb-5">
+            <v-icon>mdi-refresh</v-icon>
+            Refresh
+          </v-btn>
+        </v-row>
 
         <v-data-table
           ref="customersList"
@@ -133,7 +138,7 @@ export default {
     plan: null,
     postCode: null,
 
-    statuses: ['Active', 'Awaiting for connection', 'Awaiting for confirmation', 'Awaiting for scheduling', 'In job queue', 'Unable to connect', 'Not connected'],
+    statuses: ['Active', 'Awaiting for connection', 'Awaiting for scheduling', 'Awaiting for confirmation', 'In job queue', 'Unable to connect', 'Not connected'],
     speeds: ['50/50', '150/150', '250/250', '500/500', '1000/1000'],
     headers: [
       {
@@ -217,19 +222,25 @@ export default {
       }
       return { icon: icons[status], color: colors[status] }
     },
+
     async getData (data) {
-      this.data = Array.isArray(data) ? data : Array.isArray(data.result) ? data.result : []
+      console.log('CUSTOMERS LIST RECEIVED\n', data)
+      // this.data = Array.isArray(data) ? data : Array.isArray(data.result) ? data.result : []
+      this.data = data
       this.ready = true
     },
+
     getEstimates (data) {
       const estimates = Array.isArray(data.result) ? data.result.map(item => ({ [item.id]: item.estimatedServiceDeliveryTime })) : []
       estimatesHandler(estimates)
     },
+
     editItem (item) {
       this.selectedCustomerId = item.id
       customerHandler(item.id)
       this.edit = true
     },
+
     updateCustomerServices (data) {
       const {
         _id,
@@ -249,10 +260,22 @@ export default {
         servicePlan,
         serviceTerm
       }))
+    },
+
+    refresh () {
+      this.ready = false
+      this.__refreshCustomers()
+    },
+
+    customersListRefreshed (event) {
+      // this.getData(event.result.booking)
+      console.log('CUSTOMERS LIST REFRESHED\n', event)
+      this.getData(event)
     }
   },
 
   beforeDestroy () {
+    this.$root.$off('customers-list-refreshed', this.customersListRefreshed)
     this.$root.$off('customers-list-received', this.getData)
     this.$root.$off('buildings-data-list', this.getEstimates)
     this.$root.$off('customer-services-updated', this.updateCustomerServices)
@@ -267,6 +290,7 @@ export default {
   },
 
   mounted () {
+    this.$root.$on('customers-list-refreshed', this.customersListRefreshed)
     this.$root.$on('customers-list-received', this.getData)
     this.$root.$on('customer-services-updated', this.updateCustomerServices)
     this.__getCustomers()

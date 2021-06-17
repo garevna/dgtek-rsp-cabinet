@@ -109,6 +109,7 @@ export default {
       this.categories = data
     },
     getTickets (data) {
+      console.log(data)
       this.items = data || []
       this.ready = true
     },

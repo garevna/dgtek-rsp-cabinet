@@ -190,6 +190,8 @@ export default {
 
     if (this.buildingId) return this.__getBuildingById(this.buildingId)
     else this.getBuildingDetails(this.buildingData)
+
+    this.$vuetify.goTo(0)
   }
 }
 </script>

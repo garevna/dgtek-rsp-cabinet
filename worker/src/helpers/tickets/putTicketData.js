@@ -1,32 +1,27 @@
 import { put } from '../AJAX'
-import {
+
+const {
   putTicketDataError,
   refreshTicketsListError,
   getTicketsListError
-} from '../error-handlers'
-
-import {
-  getFromRemoteServer,
-  getFromLocalDb,
-  getDateNumber
-} from './'
+} = require('../error-handlers').default
 
 export const putTicketData = async function (key, data) {
   const route = 'tickets'
   const { _id } = data
 
-  data.created = getDateNumber(data.created).toString()
+  data.created = Date.parse(data.created).toString()
   data.modified = Date.now().toString()
 
   const { status } = await put(`ticket/${_id}`, data)
 
   if (status !== 200) return putTicketDataError(status)
 
-  const { status: refreshStatus } = await getFromRemoteServer()
+  const { status: refreshStatus } = await self.controller.refreshTickets()
 
   if (refreshStatus !== 200) return refreshTicketsListError(refreshStatus)
 
-  const { status: getStatus, result: getResult } = await getFromLocalDb()
+  const { status: getStatus, result: getResult } = await self.controller.getListOfTickets()
 
   if (getStatus !== 200) return getTicketsListError(getStatus)
 

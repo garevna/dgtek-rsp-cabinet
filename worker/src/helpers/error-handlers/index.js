@@ -1,61 +1,79 @@
-import {
-  getCategoriesError,
-  getTicketDataError,
-  getTicketsListError,
-  postNewTicketError,
-  putTicketDataError,
-  refreshTicketsListError
-} from './tickets'
+// import {
+//   getCategoriesError,
+//   getTicketDataError,
+//   getTicketsListError,
+//   postNewTicketError,
+//   putTicketDataError,
+//   refreshTicketsListError
+// } from './tickets'
 
-import {
-  refreshServicesListError,
-  getServicesListError,
-  getServiceDetailsError
-} from './services'
+// import {
+//   refreshServicesListError,
+//   getServicesListError,
+//   getServiceDetailsError
+// } from './services'
 
-import {
-  getClientDataError,
-  putClientCredentialsError,
-  putClientDataError,
-  refreshClientDataError
-} from './rsp'
+// import {
+//   credentialsError,
+//   getClientDataError,
+//   putClientCredentialsError,
+//   putClientDataError,
+//   refreshClientDataError
+// } from './rsp'
 
-import {
-  deleteCustomerError,
-  getCustomerDataError,
-  getCustomersListError,
-  postNewCustomerError,
-  putCustomerDataError,
-  refreshCustomersListError,
-  activateServiceRequestError,
-  schedulingServiceRequestError,
-  invalidServiceDeliveryStatusRequest
-} from './customers'
+// import {
+//   deleteCustomerError,
+//   getCustomerDataError,
+//   getCustomersListError,
+//   postNewCustomerError,
+//   putCustomerDataError,
+//   refreshCustomersListError,
+//   activateServiceRequestError,
+//   schedulingServiceRequestError,
+//   invalidServiceDeliveryStatusRequest
+// } from './customers'
 
-export {
-  refreshClientDataError,
-  getClientDataError,
-  putClientDataError,
-  putClientCredentialsError,
+// export {
+//   credentialsError,
+//   refreshClientDataError,
+//   getClientDataError,
+//   putClientDataError,
+//   putClientCredentialsError,
+//
+//   refreshCustomersListError,
+//   getCustomersListError,
+//   getCustomerDataError,
+//   postNewCustomerError,
+//   putCustomerDataError,
+//   deleteCustomerError,
+//   activateServiceRequestError,
+//   schedulingServiceRequestError,
+//   invalidServiceDeliveryStatusRequest,
+//
+//   refreshTicketsListError,
+//   getCategoriesError,
+//   getTicketsListError,
+//   getTicketDataError,
+//   postNewTicketError,
+//   putTicketDataError,
+//
+//   refreshServicesListError,
+//   getServicesListError,
+//   getServiceDetailsError
+// }
 
-  refreshCustomersListError,
-  getCustomersListError,
-  getCustomerDataError,
-  postNewCustomerError,
-  putCustomerDataError,
-  deleteCustomerError,
-  activateServiceRequestError,
-  schedulingServiceRequestError,
-  invalidServiceDeliveryStatusRequest,
+// import { credentialsError } from './admin/credentialsError'
 
-  refreshTicketsListError,
-  getCategoriesError,
-  getTicketsListError,
-  getTicketDataError,
-  postNewTicketError,
-  putTicketDataError,
+import ticketsErrors from './tickets'
 
-  refreshServicesListError,
-  getServicesListError,
-  getServiceDetailsError
-}
+import servicesErrors from './services'
+
+import rspErrors from './rsp'
+
+import customersErrors from './customers'
+
+// import scheduleErrors from './schedule'
+
+const result = Object.assign({}, ticketsErrors, servicesErrors, rspErrors, customersErrors)
+
+export default result

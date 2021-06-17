@@ -1,31 +1,23 @@
-import {
-  credentials,
-  passwordChange,
-  getFromRemoteServer,
-  getFromLocalDb,
-  update
-} from '../helpers/rsp'
-
 class RSPController {
-  async credentials () {
-    self.postMessage(await credentials())
+  async credentials (data) {
+    self.postMessage(await self.controller.credentials(data))
   }
 
   async passwordChange (data) {
-    self.postMessage(await passwordChange(data))
+    self.postMessage(await self.controller.passwordChange(data))
   }
 
   async refresh () {
-    self.postMessage(await getFromRemoteServer())
+    self.postMessage(await self.controller.refreshClientDetails())
   }
 
   async get () {
-    self.postMessage(await getFromLocalDb())
+    self.postMessage(await self.controller.getClientDetails())
   }
 
   async update (request) {
-    self.postMessage({ status: 300, route: 'rsp', action: 'put', key: request.key, result: request.data })
-    self.postMessage(await update(request.data))
+    // self.postMessage({ status: 300, route: 'rsp', action: 'put', key: request.key, result: request.data })
+    self.postMessage(await self.controller.updateClientDetails(request.data))
   }
 }
 

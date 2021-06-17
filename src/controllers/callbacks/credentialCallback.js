@@ -1,25 +1,20 @@
-import { /* refreshCallback, */ credentialsError } from './'
+import { credentialsError } from './'
 
 import {
-  refreshClientData,
   refreshCustomers,
   refreshServices,
   refreshTickets
-} from '../actions'
+} from '@/controllers/actions'
 
 export function credentialCallback (event) {
-  const { status, action } = event.data
-  if (action !== 'credentials') return console.log('credentialCallback not removed')
+  const { status } = event.data
 
-  event.stopImmediatePropagation()
+  window[Symbol.for('vue.prototype')].$refreshed.rsp = true
+  window[Symbol.for('vue.instance')].$root.$emit('data-refreshed', { route: 'rsp' })
 
-  if (status !== 200) return credentialsError()
-
-  window[Symbol.for('rsp.worker')].removeEventListener('message', credentialCallback)
-  // window[Symbol.for('rsp.worker')].addEventListener('message', refreshCallback)
-
-  refreshClientData()
-  refreshCustomers()
-  refreshServices()
-  refreshTickets()
+  if (status === 200) {
+    refreshCustomers()
+    refreshServices()
+    refreshTickets()
+  } else credentialsError()
 }

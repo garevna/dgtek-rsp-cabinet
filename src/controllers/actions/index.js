@@ -57,6 +57,8 @@ export {
   refreshServices,
   refreshTickets,
 
+  getCustomersServicesInfo,
+
   getClientData,
   putClientData,
   putClientCredentials,
@@ -69,7 +71,6 @@ export {
   updateCustomerServices,
   sendServiceActivationRequest,
   sendSchedulingRequest,
-  getCustomersServicesInfo,
   getCustomersListForTicket,
 
   getServices,

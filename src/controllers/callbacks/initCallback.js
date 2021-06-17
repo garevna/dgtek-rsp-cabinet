@@ -1,13 +1,19 @@
-import { initError, credentialCallback } from './'
-import { credentials } from '@/controllers/actions'
+import { initError } from './'
+
+import {
+  refreshCustomers,
+  refreshServices,
+  refreshTickets
+} from '@/controllers/actions'
 
 export function initCallback (event) {
-  const { status, action } = event.data
-  if (action !== 'init') return console.log('initCallback not removed')
-  event.stopImmediatePropagation()
+  const { status } = event.data
+
+  window[Symbol.for('vue.prototype')].$refreshed.rsp = true
+
   if (status === 200) {
-    credentials()
-    window[Symbol.for('rsp.worker')].removeEventListener('message', initCallback)
-    window[Symbol.for('rsp.worker')].addEventListener('message', credentialCallback)
+    refreshCustomers()
+    refreshServices()
+    refreshTickets()
   } else initError()
 }

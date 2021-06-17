@@ -1,5 +1,6 @@
 import { getRecordByKey } from '../db'
-import { getTicketDataError } from '../error-handlers'
+
+const { getTicketDataError } = require('../error-handlers').default
 
 export const getTicketData = async function (key) {
   const [route, action] = ['tickets', 'get']

@@ -3,22 +3,22 @@
     <v-row justify="center" align="start">
       <v-col cols="12" md="6" lg="4" xl="3">
         <v-card flat class="transparent">
-          <v-card-text class="py-0">
-            Total number of active customers: <strong class="primary--text">{{ activeCustomersNumber }}</strong>
+          <v-card-text class="py-0" v-if="ready">
+            Total number of active customers: <b class="primary--text">{{ activeCustomersNumber }}</b>
           </v-card-text>
-          <v-card-text class="py-0">
-            Total current monthly charge: <strong class="primary--text">{{ currentMonthlyCharge }}</strong>
+          <v-card-text class="py-0" v-if="ready">
+            Total current monthly charge: <b class="primary--text">{{ currentMonthlyCharge }}</b>
           </v-card-text>
-          <v-card-text class="py-0">
-            Total monthly charge including pending connections: <strong class="primary--text">{{ monthlyChargeIncludingPendingConnections }}</strong>
+          <v-card-text class="py-0" v-if="ready">
+            Total monthly charge including pending connections: <b class="primary--text">{{ monthlyChargeIncludingPendingConnections }}</b>
           </v-card-text>
-          <v-card-text class="py-0">
-            Number of connected customers for the last month: <strong class="primary--text">{{ lastMonthConnectedCustomers }}</strong>
+          <v-card-text class="py-0" v-if="ready">
+            Number of connected customers for the last month: <b class="primary--text">{{ lastMonthConnectedCustomers }}</b>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" md="6" lg="4" xl="3">
-        <Fieldset legend="Awaiting for connection customers">
+        <Fieldset legend="Customers awaiting connection">
           <v-simple-table dense fixed-header height="240px">
             <template v-slot:default>
               <tbody>
@@ -68,6 +68,7 @@ export default {
   },
 
   data: () => ({
+    ready: false,
     customers: [],
     activeCustomersNumber: '',
     currentMonthlyCharge: '',
@@ -90,30 +91,37 @@ export default {
       this.customers = data
     },
     showServicesInfo (data) {
+      console.log(data)
+
       this.$root.servicesInfo = data
-      this.activeCustomersNumber = data.activeCustomersNumber
-      this.currentMonthlyCharge = data.totalMonthlyCharge
-      this.monthlyChargeIncludingPendingConnections = data.totalMonthlyCharge + data.totalMonthlyChargeForPendingConnections
-      this.lastMonthConnectedCustomers = data.newCustomersLastMonth
+      // this.activeCustomersNumber = data.activeCustomersNumber
+      // this.currentMonthlyCharge = data.totalMonthlyCharge
+      // this.monthlyChargeIncludingPendingConnections = data.totalMonthlyCharge + data.totalMonthlyChargeForPendingConnections
+      // this.lastMonthConnectedCustomers = data.newCustomersLastMonth
+      // this.$root.servicesInfo = data
+      this.activeCustomersNumber = data.activeConnectionsNumber
+      this.currentMonthlyCharge = data.charge
+      this.monthlyChargeIncludingPendingConnections = data.chargeWithPending
+      this.lastMonthConnectedCustomers = data.connectedLastMonth
+
+      this.ready = true
     }
   },
 
   beforeDestroy () {
-    this.$root.$off('services-info-received', this.showServicesInfo)
+    console.log('BEFORE DESTROY')
+    // this.$root.$off('services-info-received', this.showServicesInfo)
+    this.$root.$off('dashboard-services-info', this.showServicesInfo)
     this.$root.$off('customers-list-received', this.getCustomers)
   },
 
   beforeMount () {
-    this.$root.$on('services-info-received', this.showServicesInfo)
+    console.log('BEFORE MOUNT')
+    // this.$root.$on('services-info-received', this.showServicesInfo)
+    this.$root.$on('dashboard-services-info', this.showServicesInfo)
     this.__getCustomersServicesInfo()
     this.$root.$on('customers-list-received', this.getCustomers)
     this.__getCustomers()
   }
 }
 </script>
-
-<style scoped>
-/* .fieldset-class {
-  margin-bottom: 16px;
-} */
-</style>

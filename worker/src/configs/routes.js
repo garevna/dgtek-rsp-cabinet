@@ -1,4 +1,5 @@
 const {
+  dashboardController,
   cryptoController,
   customersController,
   servicesController,
@@ -7,6 +8,9 @@ const {
 } = require('../controllers')
 
 export const routes = {
+  dashboard: {
+    info: dashboardController.getCustomersServicesInfo
+  },
   rsp: {
     credentials: rspController.credentials,
     password: rspController.passwordChange,
@@ -24,8 +28,8 @@ export const routes = {
     delete: customersController.deleteCustomer,
     put: customersController.updateCustomer,
     activate: customersController.activateServiceRequest,
-    scheduling: customersController.scheduling,
-    info: customersController.getActiveServicesInfo
+    scheduling: customersController.scheduling
+    // info: customersController.getActiveServicesInfo
   },
   crypto: {
     init: cryptoController.init,

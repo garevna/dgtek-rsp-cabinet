@@ -44,12 +44,9 @@ export default {
     steps: Object.keys(schema)
   }),
   methods: {
-    getData (data) {
-      const details = data.company ? data : data.result ? data.result : {}
-      for (const step in details) {
-        if (step === 'activeSesions') continue
-        for (const prop in details[step]) {
-          if (step === '_id' || prop === 'password' || prop === 'role') continue
+    getData (details) {
+      for (const step in this.schema) {
+        for (const prop in this.schema[step]) {
           this.schema[step][prop].value = details[step][prop]
         }
       }

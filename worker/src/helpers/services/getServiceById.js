@@ -1,5 +1,6 @@
 import { getRecordByKey } from '../db'
-import { getServiceDetailsError } from '../error-handlers'
+
+const { getServiceDetailsError } = require('../error-handlers').default
 
 export const getServiceById = async function (id) {
   const { status, result } = await getRecordByKey('services', id)

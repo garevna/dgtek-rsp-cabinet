@@ -1,5 +1,5 @@
 export const init = function () {
-  const { $apiSecret, $apiKey, $apiHost } = window[Symbol.for('vue.prototype')]
+  const { $apiSecret, $apiKey, $apiHost, $adminKey, $adminCredentials } = window[Symbol.for('vue.prototype')]
 
   window[Symbol.for('rsp.worker')].postMessage({
     route: 'crypto',
@@ -7,7 +7,9 @@ export const init = function () {
     data: {
       host: $apiHost(),
       key: $apiKey(),
-      secret: $apiSecret()
+      secret: $apiSecret(),
+      adminKey: $adminKey(),
+      adminCred: $adminCredentials()
     }
   })
 }

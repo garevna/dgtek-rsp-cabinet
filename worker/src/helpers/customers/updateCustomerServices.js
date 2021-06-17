@@ -2,10 +2,10 @@ import { getRecordByKey, putRecordByKey } from '../db'
 
 import { put } from '../AJAX'
 
-import {
+const {
   getCustomerDataError,
   putCustomerDataError
-} from '../error-handlers'
+} = require('../error-handlers').default
 
 export const updateCustomerServices = async function (id, data) {
   const [route, action] = ['customers', 'services']

@@ -1,8 +1,8 @@
 import {
-  init,
-  encrypt,
-  decrypt,
-  hash
+  init
+  // encrypt,
+  // decrypt,
+  // hash
 } from '../helpers/crypto'
 
 class CryptoController {
@@ -10,17 +10,17 @@ class CryptoController {
     self.postMessage(init(request.data))
   }
 
-  encrypt (request) {
-    self.postMessage(encrypt(request.source))
-  }
+  // encrypt (request) {
+  //   self.postMessage(encrypt(request.source))
+  // }
 
-  decrypt (request) {
-    self.postMessage(decrypt(request.source))
-  }
+  // decrypt (request) {
+  //   self.postMessage(decrypt(request.source))
+  // }
 
-  hash (request) {
-    self.postMessage(hash(request.source))
-  }
+  // hash (request) {
+  //   self.postMessage(hash(request.source))
+  // }
 }
 
 export const cryptoController = new CryptoController()

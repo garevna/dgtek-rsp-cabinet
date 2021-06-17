@@ -1,6 +1,12 @@
 import { routes } from './configs'
 
+import { controller } from './helpers'
+
 self.initialized = false
+
+self.controller = controller
+
+self.postMessage({ status: 300, controller: Object.keys(self.controller) })
 
 self.onmessage = (event) => {
   const { route, action, ...data } = event.data

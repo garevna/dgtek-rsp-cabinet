@@ -1,21 +1,25 @@
 import { post } from '../AJAX'
 
-import { postNewCustomerError } from '../error-handlers'
+const { postNewCustomerError, duplicatedCustomerError } = require('../error-handlers').default
 
-import { getFromRemoteServer, getAllCustomers } from './'
+// import { getFromRemoteServer, getAllCustomers } from './'
 
 export const createCustomer = async function (data) {
   const route = 'customers'
 
   const { status, result } = await post('customer', data)
 
-  if (status !== 200) return postNewCustomerError(status, result)
+  if (status === 409) return duplicatedCustomerError(409, data.uniqueCode)
 
-  const refresh = await getFromRemoteServer()
+  if (status !== 200) return postNewCustomerError(status, data.uniqueCode)
+
+  self.postMessage({ status: 300, message: 'New cutomer created', result })
+
+  const refresh = await self.controller.getFromRemoteServer()
 
   if (refresh.status !== 200) return refresh
 
-  const response = await getAllCustomers()
+  const response = await self.controller.getAllCustomers()
 
   if (response.status !== 200) return response
 
@@ -26,6 +30,6 @@ export const createCustomer = async function (data) {
     result: response.result,
     message: true,
     messageType: 'New customer',
-    messageText: 'New customer has been successfully created'
+    messageText: `New customer ${data.uniqueCode} has been successfully created`
   }
 }

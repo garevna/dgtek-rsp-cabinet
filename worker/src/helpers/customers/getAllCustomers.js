@@ -1,5 +1,6 @@
 import { getAllRecords, getRecordByKey } from '../db'
-import { getCustomersListError, getServiceDetailsError } from '../error-handlers'
+
+const { getCustomersListError, getServiceDetailsError } = require('../error-handlers').default
 
 export const getAllCustomers = async function () {
   const [route, action] = ['customers', 'list']
@@ -13,7 +14,7 @@ export const getAllCustomers = async function () {
 
     const { status, result: service } = await getRecordByKey('services', customer.services[0].id)
 
-    if (status !== 200) self.postMessage(getServiceDetailsError(status))
+    if (status !== 200) self.controller.postMessage(getServiceDetailsError(status))
 
     Object.assign(customer, {
       serviceSpeed: `${service.upstreamSpeed}/${service.downstreamSpeed}`,

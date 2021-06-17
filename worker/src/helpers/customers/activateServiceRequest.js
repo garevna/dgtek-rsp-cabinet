@@ -2,14 +2,14 @@ import { post } from '../AJAX'
 
 import { idHandler } from '../env'
 
-import {
+import { getWeekNumber } from 'garevna-date-functions'
+
+const {
   invalidServiceDeliveryStatusRequest,
   activateServiceRequestError
-} from '../error-handlers'
+} = require('../error-handlers').default
 
-import { updateServiceStatus } from './'
-
-import { getWeekNumber } from 'garevna-date-functions'
+// import { updateServiceStatus } from './'
 
 export const activateServiceRequest = async function (customerId, serviceId) {
   const [route, action] = ['customers', 'activate']
@@ -27,7 +27,7 @@ export const activateServiceRequest = async function (customerId, serviceId) {
 
   if (status !== 200) return activateServiceRequestError(status, result)
 
-  const { result: services } = await updateServiceStatus(customerId, serviceId, 'Awaiting for connection')
+  const { result: services } = await self.controller.updateServiceStatus(customerId, serviceId, 'Awaiting for connection')
 
   return {
     status,

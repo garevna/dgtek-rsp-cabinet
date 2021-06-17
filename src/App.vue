@@ -38,6 +38,7 @@
     </v-snackbar>
     <error-message />
     <simple-message />
+    <confirmation-popup />
   </v-app>
 </template>
 
@@ -58,28 +59,28 @@ export default {
     message: 'Welcome to DGtek provisioning RSP portal'
   }),
   methods: {
-    errorHandler (event) {
-      const { errorType, errorMessage } = event.data
-      this.$root.$emit('open-error-popup', { errorType, errorMessage })
-    },
-    messageHandler (event) {
-      const { messageType, messageText } = event.data
-      this.$root.$emit('open-message-popup', { messageType, messageText })
-    }
+    // errorHandler (event) {
+    //   const { errorType, errorMessage } = event.data
+    //   this.$root.$emit('open-error-popup', { errorType, errorMessage })
+    // },
+    // messageHandler (event) {
+    //   const { messageType, messageText } = event.data
+    //   this.$root.$emit('open-message-popup', { messageType, messageText })
+    // }
   },
   mounted () {
-    this.$root.$on('app-is-ready', function (event) {
-      this.ready = true
-    }.bind(this))
-
+    // this.$root.$on('app-is-ready', function (event) {
+    //   this.ready = true
+    // }.bind(this))
+    //
     this.$root.$on('progress-event', function (event) {
       this.progress = event.progress
     }.bind(this))
 
-    this.__worker.addEventListener('message', function (event) {
-      event.data.error && this.errorHandler(event)
-      event.data.message && this.messageHandler(event)
-    }.bind(this))
+    // this.__worker.addEventListener('message', function (event) {
+    //   event.data.error && this.errorHandler(event)
+    //   event.data.message && this.messageHandler(event)
+    // }.bind(this))
   },
   errorCaptured (err, instance, info) {
     console.warn('ERROR:\n', err, info, instance.$options._componentTag)

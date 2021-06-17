@@ -2038,6 +2038,11 @@ function-bind@^1.1.1:
   resolved "https://registry.yarnpkg.com/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
   integrity sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==
 
+garevna-date-functions@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/garevna-date-functions/-/garevna-date-functions-1.1.5.tgz#37f6e44d9f8184173c69c9463be35f4912e1129e"
+  integrity sha512-h+XUoQo61Z9PL7akTP046es373VlmBIaxrAM70pLIQ/PosMGhHi0B5Da+1QrIyMooISYs0E/l9FNSa7oOtQWAQ==
+
 get-intrinsic@^1.0.2:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/get-intrinsic/-/get-intrinsic-1.1.1.tgz#15f59f376f855c446963948f0d24cd3637b4abc6"

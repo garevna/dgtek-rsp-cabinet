@@ -1,36 +1,36 @@
-const secretHandler = (function () {
+const secretHandler = (() => {
   const secret = process.env.VUE_APP_SECRET
-  return function () {
-    return secret
-  }
+  return () => secret
 })()
 
-const apiKeyHandler = (function () {
+const apiKeyHandler = (() => {
   const key = process.env.VUE_APP_AUTHORIZATION_KEY
-  return function () {
-    return key
-  }
+  return () => key
 })()
 
-const geoscapeKeyHandler = (function () {
+const geoscapeKeyHandler = (() => {
   const key = process.env.VUE_APP_GEOSCAPE_KEY
-  return function () {
-    return key
-  }
+  return () => key
 })()
 
-const buildingsHostHandler = (function () {
+const buildingsHostHandler = (() => {
   const buildingHost = process.env.VUE_APP_BUILDINGS_API_HOST
-  return function () {
-    return buildingHost
-  }
+  return () => buildingHost
 })()
 
-const hostHandler = (function () {
+const hostHandler = (() => {
   const host = process.env.VUE_APP_API_HOST
-  return function () {
-    return host
-  }
+  return () => host
+})()
+
+const adminKeyHandler = (() => {
+  const key = process.env.VUE_APP_ADMIN_APP_KEY
+  return () => key
+})()
+
+const adminCredHandler = (() => {
+  const cred = process.env.VUE_APP_ADMIN_CREDENTIALS
+  return () => cred
 })()
 
 const config = {
@@ -38,7 +38,9 @@ const config = {
   apiKey: apiKeyHandler,
   apiHost: hostHandler,
   geoscapeKey: geoscapeKeyHandler,
-  buildingsHost: buildingsHostHandler
+  buildingsHost: buildingsHostHandler,
+  adminKey: adminKeyHandler,
+  adminCredentials: adminCredHandler
 }
 
 export {
@@ -53,11 +55,18 @@ export default {
     Vue.apiHost = hostHandler
     Vue.geoscapeKey = geoscapeKeyHandler
     Vue.buildingsHost = buildingsHostHandler
+
+    Vue.adminKey = adminKeyHandler
+    Vue.adminCredentials = adminCredHandler
+
     Vue.prototype.$appConfig = config
     Vue.prototype.$apiSecret = secretHandler
     Vue.prototype.$apiKey = apiKeyHandler
     Vue.prototype.$apiHost = hostHandler
     Vue.prototype.$geoscapeKey = geoscapeKeyHandler
     Vue.prototype.$buildingsHost = buildingsHostHandler
+
+    Vue.prototype.$adminKey = adminKeyHandler
+    Vue.prototype.$adminCredentials = adminCredHandler
   }
 }

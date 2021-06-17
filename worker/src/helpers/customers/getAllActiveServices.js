@@ -1,8 +1,5 @@
 import { openDB } from '../db/openDB'
 
-// import { getCustomer } from '../customers'
-import { getFromLocalDb } from '../services'
-
 export const getAllActiveServices = async () => {
   const [route, action] = ['customers', 'info']
   const { status, result: db } = await openDB()
@@ -29,19 +26,9 @@ export const getAllActiveServices = async () => {
     totalMonthlyChargeForPendingConnections: 0
   }
 
-  const response = await getFromLocalDb()
+  const response = await self.controller.getListOfServices()
   if (response.status !== 200) return response
   const services = response.result
-
-  // self.postMessage({ status: 300, message: 'SERVICES', services })
-
-  // const pendingConnectionTypes = [
-  //   'Awaiting for connection',
-  //   'Awaiting for scheduling',
-  //   'Awaiting for confirmation',
-  //   'Awaiting confirmation',
-  //   'In job queue'
-  // ]
 
   const store = db.transaction('customers', 'readwrite').objectStore('customers')
 
@@ -56,7 +43,6 @@ export const getAllActiveServices = async () => {
       if (cursor) {
         const customer = cursor.value
         const active = Array.isArray(customer.services) ? customer.services.filter(service => service.status === 'Active') : []
-        // const pending = customer.services.filter(service => pendingConnectionTypes.includes(service.status))
         const pending = Array.isArray(customer.services) ? customer.services.filter(service => service.status === 'In job queue') : []
 
         result.newCustomersLastMonth += active.filter(service => service.modified > month[0] && service.modified < month[1]).length
@@ -71,7 +57,6 @@ export const getAllActiveServices = async () => {
         result.pendingConnectionsNumber += pending.length
 
         active.forEach((service) => {
-          // self.postMessage({ status: 300, message: 'ACTIVE SERVICE', service })
           const currentService = services.find(item => item._id === service.id)
           result.totalMonthlyCharge += currentService.subscriptionFee
           if (typeof result.activeServices[currentService.serviceName] !== 'number') result.activeServices[currentService.serviceName] = 0
@@ -79,7 +64,6 @@ export const getAllActiveServices = async () => {
         })
 
         pending.forEach((service) => {
-          // self.postMessage({ status: 300, message: 'PENDING CONNECTIONS', service })
           const currentService = services.find(item => item._id === service.id)
           result.totalMonthlyChargeForPendingConnections += currentService.subscriptionFee
           if (typeof result.pendingConnections[currentService.serviceName] !== 'number') result.pendingConnections[currentService.serviceName] = 0

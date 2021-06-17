@@ -140,6 +140,7 @@ export default {
     selected: {
       deep: true,
       handler (service) {
+        console.log('SERVICE MODIFIED\n', service)
         const index = this.schema.findIndex(item => item.serviceId === service.serviceId)
         this.schema.splice(index, 1, Object.assign({}, this.schema[index], {
           serviceStatus: service.serviceStatus,
@@ -272,6 +273,8 @@ export default {
       installation: item.installation
     }))
 
+    console.log(this.customerServices)
+
     this.$emit('update:services', this.customerServices)
 
     this.$root.$on('service-details-received', this.getServiceDetails)
@@ -282,6 +285,8 @@ export default {
       }
       this.__getServiceById(service.id)
     }
+
+    this.$vuetify.goTo(0)
   }
 }
 

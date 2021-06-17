@@ -1,50 +1,56 @@
-import { getCredentials } from '../AJAX'
-import { encrypt, decrypt } from '../crypto'
+import { getUser } from '../AJAX'
+import { putRecordByKey } from '../db'
+import { decrypt } from '../crypto'
 import {
+  hostHandler,
+  apiKeyHandler,
+  secretHandler,
   loginHandler,
   idHandler,
   passwordHandler,
-  credentialsHandler
+  credentialsHandler,
+  adminKeyHandler,
+  adminCredHandler
 } from '../env'
 
-export const credentials = async function () {
+const { credentialsError } = require('../error-handlers').default
+
+export const credentials = async function (data) {
   const [route, action] = ['rsp', 'credentials']
 
-  const { status, result } = await getCredentials()
+  const { credentials, host, key, secret, adminKey, adminCred } = data
 
-  if (status !== 200) return { status, route, action, result }
+  if (!credentials || !host || !key || !secret || !adminKey || !adminCred) return credentialsError()
 
-  const { _id, userInfo } = result
-  idHandler(_id)
+  hostHandler(host)
+  apiKeyHandler(key)
+  secretHandler(secret)
+  adminKeyHandler(adminKey)
+  adminCredHandler(adminCred)
 
-  const { login, password } = userInfo
-  loginHandler(login)
+  credentialsHandler(credentials)
 
-  const { status: decryptStatus, action: decryptAction, result: decryptResult } = decrypt(password)
+  const { status: decryptStatus, action: decryptAction, result: decryptResult } = decrypt(credentials)
 
   if (decryptStatus !== 200) return { status: decryptStatus, route, action: decryptAction, key: 'password description', result: decryptResult }
 
-  passwordHandler(decryptResult)
+  const { login, password } = JSON.parse(decryptResult)
 
-  const { status: encryptStatus, action: encryptAction, result: credentials } = encrypt(JSON.stringify({
-    login,
-    password: passwordHandler()
-  }))
+  loginHandler(login)
+  passwordHandler(password)
 
-  if (encryptStatus !== 200) return { status: encryptStatus, action: encryptAction, key: 'credentials', result: credentials }
+  const response = await getUser(login, password)
 
-  credentialsHandler(credentials)
+  if (response.status !== 200) return response
+
+  putRecordByKey('rsp', response.result._id, response.result)
+
+  idHandler(response.result._id)
 
   return {
     status: 200,
     route,
     action,
-    result: {
-      id: idHandler(),
-      login: loginHandler()
-      // role: userInfo.role,
-      // passHash: passwordHandler(),
-      // credentials: credentialsHandler()
-    }
+    result: { role: response.result.userInfo.role }
   }
 }

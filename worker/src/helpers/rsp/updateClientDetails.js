@@ -2,9 +2,9 @@ import { put } from '../AJAX'
 import { idHandler } from '../env'
 import { getRecordByKey, putRecordByKey } from '../db'
 
-import { putClientDataError } from '../error-handlers'
+const { putClientDataError } = require('../error-handlers').default
 
-export const update = async function (data) {
+export const updateClientDetails = async function (data) {
   const [route, action, key] = ['rsp', 'put', idHandler()]
 
   const { status: getStatus, result: getResult } = await getRecordByKey('rsp', key, data)
