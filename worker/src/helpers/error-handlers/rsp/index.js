@@ -1,17 +1,3 @@
-// import { credentialsError } from './credentialsError'
-// import { getClientDataError } from './getClientDataError'
-// import { putClientCredentialsError } from './putClientCredentialsError'
-// import { putClientDataError } from './putClientDataError'
-// import { refreshClientDataError } from './refreshClientDataError'
-
-// export {
-//   credentialsError,
-//   getClientDataError,
-//   putClientCredentialsError,
-//   putClientDataError,
-//   refreshClientDataError
-// }
-
 const modules = {}
 
 const context = require.context('./', false)

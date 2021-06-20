@@ -35,7 +35,7 @@ export const activateServiceRequest = async function (customerId, serviceId) {
     action,
     result: services,
     message: true,
-    messageType: 'Customer service delivery status update',
-    messageText: 'Your service activation request has been sent.'
+    messageType: 'Customer service delivery',
+    messageText: 'You service delivery update request has been sent.'
   }
 }

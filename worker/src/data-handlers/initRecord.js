@@ -6,6 +6,7 @@ export const initRecord = (serviceId) => {
     charge: 0,
     active: 0,
     pending: 0,
-    lastMonth: 0
+    lastMonth: 0,
+    notConnected: 0
   }
 }
