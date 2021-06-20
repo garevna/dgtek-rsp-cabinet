@@ -5,6 +5,14 @@
         <v-icon class="mr-4">mdi-arrow-left-bold-circle</v-icon>
         Return to customer
       </v-btn>
+      <SelectorsForServices
+        :type.sync="serviceType"
+        :speed.sync="serviceSpeed"
+        :contractTerm.sync="contractTerm"
+        :plan.sync="servicePlan"
+        :plans="plans"
+        :contractTerms="contractTerms"
+      />
       <v-spacer />
       <v-text-field
         v-model="search"
@@ -22,7 +30,7 @@
       <legend><h3>Services</h3></legend> -->
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="filteredItems"
         :search="search"
         single-select
         single-expand
@@ -65,10 +73,20 @@ import { serviceHandler, showServiceSelectHandler } from '@/helpers'
 
 export default {
   name: 'Services',
+
+  components: {
+    SelectorsForServices: () => import('@/components/services/SelectorsForServices.vue')
+  },
+
   props: ['opened'],
+
   data: () => ({
     ready: false,
     items: null,
+    serviceSpeed: '',
+    serviceType: '',
+    servicePlan: '',
+    contractTerm: '',
     search: null,
     selected: [],
     expanded: [],
@@ -92,31 +110,60 @@ export default {
     ]
   }),
 
+  computed: {
+    contractTerms () {
+      const set = new Set(this.items.map(item => item.contractTerm))
+      return Array.from(set)
+    },
+
+    plans () {
+      const set = new Set(this.items.map(item => item.subscriptionFee))
+      return Array.from(set)
+    },
+
+    filteredItems () {
+      if (!this.serviceType && !this.serviceSpeed && !this.servicePlan && !this.contractTerm) return this.items
+      return this.items
+        .filter(service => !this.serviceType || (service.serviceType === this.serviceType))
+        .filter(service => !this.serviceSpeed || (this.speedToString(service) === this.serviceSpeed))
+        .filter(service => !this.servicePlan || (service.subscriptionFee === this.servicePlan))
+        .filter(service => !this.contractTerm || (service.contractTerm === this.contractTerm))
+    }
+  },
+
   watch: {
     selected: {
       deep: true,
       handler (data) {
+        console.log('SELECTED SERVICE\n', data)
         const { _id: serviceId, serviceName, status: serviceStatus, subscriptionFee: servicePlan, contractTerm: serviceTerm } = data[0]
         serviceHandler({
           serviceId,
           serviceName,
-          serviceSpeed: `${data[0].upstreamSpeed}/${data[0].downstreamSpeed}`,
+          serviceSpeed: this.speedToString(data[0]),
           serviceStatus,
           servicePlan,
           serviceTerm
         })
+
+        console.log('SERVICE HANDLER\n', serviceHandler())
       }
     }
   },
 
   methods: {
+    speedToString (item) {
+      return `${item.downstreamSpeed}/${item.upstreamSpeed}`
+    },
+
     getData (data) {
       this.items = Array.isArray(data) ? data : data.result ? data.result : []
       this.items.forEach(item => {
-        item.speed = `${item.downstreamSpeed}/${item.upstreamSpeed}Mbps`
-        item.active = this.$root.servicesInfo.activeServices[item.serviceName] ? this.$root.servicesInfo.activeServices[item.serviceName] : ''
-        item.pending = this.$root.servicesInfo.pendingConnections[item.serviceName] ? this.$root.servicesInfo.pendingConnections[item.serviceName] : ''
+        item.speed = this.speedToString(item)
+        item.active = this.$root.servicesInfo.services[item._id].active
+        item.pending = this.$root.servicesInfo.services[item._id].pending
       })
+
       this.ready = true
     },
     returnToCustomerDetails () {
@@ -132,7 +179,6 @@ export default {
   mounted () {
     this.$root.$on('services-list-received', this.getData)
     this.__getServices()
-    // console.log(this.$root.servicesInfo)
   }
 }
 </script>

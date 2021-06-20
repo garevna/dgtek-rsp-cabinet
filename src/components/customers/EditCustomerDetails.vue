@@ -175,6 +175,7 @@ export default {
       this.customer.uniqueCode = code
       this.customerDetailsSchema.uniqueCode.value = code
     },
+
     update (propName, propValue) {
       this.customer[propName] = propValue
     },
@@ -182,6 +183,7 @@ export default {
     updateBuildingId () {
       this.__getBuildingByAddress(this.customer.address)
     },
+
     rowHeight (item) {
       return item.type === 'textarea' ? 160 : 60
     },
@@ -191,6 +193,7 @@ export default {
     rule (item) {
       return this.rules[item.type]
     },
+
     createSchema () {
       if (this.customer.commercial && Object.keys(this.customer.commercial).length > 0) {
         this.customerType = true
@@ -202,6 +205,7 @@ export default {
         this.customerDetailsSchema[prop].value = this.customer[prop]
       }
     },
+
     getCustomerData (data) {
       this.customer = data.result
       this.createSchema()
@@ -211,14 +215,18 @@ export default {
         this.__getBuildingById(buildingId)
       }
     },
+
     getBuildings (data) {
       this.buildings.push(...data)
     },
+
     saveCustomerDetails () {
       if (!this.customerType) this.customer.commercial = {}
       this.customer._id ? this.__putCustomer(this.customer._id, this.customer) : this.__postCustomer(this.customer)
     },
-    close () {
+
+    close (data) {
+      console.log('CUSTOMER CREATED: ', data)
       this.$parent.$emit('update:initialCustomer', this.customer)
     }
   },

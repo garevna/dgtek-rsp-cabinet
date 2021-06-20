@@ -27,6 +27,7 @@ export const schema = {
     primaryContact: {
       title: 'Primary contact',
       type: 'simple-text',
+      required: true,
       value: ''
     },
     phoneWork: {
@@ -37,7 +38,7 @@ export const schema = {
     },
     phoneMobile: {
       title: 'Phone (mobile)',
-      required: true,
+      required: false,
       type: 'phone',
       value: ''
     },
@@ -59,26 +60,31 @@ export const schema = {
     aboutBusiness: {
       title: 'Information about the business',
       type: 'textarea',
+      required: false,
       value: ''
     },
     annualRevenue: {
       title: 'Annual revenue',
       type: 'number',
+      required: false,
       value: 10
     },
     numberOfCustomers: {
       title: 'Number of customers',
       type: 'number',
+      required: false,
       value: 1000
     },
     customerAreas: {
       title: 'Areas where the most of customers are located',
       type: 'textarea',
+      required: false,
       value: []
     },
     other: {
       title: 'Other relevant information',
       type: 'textarea',
+      required: false,
       value: '...'
     }
   },
@@ -87,31 +93,37 @@ export const schema = {
     info: {
       title: 'Technical information',
       type: 'textarea',
+      required: false,
       value: '...'
     },
     contact: {
       title: 'Technical contact',
       type: 'simple-text',
+      required: false,
       value: ''
     },
     phoneWork: {
       title: 'Phone (work)',
       type: 'phone',
+      required: false,
       value: ''
     },
     phoneMobile: {
       title: 'Phone (mobile)',
       type: 'phone',
+      required: false,
       value: ''
     },
     emailPrimary: {
       title: 'Email (primary)',
       type: 'email',
+      required: false,
       value: ''
     },
     emailAlternative: {
       title: 'Email (alternative)',
       type: 'email',
+      required: false,
       value: ''
     }
   },

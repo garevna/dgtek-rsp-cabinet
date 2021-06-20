@@ -39,6 +39,7 @@
                 </v-btn>
               </td>
               <td>{{ item.serviceName }}</td>
+
               <td width="140">
                 <v-btn
                   text
@@ -50,6 +51,7 @@
                   {{ item.serviceStatus }}
                 </v-btn>
               </td>
+
               <td width="140">{{ item.serviceStatusModified }}</td>
               <td width="220">
                 <li v-if="item.lots && item.lots.length === 2">
@@ -81,6 +83,7 @@
     </v-card>
 
     <Services v-else :opened.sync="showServices" />
+
     <ServiceDeliveryUpdate
       v-if="dialog"
       :dialog.sync="dialog"
@@ -98,6 +101,8 @@
         :customerId="customerId"
       />
     </v-row>
+
+    <ConfirmActivationRequest />
   </v-container>
 </template>
 
@@ -118,6 +123,7 @@ export default {
 
   components: {
     Services,
+    ConfirmActivationRequest: () => import(/* webpackChunkName: 'terms-and-conditions' */ '@/components/popups/ConfirmActivationRequest.vue'),
     LotSelection: () => import(/* webpackChunkName: 'lot-selection' */ '@/components/schedule/LotSelection.vue'),
     ServiceDeliveryUpdate: () => import(/* webpackChunkName: 'service-delivery-update' */ '@/components/customers/ServiceDeliveryUpdate.vue')
   },
@@ -235,19 +241,22 @@ export default {
     },
 
     changeStatus (item) {
-      if (item.serviceStatus === 'Not connected') this.sendActivationRequest(item)
-      if (item.serviceStatus === 'Awaiting for scheduling') this.selectLots(item)
-    },
-
-    selectLots (item) {
       this.selectedService = this.customerServices.find(service => service.id === item.serviceId)
       this.selected = item
-      this.showSelect = true
+
+      this.showSelect = item.serviceStatus === 'Awaiting for scheduling'
+
+      if (item.serviceStatus === 'Not connected') this.$root.$emit('open-terms-and-conditions')
     },
 
-    sendActivationRequest (item) {
-      this.selectedService = this.customerServices.find(service => service.id === item.serviceId)
-      this.selected = item
+    // selectLots (item) {
+    //   this.selectedService = this.customerServices.find(service => service.id === item.serviceId)
+    //   this.selected = item
+    //   this.showSelect = true
+    // },
+
+    sendActivationRequest (data) {
+      console.log(data)
       this.dialog = true
     },
 
@@ -261,6 +270,7 @@ export default {
   beforeDestroy () {
     this.$root.$off('service-details-received', this.getServiceDetails)
     this.$root.$off('customer-created', this.close)
+    this.$root.$off('operation-confirmed', this.sendActivationRequest)
   },
 
   mounted () {
@@ -273,12 +283,11 @@ export default {
       installation: item.installation
     }))
 
-    console.log(this.customerServices)
-
     this.$emit('update:services', this.customerServices)
 
     this.$root.$on('service-details-received', this.getServiceDetails)
     this.$root.$on('service-selected', this.assignNewService)
+    this.$root.$on('operation-confirmed', this.sendActivationRequest)
     for (const service of this.services) {
       if (service.name) {
         delete service.name

@@ -2,20 +2,7 @@
   <v-card flat class="transparent">
     <v-row justify="center" align="start">
       <v-col cols="12" md="6" lg="4" xl="3">
-        <v-card flat class="transparent">
-          <v-card-text class="py-0" v-if="ready">
-            Total number of active customers: <b class="primary--text">{{ activeCustomersNumber }}</b>
-          </v-card-text>
-          <v-card-text class="py-0" v-if="ready">
-            Total current monthly charge: <b class="primary--text">{{ currentMonthlyCharge }}</b>
-          </v-card-text>
-          <v-card-text class="py-0" v-if="ready">
-            Total monthly charge including pending connections: <b class="primary--text">{{ monthlyChargeIncludingPendingConnections }}</b>
-          </v-card-text>
-          <v-card-text class="py-0" v-if="ready">
-            Number of connected customers for the last month: <b class="primary--text">{{ lastMonthConnectedCustomers }}</b>
-          </v-card-text>
-        </v-card>
+        <Info :dashboard="true" />
       </v-col>
       <v-col cols="12" md="6" lg="4" xl="3">
         <Fieldset legend="Customers awaiting connection">
@@ -64,7 +51,8 @@ export default {
   name: 'Dashboard',
 
   components: {
-    Fieldset
+    Fieldset,
+    Info: () => import('@/components/dashboard/Info.vue')
   },
 
   data: () => ({
@@ -89,37 +77,14 @@ export default {
   methods: {
     getCustomers (data) {
       this.customers = data
-    },
-    showServicesInfo (data) {
-      console.log(data)
-
-      this.$root.servicesInfo = data
-      // this.activeCustomersNumber = data.activeCustomersNumber
-      // this.currentMonthlyCharge = data.totalMonthlyCharge
-      // this.monthlyChargeIncludingPendingConnections = data.totalMonthlyCharge + data.totalMonthlyChargeForPendingConnections
-      // this.lastMonthConnectedCustomers = data.newCustomersLastMonth
-      // this.$root.servicesInfo = data
-      this.activeCustomersNumber = data.activeConnectionsNumber
-      this.currentMonthlyCharge = data.charge
-      this.monthlyChargeIncludingPendingConnections = data.chargeWithPending
-      this.lastMonthConnectedCustomers = data.connectedLastMonth
-
-      this.ready = true
     }
   },
 
   beforeDestroy () {
-    console.log('BEFORE DESTROY')
-    // this.$root.$off('services-info-received', this.showServicesInfo)
-    this.$root.$off('dashboard-services-info', this.showServicesInfo)
     this.$root.$off('customers-list-received', this.getCustomers)
   },
 
   beforeMount () {
-    console.log('BEFORE MOUNT')
-    // this.$root.$on('services-info-received', this.showServicesInfo)
-    this.$root.$on('dashboard-services-info', this.showServicesInfo)
-    this.__getCustomersServicesInfo()
     this.$root.$on('customers-list-received', this.getCustomers)
     this.__getCustomers()
   }

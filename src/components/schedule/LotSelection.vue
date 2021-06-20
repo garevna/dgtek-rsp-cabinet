@@ -279,7 +279,7 @@ export default {
 
 .v-application--is-ltr .v-picker--landscape .v-picker__actions:not(.v-picker__actions--no-title),
 .v-application--is-ltr .v-picker--landscape .v-picker__body:not(.v-picker__body--no-title) {
-  margin-left: 220px;
+  margin-left: 220px !important;
   margin-top: -48px;
   margin-bottom: 36px;
 }

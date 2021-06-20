@@ -17,12 +17,37 @@
           v-model="item.value"
           @input="update(propName, item.value)"
           :label="item.title"
+          :rules="[required(item), rule(item)]"
+          outlined
+          dense
+          :type="type(item)"
+        />
+
+        <v-text-field
+          v-if="propName === 'password'"
+          v-model="password"
+          @input="update(propName, item.value)"
+          :label="item.title"
+          :rules="[required(item), rule(item)]"
+          outlined
+          dense
+          :append-icon="appendIcon(item)"
+          :type="type(item)"
+          @click:append="showPassword = !showPassword"
+          class="password"
+        />
+        <v-text-field
+          v-if="propName === 'passwordConfirm'"
+          v-model="passwordConfirm"
+          @input="update(propName, item.value)"
+          :label="item.title"
           :rules="[rules.required, rule(item)]"
           outlined
           dense
           :append-icon="appendIcon(item)"
           :type="type(item)"
           @click:append="showPassword = !showPassword"
+          class="password"
         />
 
         <GeoscapeAutocomplete
@@ -63,7 +88,9 @@ export default {
     ready: false,
     schema: {},
     showPassword: false,
-    rules
+    rules,
+    password: '',
+    passwordConfirm: ''
   }),
 
   watch: {
@@ -75,6 +102,12 @@ export default {
         this.schema = value[this.step]
         this.ready = true
       }
+    },
+    password (value) {
+      console.log('Password: ', value)
+    },
+    passwordConfirm (value) {
+      console.log('Password confirmation: ', value, value === this.password)
     },
     schema: {
       deep: true,
@@ -92,7 +125,7 @@ export default {
       return item.type !== 'password' || this.showPassword ? 'text' : 'password'
     },
     update (prop, value) {
-      this.schema[prop].value = value
+      this.schema[prop].value = this.schema[prop].type === 'password' ? '' : value
       const result = Object.assign({}, this.rspData, { [this.step]: JSON.parse(JSON.stringify(this.schema)) })
       this.$emit('update:rspData', JSON.parse(JSON.stringify(result)))
     },
@@ -102,16 +135,30 @@ export default {
     textField (item) {
       return testTextField(item.type)
     },
+    passwordField (item) {
+      return item.type === 'password'
+    },
     rule (item) {
-      console.log(item)
+      // console.log(this.rules[item.type])
       return this.rules[item.type]
     },
     required (item) {
-      // if (item.type)
+      console.log(item.type, 'REQUIRED: ', item.required)
+      return item.required ? this.rules.required : value => true
     }
+  },
+  mounted () {
+    console.log('MOUNTED')
   }
 }
 </script>
 
-<style scoped>
+<style>
+
+input:-webkit-autofill {
+  -webkit-background-clip: text;
+}
+.password {
+  -webkit-text-fill-color: #fff;
+}
 </style>

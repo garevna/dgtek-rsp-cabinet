@@ -1,115 +1,84 @@
 <template>
-  <v-container>
-    <v-row v-if="!edit" justify="center">
-      <v-card flat class="transparent pb-12 px-12 mx-auto" v-if="ready">
-        <v-row justify="center" class="mt-8 mb-2">
-          <table>
-            <tbody>
-              <tr>
-                <td>
-                  <v-select
-                    :items="statuses"
-                    v-model="status"
-                    label="Service status"
-                    outlined
-                    clearable
-                    dense
-                    color="primary"
-                    style="width: 270px"
-                  ></v-select>
-                </td>
-                <td>
-                  <v-select
-                    :items="speeds"
-                    v-model="speed"
-                    label="Service speed"
-                    outlined
-                    clearable
-                    dense
-                    color="primary"
-                    style="width: 180px"
-                  ></v-select>
-                </td>
-                <td>
-                  <v-select
-                    :items="plans"
-                    v-model="plan"
-                    label="Plan"
-                    outlined
-                    clearable
-                    dense
-                    color="primary"
-                    style="width: 120px"
-                  ></v-select>
-                </td>
-                <td>
-                  <v-select
-                    :items="postalCodes"
-                    v-model="postCode"
-                    label="Post code"
-                    outlined
-                    clearable
-                    dense
-                    color="primary"
-                    style="width: 140px"
-                  ></v-select>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <v-spacer />
-          <v-btn text @click="refresh" class="mr-12 mb-5">
-            <v-icon>mdi-refresh</v-icon>
-            Refresh
-          </v-btn>
-        </v-row>
+  <transition name="fade">
+    <v-container v-if="ready">
+      <v-row v-if="!edit" justify="center">
+        <v-card flat class="transparent pb-12 px-12 mx-auto">
+          <Selectors
+            :status.sync="status"
+            :speed.sync="speed"
+            :plan.sync="plan"
+            :postCode.sync="postCode"
+            :refresh.sync="refresh"
+            :postalCodes="postalCodes"
+            :plans="plans"
+          />
 
-        <v-data-table
-          ref="customersList"
-          :headers="headers"
-          :items="filteredItems"
-          :search="search"
-          :page.sync="page"
-          :height="tableHeight"
-          fixed-header
-        >
-          <template v-slot:item.serviceStatus="{ item }">
-            <v-icon :color="getIcon(item.serviceStatus).color" small class="mr-1">
-              {{ getIcon(item.serviceStatus).icon }}
-            </v-icon>
-            <span @click="editItem(item)" style="cursor: pointer">
-              {{ item.serviceStatus }}
-            </span>
-          </template>
-
-          <template v-slot:item.actions="{ item }">
-            <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
-          </template>
-        </v-data-table>
-
-        <div style="margin-top: -48px">
-          <v-text-field
-            v-model="search"
-            append-icon="mdi-magnify"
-            label="Search"
-            single-line
+          <v-data-table
+            ref="customersList"
+            :headers="headers"
+            :items="filteredItems"
+            :search="search"
+            :page.sync="page"
+            fixed-header
+            @click:row="editItem"
             dense
-            outlined
-            hide-details
-            style="display: inline-block; width: 280px"
-          ></v-text-field>
+            calculate-widths
+          >
 
-          <span class="ml-12"><small>Total selected customers: {{ selectedCustomersNumber }}</small></span>
-        </div>
-      </v-card>
-    </v-row>
-    <v-row v-else justify="center">
-      <CustomerDetails
-        :dialog.sync="edit"
-        :customerId="selectedCustomerId"
-      />
-    </v-row>
-  </v-container>
+            <template v-slot:item.serviceStatus="{ item }">
+              <v-icon :color="getIcon(item.serviceStatus).color" small class="mr-1">
+                {{ getIcon(item.serviceStatus).icon }}
+              </v-icon>
+              <span @click="editItem(item)" style="cursor: pointer">
+                {{ item.serviceStatus }}
+              </span>
+            </template>
+
+            <!-- <template v-slot:item.actions="{ item }">
+              <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
+            </template> -->
+          </v-data-table>
+
+          <div style="margin-top: -48px">
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              dense
+              outlined
+              hide-details
+              style="display: inline-block; width: 280px"
+            ></v-text-field>
+
+            <span class="ml-12"><small>Total selected customers: {{ selectedCustomersNumber }}</small></span>
+          </div>
+        </v-card>
+
+        <v-card flat class="transparent mx-auto" max-width="1440">
+          <v-row justify="center">
+            <v-col cols="8">
+              <Fieldset legend="Statistics">
+                <Info :dashboard="false" />
+              </Fieldset>
+            </v-col>
+            <v-col cols="4">
+              <v-btn outlined color="primary" @click="status = 'pending'">
+                Show all pending connections
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-row>
+
+      <v-row v-else justify="center">
+        <CustomerDetails
+          :dialog.sync="edit"
+          :customerId="selectedCustomerId"
+        />
+      </v-row>
+    </v-container>
+  </transition>
 </template>
 
 <script>
@@ -121,13 +90,21 @@ import {
   customersListPageNumberHandler
 } from '@/helpers'
 
+import { icons, colors } from '@/configs'
+
 export default {
   name: 'CustomersList',
+
   components: {
+    Fieldset: () => import('@/components/Fieldset.vue'),
+    Selectors: () => import('@/components/customers/Selectors.vue'),
+    Info: () => import('@/components/dashboard/Info.vue'),
     CustomerDetails: () => import('@/components/customers/CustomerDetails.vue')
   },
+
   data: () => ({
     ready: false,
+    refresh: false,
     edit: false,
     selectedCustomerId: null,
     data: null,
@@ -137,9 +114,6 @@ export default {
     speed: null,
     plan: null,
     postCode: null,
-
-    statuses: ['Active', 'Awaiting for connection', 'Awaiting for scheduling', 'Awaiting for confirmation', 'In job queue', 'Unable to connect', 'Not connected'],
-    speeds: ['50/50', '150/150', '250/250', '500/500', '1000/1000'],
     headers: [
       {
         text: 'Customer name',
@@ -153,15 +127,11 @@ export default {
       { text: 'Service status', value: 'serviceStatus' },
       { text: 'Plan', value: 'servicePlan' },
       { text: 'Approx ETA', value: 'approxETA' },
-      { text: 'Term', value: 'serviceTerm' },
-      { text: 'Actions', value: 'actions', sortable: false }
+      { text: 'Term', value: 'serviceTerm' }
     ]
   }),
 
   computed: {
-    tableHeight () {
-      return window.innerHeight - 360
-    },
     customers () {
       if (!this.data) return
 
@@ -191,6 +161,20 @@ export default {
     },
     filteredItems () {
       if (!this.status && !this.speed && !this.postCode && !this.plan) return this.customers
+      if (this.status === 'Service not assigned') {
+        console.log(this.status)
+        console.log(this.customers)
+        return this.customers
+          .filter(customer => !customer.serviceStatus)
+          .filter(customer => !this.postCode || (customer.postCode === this.postCode))
+      }
+      if (this.status === 'pending') {
+        return this.customers
+          .filter(customer => customer.serviceStatus === 'Not connected' || customer.serviceStatus === 'Awaiting for scheduling')
+          .filter(customer => !this.speed || (customer.serviceSpeed === this.speed))
+          .filter(customer => !this.postCode || (customer.postCode === this.postCode))
+          .filter(customer => !this.plan || (customer.servicePlan === this.plan))
+      }
       return this.customers
         .filter(customer => !this.status || (customer.serviceStatus === this.status))
         .filter(customer => !this.speed || (customer.serviceSpeed === this.speed))
@@ -198,34 +182,22 @@ export default {
         .filter(customer => !this.plan || (customer.servicePlan === this.plan))
     }
   },
+
+  watch: {
+    refresh (val) {
+      if (val) {
+        this.ready = false
+        this.refresh = false
+      }
+    }
+  },
+
   methods: {
     getIcon (status) {
-      const icons = {
-        Active: 'mdi-check-network-outline',
-        'Awaiting for connection': 'mdi-calendar-question',
-        'Awaiting for confirmation': 'mdi-calendar-clock',
-        'Awaiting confirmation': 'mdi-calendar-clock',
-        'Awaiting for scheduling': 'mdi-calendar-question',
-        'In job queue': 'mdi-calendar-check',
-        'Unable to connect': 'mdi-minus-network',
-        'Not connected': 'mdi-alert'
-      }
-      const colors = {
-        Active: '#999',
-        'Awaiting for connection': '#999',
-        'Awaiting for confirmation': '#999',
-        'Awaiting confirmation': '#999',
-        'Awaiting for scheduling': 'primary',
-        'In job queue': '#999',
-        'Unable to connect': '#777',
-        'Not connected': '#f00'
-      }
       return { icon: icons[status], color: colors[status] }
     },
 
     async getData (data) {
-      console.log('CUSTOMERS LIST RECEIVED\n', data)
-      // this.data = Array.isArray(data) ? data : Array.isArray(data.result) ? data.result : []
       this.data = data
       this.ready = true
     },
@@ -262,10 +234,15 @@ export default {
       }))
     },
 
-    refresh () {
-      this.ready = false
-      this.__refreshCustomers()
+    clickOnRow (event, addon) {
+      console.log(event)
+      console.log(addon)
     },
+
+    // refreshCustomersList () {
+    //   this.ready = false
+    //   this.__refreshCustomers()
+    // },
 
     customersListRefreshed (event) {
       // this.getData(event.result.booking)
@@ -298,5 +275,11 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+/* .fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+} */
 </style>

@@ -15,6 +15,9 @@
       <v-card-text class="text-center">
         <p>{{ messageText }}</p>
       </v-card-text>
+      <v-card-text class="text-center">
+        <v-btn outlined @click="dialog = false">OK</v-btn>
+      </v-card-text>
     </v-card>
   </v-dialog>
 </template>

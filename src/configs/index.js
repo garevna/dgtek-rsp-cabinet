@@ -12,6 +12,8 @@ import { ticketCategories } from './ticketCategories'
 import { patterns } from './patterns'
 import { validateABN } from './validateABN'
 import { rules } from './rules'
+import { icons } from './icons'
+import { colors } from './colors'
 
 export {
   dgtekMapEvents,
@@ -27,5 +29,7 @@ export {
   ticketCategories,
   patterns,
   validateABN,
-  rules
+  rules,
+  icons,
+  colors
 }

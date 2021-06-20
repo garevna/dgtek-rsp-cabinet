@@ -45,15 +45,18 @@
         </v-card-text>
       </v-row>
 
-      <v-row align="center" justify="center" v-if="submited">
+      <!-- <v-row align="center" justify="center" v-if="submited">
         <v-card-text class="text-center">
           <p>
             <small>
               You service delivery update request has been sent.
             </small>
+            <v-card-text class="text-center">
+              <v-btn outlined @click="$emit('update:dialog', false)">OK</v-btn>
+            </v-card-text>
           </p>
         </v-card-text>
-      </v-row>
+      </v-row> -->
     </v-card>
   </v-dialog>
 </template>
@@ -85,7 +88,7 @@ export default {
   methods: {
     sendRequest () {
       this.disableClose = true
-      this.submited = true
+      // this.submited = true
       this.__sendServiceActivationRequest(this.customerId, this.serviceData.serviceId)
     },
 
@@ -95,6 +98,7 @@ export default {
         serviceStatus: service.status,
         serviceStatusModified: new Date(service.modified).toISOString().slice(0, 10)
       }))
+      this.submited = true
       this.disableClose = false
     },
     reset () {
