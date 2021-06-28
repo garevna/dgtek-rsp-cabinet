@@ -19,9 +19,9 @@ export const postNewTicket = async function (data) {
     messageText: 'New ticket has been created'
   })
 
-  if ((await self.controller.getTicketsFromRemoteServer()).status !== 200) return refreshTicketsListError(500)
+  if ((await self.controller.refreshTickets()).status !== 200) return refreshTicketsListError(500)
 
-  const { status, result } = await self.controller.getFromLocalDb()
+  const { status, result } = await self.controller.getListOfTickets()
 
   return status !== 200 ? postNewTicketError(status) : ({ status: 200, route: 'tickets', action: 'list', result })
 }

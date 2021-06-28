@@ -16,7 +16,7 @@ class TicketsController {
   }
 
   async put (request) {
-    self.postMessage({ status: 300, request })
+    // self.postMessage({ status: 300, request })
     self.postMessage(await self.controller.putTicketData(request.key, request.data))
   }
 

@@ -8,14 +8,12 @@ const {
   duplicatedCustomerError
 } = require('../error-handlers').default
 
-// import { getFromRemoteServer, getAllCustomers } from './'
-
 export const createCustomer = async function (data) {
   const route = 'customers'
 
   const duplicated = await searchRecords('customers', 'uniqueCode', data.uniqueCode)
 
-  self.postMessage({ status: 300, duplicated })
+  // self.postMessage({ status: 300, duplicated })
 
   if (duplicated.result.length > 0) return duplicatedCustomerError(409, data.uniqueCode)
 
@@ -25,13 +23,9 @@ export const createCustomer = async function (data) {
 
   if (status !== 200) return postNewCustomerError(status, data.uniqueCode)
 
-  self.postMessage({ status: 300, message: 'New cutomer created', id: result.data, result })
-
   self.postMessage({ status: 200, route: 'customers', action: 'post', result: result.data })
 
   const customer = await get(`customer/${result.data}`)
-
-  self.postMessage({ status: 300, message: 'New customer received from remote', customer: customer.result })
 
   if (customer.status !== 200) return getCustomerDataError(customer.status, customer.uniqueCode)
 

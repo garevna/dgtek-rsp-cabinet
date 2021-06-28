@@ -28,7 +28,7 @@ class CustomersController {
     self.postMessage(Object.assign(response, {
       message: true,
       messageType: 'Customer services',
-      messageText: 'Customer services were successfully updated'
+      messageText: 'Customer services were successfully updated. Please do not forget to request connection by clicking the "Not Connected" link'
     }))
   }
 
@@ -37,8 +37,7 @@ class CustomersController {
   }
 
   async activateServiceRequest ({ customerId, serviceId }) {
-    // self.postMessage({ status: 300, message: 'CUSTOMER CONTROLLER', customerId, serviceId })
-    const response = await self.controller.activateServiceRequest(customerId, serviceId)
+    const response = (await self.controller.activateServiceRequest(customerId, serviceId))
 
     self.postMessage(response)
 
@@ -48,13 +47,7 @@ class CustomersController {
   }
 
   async scheduling (request) {
-    self.postMessage({ status: 300, message: 'SCHEDULING', request: request.data })
-
     self.postMessage(await self.controller.schedulingRequest(request.data))
-  }
-
-  async getActiveServicesInfo () {
-    self.postMessage(await self.controller.getAllActiveServices())
   }
 }
 

@@ -11,7 +11,7 @@ self.getWeekNumber = getWeekNumber
 
 export const controller = Object.assign({}, rsp, customers, tickets, services)
 
-self.postMessage({ status: 300, controller: Object.keys(controller) })
+// self.postMessage({ status: 300, controller: Object.keys(controller) })
 
 export {
   init,
