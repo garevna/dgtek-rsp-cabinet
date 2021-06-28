@@ -27,8 +27,6 @@ export function createRspWorker () {
 
     const { status } = event.data
 
-    console.log(event.data.route, event.data.action)
-
     status === 200 ? successCallback(event.data) : errorCallback(event.data)
   }
 }

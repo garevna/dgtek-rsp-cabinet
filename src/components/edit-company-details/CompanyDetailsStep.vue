@@ -102,18 +102,6 @@ export default {
         this.schema = value[this.step]
         this.ready = true
       }
-    },
-    password (value) {
-      console.log('Password: ', value)
-    },
-    passwordConfirm (value) {
-      console.log('Password confirmation: ', value, value === this.password)
-    },
-    schema: {
-      deep: true,
-      handler (val) {
-        // console.log(val)
-      }
     }
   },
 
@@ -139,16 +127,11 @@ export default {
       return item.type === 'password'
     },
     rule (item) {
-      // console.log(this.rules[item.type])
-      return this.rules[item.type]
+      return item.value ? this.rules[item.type] : value => true
     },
     required (item) {
-      console.log(item.type, 'REQUIRED: ', item.required)
       return item.required ? this.rules.required : value => true
     }
-  },
-  mounted () {
-    console.log('MOUNTED')
   }
 }
 </script>

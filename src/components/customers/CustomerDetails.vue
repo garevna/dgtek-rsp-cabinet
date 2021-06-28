@@ -4,10 +4,10 @@
       <v-toolbar>
         <v-row justify="center" align="center">
           <v-spacer />
-          <v-btn text @click="section = 'Customer details'">
+          <v-btn v-if="customerDetailsAvailable" text @click="section = 'Customer details'">
             <b :style="{ color: section === 'Customer details' ? '#900' : '#999' }">Customer details</b>
           </v-btn>
-          <v-btn text @click="section = 'Service details'" :disabled="serviceDetailsDisabled">
+          <v-btn v-if="serviceDetailsAvailable" text @click="section = 'Service details'" :disabled="serviceDetailsDisabled">
             <b :style="{ color: section === 'Service details' ? '#900' : '#999' }">Service details</b>
           </v-btn>
           <v-btn text @click="section = 'Building details'">
@@ -23,13 +23,15 @@
 
     <v-row justify="center" v-if="ready">
       <Fieldset legend="Customer details" v-if="section === 'Customer details'">
-        <EditCustomerDetails :initialCustomer.sync="customer" />
+        <EditCustomerDetails
+          :initialCustomer.sync="customer"
+        />
       </Fieldset>
 
       <Fieldset legend="Service details" v-if="section === 'Service details'">
         <CustomerServices
           :services.sync="customer.services"
-          :customerId="customerId"
+          :customerId="customer._id"
           :address="`${customer.apartmentNumber}/${customer.address}`"
         />
         <!-- <v-card-text v-else>
@@ -67,19 +69,25 @@ export default {
     EditCustomerDetails: () => import('@/components/customers/EditCustomerDetails.vue'),
     EditBuildingDetails: () => import('@/components/customers/EditBuildingDetails.vue')
   },
+
   props: ['customerId', 'initialAddressData', 'dialog', 'sectionName'],
+
   data: () => ({
     ready: false,
     section: 'Service details',
     customer: null,
     buildingDetails: null,
     buildingId: null,
-    update: false
+    update: false,
+    customerDetailsAvailable: true,
+    serviceDetailsAvailable: true
   }),
+
   computed: {
     serviceDetailsDisabled () {
       return !this.customer.buildingId || !this.customerId
     },
+
     selectedCustomerServices: {
       get () {
         return this.customer ? this.customer.services : []
@@ -89,19 +97,25 @@ export default {
       }
     }
   },
+
   watch: {
     buildingId (value) {
       Object.assign(this.customer, { buildingId: value })
     },
+
     buildingPostCode (value) {
       Object.assign(this.customer, { postCode: value })
     }
   },
+
   methods: {
     getCustomerDetails (data) {
-      this.customer = data.result ? data.result : data
+      this.customer = data
       this.buildingId = this.customer.buildingId
       if (!this.customer.buildingId) {
+        this.customerDetailsAvailable = false
+        this.serviceDetailsAvailable = false
+
         this.buildingDetails = {
           address: this.customer.address,
           addressComponents: this.customer.addressComponents,
@@ -117,12 +131,27 @@ export default {
       this.ready = true
     },
 
+    setCustomerDetailsSection () {
+      this.customerDetailsAvailable = true
+      this.section = 'Customer details'
+    },
+
+    setServicesSection (customerId) {
+      if (!this.customer || !customerId) return
+
+      Object.assign(this.customer, { _id: customerId })
+
+      this.serviceDetailsAvailable = true
+      this.section = 'Service details'
+    },
+
     createNewCustomer () {
       this.section = 'Building details'
 
       const {
         address,
         addressComponents,
+        coordinates,
         postCode,
         buildingId,
         management,
@@ -143,6 +172,7 @@ export default {
         buildingId,
         address: normalizeAddress(address),
         addressComponents,
+        coordinates,
         management,
         owner,
         status
@@ -158,23 +188,30 @@ export default {
   beforeDestroy () {
     this.$root.showMainMenu = true
     this.$root.$off('customer-data-received', this.getCustomerDetails)
+    this.$root.$off('new-building-created', this.setCustomerDetailsSection)
+    this.$root.$off('building-data-updated', this.setCustomerDetailsSection)
+    this.$root.$off('customer-created', this.setServicesSection)
+    this.$root.$off('customer-updated', this.setServicesSection)
   },
 
   beforeMount () {
     this.$root.showMainMenu = false
+    this.$root.$on('new-building-created', this.setCustomerDetailsSection)
+    this.$root.$on('building-data-updated', this.setCustomerDetailsSection)
+    this.$root.$on('customer-created', this.setServicesSection)
+    this.$root.$on('customer-updated', this.setServicesSection)
   },
 
   mounted () {
     if (this.customerId) {
       this.$root.$on('customer-data-received', this.getCustomerDetails)
       this.__getCustomerData(this.customerId)
+      this.section = this.sectionName ? this.sectionName : 'Customer details'
     } else {
       if (!this.initialAddressData) return console.warn('Error: prop "initialAddressData" not defined')
       this.createNewCustomer()
       this.ready = true
     }
-
-    this.section = this.sectionName ? this.sectionName : 'Customer details'
 
     this.$vuetify.goTo(0)
   }

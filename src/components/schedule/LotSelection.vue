@@ -149,7 +149,7 @@ export default {
         this.result[index].weekNumber = this.getWeekNumber(lot.date)
         this.result[index].weekDay = this.getWeekDay(new Date(lot.date))
       })
-      console.log('lots', this.result)
+
       this.$emit('update:serviceData', Object.assign({}, this.serviceData, {
         modified: Date.now(),
         lots: this.result,
@@ -249,7 +249,6 @@ export default {
     this.$root.$off('scheduling-request-sent', this.showResponse)
   },
   mounted () {
-    console.log('SERVICE DATA\n', this.serviceData)
     this.$root.$on('scheduling-request-sent', this.showResponse)
     this.$root.$on('schedule-lots-received', this.getLots)
     this.__getFreeLotsOfSchedule()

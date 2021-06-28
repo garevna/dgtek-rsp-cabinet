@@ -63,7 +63,7 @@ Object.assign(Vue.prototype, {
 window.addEventListener('message', (event) => {
   if (!event.data.credentials) return
   credentials(event)
-  console.log('SOURCE ORIGIN: ', event.origin)
+  // console.log('SOURCE ORIGIN: ', event.origin)
   event.source.postMessage('OK', event.origin)
 })
 

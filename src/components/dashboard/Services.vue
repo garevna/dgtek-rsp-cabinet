@@ -1,33 +1,37 @@
 <template>
   <v-card flat class="transparent pb-12 px-12 mx-auto" max-width="1440" v-if="ready">
-    <v-card-title>
-      <v-btn dark class="primary" v-if="showSelect" @click="$emit('update:opened', false)">
-        <v-icon class="mr-4">mdi-arrow-left-bold-circle</v-icon>
-        Return to customer
-      </v-btn>
-      <SelectorsForServices
-        :type.sync="serviceType"
-        :speed.sync="serviceSpeed"
-        :contractTerm.sync="contractTerm"
-        :plan.sync="servicePlan"
-        :plans="plans"
-        :contractTerms="contractTerms"
-      />
-      <v-spacer />
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        dense
-        outlined
-        hide-details
-        style="display: inline-block; width: 280px"
+    <v-card v-if="!showServiceDetails" flat class="transparent">
+      <v-card-title v-if="showSelect">
+        <p v-if="!selected[0]" class="primary--text">
+          <b>Select the service which should be assigned to the customer</b>
+        </p>
+        <p v-if="selected[0]" style="margin-bottom: 0 !important">
+          <b>{{ selected[0].serviceName }}</b>
+        </p>
+        <v-btn
+          v-if="selected[0]"
+          outlined
+          color="primary"
+          class="ml-4"
+          @click="$emit('update:opened', false)"
+        >
+          <!-- <v-icon class="mr-4">mdi-arrow-left-bold-circle</v-icon> -->
+          Assign the service
+        </v-btn>
+      </v-card-title>
 
-      ></v-text-field>
-    </v-card-title>
-    <!-- <fieldset style="height: calc(100vh - 400px); overflow: auto;" class="pa-8">
-      <legend><h3>Services</h3></legend> -->
+      <v-card-title>
+        <SelectorsForServices
+          :type.sync="serviceType"
+          :speed.sync="serviceSpeed"
+          :contractTerm.sync="contractTerm"
+          :plan.sync="servicePlan"
+          :plans="plans"
+          :contractTerms="contractTerms"
+          :search.sync="search"
+        />
+      </v-card-title>
+
       <v-data-table
         :headers="headers"
         :items="filteredItems"
@@ -39,15 +43,16 @@
         item-key="serviceName"
         :show-select="showSelect"
         v-model="selected"
+        @click:row="openServiceDetails"
       >
         <template v-slot:item.active="{ item }">
-          <v-chip color="primary" outlined v-if="item.active">
+          <v-chip color="#777" outlined v-if="item.active">
             {{ item.active }}
           </v-chip>
         </template>
 
         <template v-slot:item.pending="{ item }">
-          <v-chip color="#777" outlined v-if="item.pending">
+          <v-chip color="primary" outlined v-if="item.pending">
             {{ item.pending }}
           </v-chip>
         </template>
@@ -61,9 +66,14 @@
           </td>
         </template>
       </v-data-table>
+    </v-card>
 
-      <!-- <span class="ml-12"><small>Total number of: {{ selectedServiceNumber }}</small></span> -->
-    <!-- </fieldset> -->
+    <v-card v-else flat class="transparent">
+      <ServiceDetails
+        :serviceDetails="serviceDetails"
+        :opened.sync="showServiceDetails"
+      />
+    </v-card>
   </v-card>
 </template>
 
@@ -75,6 +85,7 @@ export default {
   name: 'Services',
 
   components: {
+    ServiceDetails: () => import('@/components/services/ServiceDetails.vue'),
     SelectorsForServices: () => import('@/components/services/SelectorsForServices.vue')
   },
 
@@ -107,7 +118,9 @@ export default {
       { text: 'Service fee', value: 'subscriptionFee' },
       { text: 'PROMO', value: 'data-table-expand' }
       // { text: 'PROMO', value: 'promo' }
-    ]
+    ],
+    showServiceDetails: false,
+    serviceDetails: null
   }),
 
   computed: {
@@ -135,7 +148,6 @@ export default {
     selected: {
       deep: true,
       handler (data) {
-        console.log('SELECTED SERVICE\n', data)
         const { _id: serviceId, serviceName, status: serviceStatus, subscriptionFee: servicePlan, contractTerm: serviceTerm } = data[0]
         serviceHandler({
           serviceId,
@@ -145,8 +157,6 @@ export default {
           servicePlan,
           serviceTerm
         })
-
-        console.log('SERVICE HANDLER\n', serviceHandler())
       }
     }
   },
@@ -168,6 +178,11 @@ export default {
     },
     returnToCustomerDetails () {
       this.$root.$emit('go-to-customer-details')
+    },
+
+    openServiceDetails ($event) {
+      this.serviceDetails = $event
+      this.showServiceDetails = true
     }
   },
 
@@ -179,6 +194,13 @@ export default {
   mounted () {
     this.$root.$on('services-list-received', this.getData)
     this.__getServices()
+    this.$vuetify.goTo(0)
   }
 }
 </script>
+
+<style>
+.v-simple-checkbox .v-icon {
+  color: #900;
+}
+</style>

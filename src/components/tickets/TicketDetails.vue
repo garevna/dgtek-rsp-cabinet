@@ -106,6 +106,7 @@
         label="Details"
         outlined
         hide-details
+        @input="updateDetails($event)"
       />
     </v-row>
 
@@ -125,9 +126,16 @@
       </v-col>
     </v-row>
 
+    <!-- <v-row v-if="ticket.history.length > 0">
+      <v-text-field v-for="item of ticket.history" :key="item.modified">
+
+      </v-text-field>
+    </v-row> -->
+
     <v-row class="mt-12">
       <v-btn outlined color="primary" @click="$emit('update:edit', false)">Back to tickets list</v-btn>
       <v-spacer />
+      <v-btn dark class="primary mr-2" @click="closeTheTicket">Archive the ticket</v-btn>
       <v-btn dark class="primary" @click="save">Update/save details</v-btn>
     </v-row>
   </v-card>
@@ -136,7 +144,8 @@
 <script>
 
 export default {
-  name: 'EditTicket',
+  name: 'TicketDetails',
+  // props: ['ticket', 'newTicket', 'edit'],
   props: ['ticket', 'categories', 'newTicket', 'edit'],
   data: () => ({
     customersList: [],
@@ -149,7 +158,8 @@ export default {
     customerAddress: '',
     customerName: '',
     customerUniqueCode: '',
-    value: ''
+    value: '',
+    ready: false
   }),
 
   computed: {
@@ -212,20 +222,37 @@ export default {
   },
 
   methods: {
+    closeTheTicket () {
+      this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }))
+      this.$emit('update:edit', false)
+    },
+
+    getCategories (data) {
+      this.$emit('update:categories', data)
+    },
+
+    updateDetails ($event) {
+      this.update('details', $event)
+    },
+
     change () {
       this.value = ''
     },
+
     onInput (value) {
       value && value.length > 3 && this.getList(value)
     },
+
     selectCustomer (value) {
       this.customerAddress = value
       const index = this.customers.findIndex(item => item.address === value.split('/')[1])
       if (index !== -1) this.ticket.customerId = this.customers[index]._id
     },
+
     getList (partOfAddress) {
       partOfAddress && this.__getCustomersListForTicket(partOfAddress)
     },
+
     fillCustomerList (data) {
       this.customers = data
       if (!data.length) return
@@ -233,29 +260,37 @@ export default {
       this.customersList = data.map(customer => `${customer.apartmentNumber}/${customer.address}`)
       this.customersIds = data.map(customer => customer._id)
     },
+
     postNewTicket () {
-      this.update('created', new Date().valueOf())
+      this.update('created', Date.now())
+      this.update('modified', Date.now())
       const result = JSON.parse(JSON.stringify(this.ticket))
       this.__postNewTicket(result)
     },
+
     updateTicket () {
-      this.update('modified', new Date().valueOf())
+      this.update('modified', Date.now())
       this.__saveTicketData(this.ticket._id, this.ticket)
     },
+
     save () {
       this.newTicket ? this.postNewTicket() : this.updateTicket()
+      this.$emit('update:edit', false)
     },
+
     updateCustomerInfo (data) {
       const { apartmentNumber, address, firstName, lastName, uniqueCode, _id } = data
       this.customer = { apartmentNumber, address, firstName, lastName, uniqueCode, _id }
       this.value = address
     },
+
     update (prop, value) {
       this.$emit('update:ticket', Object.assign({}, this.ticket, { [prop]: value }))
     }
   },
 
   beforeDestroy () {
+    this.$root.$off('categories-received', this.getCategories)
     this.$root.$off('customers-list-for-ticket-received', this.fillCustomerList)
     this.$root.$off('customer-data-received', this.updateCustomerInfo)
   },
@@ -264,7 +299,11 @@ export default {
     if (this.ticket && this.ticket.customerId) {
       this.__getCustomerData(this.ticket.customerId)
     } else {
-      this.edit = true
+      this.$emit('update:edit', true)
+    }
+    if (!this.categories || !this.categories.length) {
+      this.$root.$on('categories-received', this.getCategories)
+      this.__getCategories()
     }
     this.$root.$on('customers-list-for-ticket-received', this.fillCustomerList)
     this.$root.$on('customer-data-received', this.updateCustomerInfo)

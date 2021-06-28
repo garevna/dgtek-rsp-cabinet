@@ -1,6 +1,6 @@
 <template>
   <v-card flat class="transparent pb-12 px-12 mx-auto" max-with="960" v-if="ready">
-    <v-row align="start" justify="center" v-if="!edit">
+    <v-row align="start" justify="center" v-if="!edit" class="mx-auto" style="max-width: 1100px">
       <v-col style="max-width: 240px" class="text-center mt-4">
         <fieldset class="field-set">
           <legend>
@@ -22,37 +22,42 @@
               </v-list-item>
             </v-list-item-group>
           </v-list>
-          <v-btn text dark class="primary mt-4 mx-auto" outlined @click="createNewTicket">Create a ticket</v-btn>
+          <v-btn text dark class="primary mt-4 mx-auto" outlined @click="createNewTicket">
+            Create a ticket
+          </v-btn>
         </fieldset>
       </v-col>
 
-      <v-col style="min-width: calc(100% - 240px)" class="text-right">
+      <v-col style="min-width: calc(100% - 240px)" class="text-center">
+        <!-- <v-card flat class="transparent mx-auto" max-width="800"> -->
+          <v-data-table
+            :headers="headers"
+            :items="filteredItems"
+            :search="search"
+            class="transparent"
+            @click:row="editItem"
+            width="700"
+          >
 
-        <v-data-table
-          :headers="headers"
-          :items="filteredItems"
-          :search="search"
-          class="transparent"
-        >
+            <template v-slot:top>
+              <v-spacer />
+              <v-text-field
+                v-model="search"
+                label="Search"
+                single-line
+                dense
+                hide-details
+                append-icon="mdi-magnify"
+                outlined
+                class="transparent ml-12 mr-0 pb-8 mb-4"
+              ></v-text-field>
+            </template>
 
-          <template v-slot:top>
-            <v-spacer />
-            <v-text-field
-              v-model="search"
-              label="Search"
-              single-line
-              dense
-              hide-details
-              append-icon="mdi-magnify"
-              outlined
-              class="transparent ml-12 mr-0 pb-8 mb-4"
-            ></v-text-field>
-          </template>
-
-          <template v-slot:item.actions="{ item }">
-            <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
-          </template>
-        </v-data-table>
+            <!-- <template v-slot:item.actions="{ item }">
+              <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
+            </template> -->
+          </v-data-table>
+        <!-- </v-card> -->
       </v-col>
     </v-row>
     <v-row v-else>
@@ -70,9 +75,13 @@
 
 export default {
   name: 'Tickets',
+
   components: {
     TicketDetails: () => import('@/components/tickets/TicketDetails.vue')
   },
+
+  props: ['create'],
+
   data: () => ({
     ready: false,
     edit: false,
@@ -93,8 +102,8 @@ export default {
       { text: 'Category', value: 'category' },
       { text: 'Priority', value: 'priority' },
       { text: 'Severity', value: 'severity' },
-      { text: 'Status', value: 'status' },
-      { text: 'Actions', value: 'actions', sortable: false }
+      { text: 'Status', value: 'status' }
+      // { text: 'Actions', value: 'actions', sortable: false }
     ]
   }),
   computed: {
@@ -109,7 +118,6 @@ export default {
       this.categories = data
     },
     getTickets (data) {
-      console.log(data)
       this.items = data || []
       this.ready = true
     },
@@ -139,6 +147,7 @@ export default {
     this.$root.$on('tickets-list-received', this.getTickets)
     this.__getCategories()
     this.__getTickets()
+    if (this.create) this.createNewTicket()
   }
 }
 </script>

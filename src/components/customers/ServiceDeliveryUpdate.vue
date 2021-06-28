@@ -5,7 +5,8 @@
         <v-icon large class="mt-2 mr-4" color="primary"> mdi-cog-refresh </v-icon>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="$emit('update:dialog', false)" v-if="!disableClose">
+      <v-btn icon @click="$emit('update:dialog', false)">
+      <!-- <v-btn icon @click="$emit('update:dialog', false)" v-if="!disableClose"> -->
         <v-icon large> $close </v-icon>
       </v-btn>
     </v-toolbar>
@@ -25,13 +26,13 @@
         </v-card-text>
       </v-row>
 
-      <v-row align="center" justify="center" v-if="!submited">
+      <v-row align="center" justify="center">
         <v-card-text class="text-center">
           <p><small>Current delivery status: </small><b>{{ serviceData.serviceStatus }}</b></p>
         </v-card-text>
       </v-row>
 
-      <v-row align="center" justify="center" v-if="!submited">
+      <v-row align="center" justify="center">
         <v-card-text class="text-center">
           <p>
             <small>
@@ -69,9 +70,9 @@ export default {
   props: ['dialog', 'address', 'serviceData', 'customerId'],
 
   data: () => ({
-    status,
-    disableClose: false,
-    submited: false
+    status
+    // disableClose: false,
+    // submited: false
   }),
 
   computed: {
@@ -87,7 +88,7 @@ export default {
 
   methods: {
     sendRequest () {
-      this.disableClose = true
+      // this.disableClose = true
       // this.submited = true
       this.__sendServiceActivationRequest(this.customerId, this.serviceData.serviceId)
     },
@@ -98,11 +99,13 @@ export default {
         serviceStatus: service.status,
         serviceStatusModified: new Date(service.modified).toISOString().slice(0, 10)
       }))
-      this.submited = true
-      this.disableClose = false
+      // this.submited = true
+      // this.disableClose = false
+      this.$emit('update:dialog', false)
     },
     reset () {
-      this.opened = false
+      // this.opened = false
+      this.$emit('update:dialog', false)
     }
   },
 

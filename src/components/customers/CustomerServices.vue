@@ -71,7 +71,7 @@
         </template>
       </v-simple-table>
 
-      <v-row class="mt-12 mb-4" v-if="!showSelect">
+      <v-row class="mt-12 mb-4" v-if="!showSelect && !createTicket">
         <v-btn outlined color="buttons" class="mr-2" @click="selectService">
           Assign new service
         </v-btn>
@@ -102,6 +102,18 @@
       />
     </v-row>
 
+    <v-row class="mt-12 mb-4">
+      <TicketDetails
+        v-if="createTicket"
+        :edit.sync="createTicket"
+        :ticket="ticket"
+        :categories.sync="categories"
+        :newTicket="true"
+        :customerId="customerId"
+        style="margin-top: -48px !important;"
+      />
+    </v-row>
+
     <ConfirmActivationRequest />
   </v-container>
 </template>
@@ -123,6 +135,7 @@ export default {
 
   components: {
     Services,
+    TicketDetails: () => import(/* webpackChunkName: 'ticket-details' */ '@/components/tickets/TicketDetails.vue'),
     ConfirmActivationRequest: () => import(/* webpackChunkName: 'terms-and-conditions' */ '@/components/popups/ConfirmActivationRequest.vue'),
     LotSelection: () => import(/* webpackChunkName: 'lot-selection' */ '@/components/schedule/LotSelection.vue'),
     ServiceDeliveryUpdate: () => import(/* webpackChunkName: 'service-delivery-update' */ '@/components/customers/ServiceDeliveryUpdate.vue')
@@ -139,14 +152,16 @@ export default {
     showSelect: false,
     selected: null,
     submit: false,
-    showSubmitButton: false
+    showSubmitButton: false,
+    createTicket: false,
+    ticket: null,
+    categories: []
   }),
 
   watch: {
     selected: {
       deep: true,
       handler (service) {
-        console.log('SERVICE MODIFIED\n', service)
         const index = this.schema.findIndex(item => item.serviceId === service.serviceId)
         this.schema.splice(index, 1, Object.assign({}, this.schema[index], {
           serviceStatus: service.serviceStatus,
@@ -160,7 +175,8 @@ export default {
           lots: service.lots,
           installation: service.installation
         })
-        this.showSubmitButton = true
+        this.showSubmitButton = service.serviceStatus !== 'Awaiting for connection'
+        this.createTicket = service.serviceStatus === 'Awaiting for connection'
       }
     },
     showServices (newVal, oldVal) {
@@ -168,13 +184,30 @@ export default {
         if (!serviceHandler()) return
         this.assignNewService()
       }
+    },
+    createTicket (newVal, oldVal) {
+      if (!oldVal && newVal) {
+        const { ticketSchema } = require('@/configs/ticketSchema')
+        this.ticket = Object.assign({}, ticketSchema, {
+          created: Date.now(),
+          modified: Date.now(),
+          category: 'Customer issue',
+          subject: 'Awaiting for connection',
+          customerId: this.customerId,
+          details: '***',
+          status: 'Active'
+        })
+        this.newTicket = true
+      }
     }
   },
 
   methods: {
     showError: showError,
     disable (item) {
-      return item.modified || !(item.serviceStatus === 'Awaiting for scheduling' || item.serviceStatus === 'Not connected')
+      const available = ['Awaiting for scheduling', 'Not connected', 'Awaiting for connection']
+      // return item.modified || !(item.serviceStatus === 'Awaiting for scheduling' || item.serviceStatus === 'Not connected' || item.serviceStatus === 'Awaiting for connection')
+      return this.createTicket || item.modified || !available.includes(item.serviceStatus)
     },
 
     getServiceDetails (data) {
@@ -228,7 +261,8 @@ export default {
         installation: {}
       })
 
-      this.showSubmitButton = true
+      // this.showSubmitButton = true
+      this.updateCustomerServices()
     },
 
     selectService () {
@@ -244,19 +278,14 @@ export default {
       this.selectedService = this.customerServices.find(service => service.id === item.serviceId)
       this.selected = item
 
+      this.newTicket = item.serviceStatus === 'Awaiting for connection'
+
       this.showSelect = item.serviceStatus === 'Awaiting for scheduling'
 
       if (item.serviceStatus === 'Not connected') this.$root.$emit('open-terms-and-conditions')
     },
 
-    // selectLots (item) {
-    //   this.selectedService = this.customerServices.find(service => service.id === item.serviceId)
-    //   this.selected = item
-    //   this.showSelect = true
-    // },
-
     sendActivationRequest (data) {
-      console.log(data)
       this.dialog = true
     },
 

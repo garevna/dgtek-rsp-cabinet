@@ -1,5 +1,5 @@
 <template>
-  <v-card flat class="transparent mx-auto">
+  <v-card flat class="transparent mx-auto" width="700">
     <!-- <fieldset class="my-4 pa-8">
       <legend class="ml-4"><h5>Building details</h5></legend> -->
       <!-- <v-toolbar class="transparent" style="box-shadow: none">
@@ -44,8 +44,8 @@
                 v-if="prop.type === 'mobile'"
                 v-model="prop.value"
                 prefix="+61"
-                :rules="[prop.required ? rules.required : (value) => true, rules.mobile]"
-                label="prop.title"
+                :rules="[prop.required ? rules.required : value => true, rules.mobile]"
+                :label="prop.title"
                 outlined
                 dense
                 hide-details
@@ -94,12 +94,15 @@ export default {
   data: () => ({
     ready: false,
     schema: buildingSchema,
+    coordinates: null,
     buildingDetails: {},
     rules: rules,
     buildingType: null,
     sections: ['management', 'owner']
   }),
+
   computed: {},
+
   watch: {
     buildingData: {
       deep: true,
@@ -109,6 +112,7 @@ export default {
       }
     }
   },
+
   methods: {
     getBuildingDetails (data) {
       if (!data) return
@@ -116,8 +120,11 @@ export default {
       const {
         address,
         addressComponents,
+        coordinates,
         status
       } = buildingDetails
+
+      this.coordinates = coordinates
 
       this.schema.address.value = address
       this.schema.addressComponents = Object.assign({}, addressComponents)
@@ -130,6 +137,8 @@ export default {
           this.schema[section][propName].value = buildingDetails[section][propName] || ''
         }
       }
+      this.schema.owner.headOfficeAddress.value = buildingDetails.ownersCorporationHeadOfficeAddress
+      this.schema.owner.managementPSNumber.value = buildingDetails.ownersCorporationManagementPSNumber
     },
 
     getNewBuildingId (data) {
@@ -157,6 +166,7 @@ export default {
       const result = {
         address: this.schema.address.value,
         addressComponents: this.schema.addressComponents,
+        coordinates: this.coordinates,
         management: {},
         owner: {},
         status: this.schema.status
@@ -165,6 +175,12 @@ export default {
         for (const propName in this.schema[section]) {
           Object.assign(result[section], { [propName]: this.schema[section][propName].value })
         }
+
+        Object.assign(result, {
+          type: this.schema.status,
+          ownersCorporationHeadOfficeAddress: this.schema.owner.headOfficeAddress.value || '...',
+          ownersCorporationManagementPSNumber: this.schema.owner.managementPSNumber.value || '...'
+        })
       }
 
       this.$root.$emit('progress-event', true)

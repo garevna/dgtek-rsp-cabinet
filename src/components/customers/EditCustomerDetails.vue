@@ -46,6 +46,7 @@
             <td>Apartment number</td>
             <td>Building address</td>
           </tr>
+
           <tr v-if="customer">
             <td class="d-none d-md-flex">Address</td>
             <td width="160">
@@ -105,14 +106,14 @@
             <!-- <td class="d-none d-md-flex">
               <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn>
             </td> -->
-              <td colspan="2" class="text-right">
-              <v-spacer />
+              <td colspan="3" class="text-right">
+              <!-- <v-spacer /> -->
               <v-btn dark class="buttons" @click="saveCustomerDetails" v-if="!saveDisabled">
                 Update/save details
               </v-btn>
               <v-card-text class="text--buttons" v-if="saveDisabled" style="color: #900">
                 <v-icon color="primary">mdi-alert</v-icon>
-                You should save building details
+                {{ errorMessage }}
               </v-card-text>
             </td>
           </tr>
@@ -131,13 +132,16 @@ const { customerDetails, commercial } = customerSchema
 
 export default {
   name: 'EditCustomerDetails',
+
   components: {
     SwitchValues
   },
+
   props: {
     dialog: Boolean,
     initialCustomer: Object
   },
+
   data: () => ({
     customer: null,
     customerDetailsSchema: customerDetails,
@@ -145,11 +149,13 @@ export default {
     commercialSchema: commercial,
     rules: rules,
     buildings: [],
-    customerType: null
+    customerType: null,
+    errorMessage: ''
   }),
+
   computed: {
     saveDisabled () {
-      return !this.customer || !this.customer.buildingId
+      return !this.customer || !this.customer.buildingId || this.testForErrors()
     },
     buildingId: {
       get () {
@@ -160,6 +166,7 @@ export default {
       }
     }
   },
+
   watch: {
     customerType: {
       handler (newVal, oldVal) {
@@ -169,6 +176,7 @@ export default {
       }
     }
   },
+
   methods: {
     changeUniqueCode () {
       const code = `${this.customer.uniqueCode.split('.').slice(0, -1).join('.')}.${this.customer.apartmentNumber}`
@@ -192,6 +200,30 @@ export default {
     },
     rule (item) {
       return this.rules[item.type]
+    },
+
+    testForErrors () {
+      if (!this.customer.apartmentNumber || this.customer.apartmentNumber === '0') {
+        this.errorMessage = 'Apartment number is required'
+        return true
+      }
+
+      for (const fieldName in this.customerDetailsSchema) {
+        const field = this.customerDetailsSchema[fieldName]
+
+        if (field.required ? !field.value : false) {
+          this.errorMessage = `${field.title} is required`
+          return true
+        }
+
+        const valid = this.rules[field.type](field.value)
+
+        if (!valid || typeof valid === 'string') {
+          this.errorMessage = `${field.title} invalid`
+          return true
+        }
+      }
+      return false
     },
 
     createSchema () {
@@ -226,8 +258,8 @@ export default {
     },
 
     close (data) {
-      console.log('CUSTOMER CREATED: ', data)
-      this.$parent.$emit('update:initialCustomer', this.customer)
+      this.$parent.$emit('update:initialCustomer', Object.assign({}, this.customer, { _id: data }))
+      this.$vuetify.goTo(0)
     }
   },
 

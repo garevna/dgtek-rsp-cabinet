@@ -69,25 +69,6 @@
     </v-row>
 
     <v-bottom-navigation fixed flat height="24">
-      <!-- <v-container fluid class="mt-2"> -->
-        <!-- <v-row justify="center" class="mb-3" style="width: 100%">
-            <v-btn
-              v-if="step > 1"
-              @click="step--"
-              text
-            >
-              <v-icon color="buttons">$pagePrev</v-icon>
-              Back
-            </v-btn>
-            <v-btn
-              v-if="step < 6"
-              @click="step++"
-              text
-            >
-              <v-icon color="buttons">$pageNext</v-icon>
-              Next
-            </v-btn>
-        </v-row> -->
         <v-row justify="center" class="mx-0 px-0" style="width: 100%; background: #aaa;">
           <p class="text-center" style="color: #efefef;">
             <small>
@@ -95,7 +76,6 @@
             </small>
           </p>
         </v-row>
-      <!-- </v-container> -->
     </v-bottom-navigation>
   </v-container>
 </template>
@@ -112,6 +92,8 @@ import {
 
 import CustomersList from '@/components/customers/CustomersList.vue'
 import CustomerDetails from '@/components/customers/CustomerDetails.vue'
+
+import TicketDetails from '@/components/tickets/TicketDetails.vue'
 
 import { stepsNames } from '@/configs'
 
@@ -176,6 +158,10 @@ export default {
     goToCustomersList () {
       this.step = 4
       this.currentComponent = CustomersList
+    },
+    createNewTicket (data) {
+      this.step = 6
+      this.currentComponent = TicketDetails
     }
   },
 
@@ -184,6 +170,7 @@ export default {
     this.$root.$off('go-to-services', this.goToServices)
     this.$root.$off('go-to-customer-details', this.goToCustomer)
     this.$root.$off('go-to-customers-list', this.goToCustomersList)
+    this.$root.$off('create-new-ticket', this.createNewTicket)
   },
 
   created () {
@@ -191,6 +178,7 @@ export default {
     this.$root.$on('go-to-services', this.goToServices)
     this.$root.$on('go-to-customer-details', this.goToCustomer)
     this.$root.$on('go-to-customers-list', this.goToCustomersList)
+    this.$root.$on('create-new-ticket', this.createNewTicket)
   }
 }
 </script>

@@ -47,8 +47,6 @@ export default {
 
   methods: {
     showServicesInfo (data) {
-      console.log(data)
-
       this.$root.servicesInfo = data
       this.activeCustomersNumber = data.activeConnectionsNumber
       this.currentMonthlyCharge = data.charge

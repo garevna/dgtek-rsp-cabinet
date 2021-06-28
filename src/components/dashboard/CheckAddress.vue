@@ -129,6 +129,7 @@ export default {
       this.initialAddressData = {
         buildingId: this.selected.id,
         address: this.selected.address,
+        coordinates: this.selected.coordinates,
         addressComponents: this.selected.addressComponents,
         postCode: this.selected.addressComponents.postCode,
         status: this.selected.status,

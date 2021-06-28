@@ -9,9 +9,17 @@
         </v-col>
       </v-row>
       <v-row justify="center">
-        <v-btn dark color="buttons" @click="saveData">
+        <!-- <v-btn dark color="buttons" @click="saveData">
           SAVE
+        </v-btn> -->
+
+        <v-btn dark class="buttons" @click="saveData" v-if="!saveDisabled">
+          Update/save details
         </v-btn>
+        <v-card-text class="text-center text--buttons" v-if="saveDisabled" style="color: #900">
+          <v-icon color="primary">mdi-alert</v-icon>
+          {{ errorMessage }}
+        </v-card-text>
       </v-row>
     </v-card>
 
@@ -31,7 +39,7 @@
 
 <script>
 
-import { schema } from '@/configs'
+import { schema, rules } from '@/configs'
 
 export default {
   name: 'CompanyDetails',
@@ -41,8 +49,16 @@ export default {
   data: () => ({
     ready: false,
     schema: schema,
-    steps: Object.keys(schema)
+    steps: Object.keys(schema),
+    errorMessage: ''
   }),
+
+  computed: {
+    saveDisabled () {
+      return this.testForErrors()
+    }
+  },
+
   methods: {
     getData (details) {
       for (const step in this.schema) {
@@ -52,6 +68,7 @@ export default {
       }
       this.ready = true
     },
+
     saveData () {
       const result = {}
       for (const stepName of Object.keys(this.schema)) {
@@ -63,6 +80,28 @@ export default {
       }
       this.__putClientData(result)
     },
+
+    testForErrors () {
+      for (const sectionName of ['company', 'general', 'technic']) {
+        const section = this.schema[sectionName]
+        for (const fieldName in section) {
+          const field = section[fieldName]
+          let test = field.required ? rules.required(field.value) : true
+          if (!test || typeof test === 'string') {
+            this.errorMessage = `${field.title} is required`
+            return true
+          }
+
+          test = rules[field.type] ? rules[field.type](field.value) : true
+          if (!test || typeof test === 'string') {
+            this.errorMessage = `${field.title} invalid`
+            return true
+          }
+        }
+      }
+      return false
+    },
+
     saveCredentials () {
       this.__putClientCredentials({
         login: this.schema.userInfo.login.value,
@@ -71,14 +110,7 @@ export default {
       })
     }
   },
-  // watch: {
-  //   schema: {
-  //     deep: true,
-  //     handler (val) {
-  //       console.log('RSP DATA CHANGED:\n', val)
-  //     }
-  //   }
-  // },
+
   mounted () {
     this.__getClientData()
     this.$root.$on('client-data-received', this.getData)

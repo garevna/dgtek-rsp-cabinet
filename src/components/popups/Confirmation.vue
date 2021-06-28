@@ -38,7 +38,7 @@ export default {
       this.dialog = false
     },
     open (data) {
-      this.source = data.source
+      // this.source = data.source
       this.title = data.title || 'By clicking yes, you agree to abide by the terms and conditions stipulated in your MSA and that a $220 charge will be incurred if you cancel the order before activation.'
       this.message = data.message || 'Do you wish to proceed?'
       this.dialog = true

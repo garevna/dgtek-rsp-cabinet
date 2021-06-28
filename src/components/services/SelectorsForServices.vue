@@ -51,14 +51,21 @@
               style="width: 140px"
             ></v-select>
           </td>
+            <v-text-field
+              v-model="localSearch"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              dense
+              outlined
+              hide-details
+              style="display: inline-block; width: 280px"
+            ></v-text-field>
+          <td>
+          </td>
         </tr>
       </tbody>
     </table>
-    <!-- <v-spacer />
-    <v-btn text @click="refreshCustomersList" class="mr-12 mb-5">
-      <v-icon>mdi-refresh</v-icon>
-      Refresh
-    </v-btn> -->
   </v-row>
 </template>
 
@@ -67,7 +74,7 @@
 export default {
   name: 'SelectorsForServices',
 
-  props: ['type', 'speed', 'plan', 'plans', 'contractTerm', 'contractTerms'],
+  props: ['type', 'speed', 'plan', 'plans', 'contractTerm', 'contractTerms', 'search'],
 
   data: () => ({
     types: ['residential', 'commercial'],
@@ -75,6 +82,14 @@ export default {
   }),
 
   computed: {
+    localSearch: {
+      get () {
+        return this.search
+      },
+      set (value) {
+        this.$emit('update:search', value)
+      }
+    },
     localType: {
       get () {
         return this.type

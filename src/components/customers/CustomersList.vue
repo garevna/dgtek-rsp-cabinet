@@ -63,8 +63,11 @@
               </Fieldset>
             </v-col>
             <v-col cols="4">
-              <v-btn outlined color="primary" @click="status = 'pending'">
+              <v-btn v-if="status !== 'pending'" outlined color="primary" @click="status = 'pending'">
                 Show all pending connections
+              </v-btn>
+              <v-btn v-else outlined color="primary" @click="resetFilters">
+                Show all
               </v-btn>
             </v-col>
           </v-row>
@@ -74,7 +77,7 @@
       <v-row v-else justify="center">
         <CustomerDetails
           :dialog.sync="edit"
-          :customerId="selectedCustomerId"
+          :customerId.sync="selectedCustomerId"
         />
       </v-row>
     </v-container>
@@ -148,35 +151,30 @@ export default {
         id: customer._id
       }))
     },
+
     postalCodes () {
       const set = new Set(this.customers.map(customer => customer.postCode))
       return Array.from(set)
     },
+
     plans () {
       const set = new Set(this.customers.map(customer => customer.servicePlan).filter(item => item))
       return Array.from(set)
     },
+
     selectedCustomersNumber () {
       return this.filteredItems.length
     },
+
     filteredItems () {
-      if (!this.status && !this.speed && !this.postCode && !this.plan) return this.customers
-      if (this.status === 'Service not assigned') {
-        console.log(this.status)
-        console.log(this.customers)
-        return this.customers
-          .filter(customer => !customer.serviceStatus)
-          .filter(customer => !this.postCode || (customer.postCode === this.postCode))
-      }
-      if (this.status === 'pending') {
-        return this.customers
-          .filter(customer => customer.serviceStatus === 'Not connected' || customer.serviceStatus === 'Awaiting for scheduling')
-          .filter(customer => !this.speed || (customer.serviceSpeed === this.speed))
-          .filter(customer => !this.postCode || (customer.postCode === this.postCode))
-          .filter(customer => !this.plan || (customer.servicePlan === this.plan))
-      }
-      return this.customers
-        .filter(customer => !this.status || (customer.serviceStatus === this.status))
+      const output = this.status === 'Service not assigned' ? this.customers.filter(customer => !customer.serviceStatus)
+        : this.status === 'pending'
+          ? this.customers.filter(customer => customer.serviceStatus === 'Not connected' || customer.serviceStatus === 'Awaiting for scheduling')
+          : this.customers.filter(customer => !this.status || (customer.serviceStatus === this.status))
+
+      this.$vuetify.goTo(0)
+
+      return output
         .filter(customer => !this.speed || (customer.serviceSpeed === this.speed))
         .filter(customer => !this.postCode || (customer.postCode === this.postCode))
         .filter(customer => !this.plan || (customer.servicePlan === this.plan))
@@ -193,6 +191,19 @@ export default {
   },
 
   methods: {
+    resetFilters  () {
+      this.status = ''
+      this.postCode = ''
+      this.plan = ''
+      this.speed = ''
+      this.$vuetify.goTo(0)
+    },
+
+    filter () {
+      this.$vuetify.goTo(0)
+      this.filterChanged = false
+    },
+
     getIcon (status) {
       return { icon: icons[status], color: colors[status] }
     },
@@ -234,20 +245,9 @@ export default {
       }))
     },
 
-    clickOnRow (event, addon) {
-      console.log(event)
-      console.log(addon)
-    },
-
-    // refreshCustomersList () {
-    //   this.ready = false
-    //   this.__refreshCustomers()
-    // },
-
     customersListRefreshed (event) {
-      // this.getData(event.result.booking)
-      console.log('CUSTOMERS LIST REFRESHED\n', event)
       this.getData(event)
+      this.$vuetify.goTo(0)
     }
   },
 
@@ -271,6 +271,7 @@ export default {
     this.$root.$on('customers-list-received', this.getData)
     this.$root.$on('customer-services-updated', this.updateCustomerServices)
     this.__getCustomers()
+    this.$vuetify.goTo(0)
   }
 }
 </script>
