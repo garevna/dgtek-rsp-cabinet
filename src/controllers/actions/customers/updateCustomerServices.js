@@ -1,9 +1,9 @@
-export const updateCustomerServices = function (id, data) {
+export const updateCustomerServices = function (customerId, services) {
   window[Symbol.for('vue.instance')].$root.$emit('progress-event', true)
   window[Symbol.for('vue.prototype')].sendMessageToWorker({
     route: 'customers',
     action: 'services',
-    key: id,
-    data
+    customerId,
+    services
   })
 }

@@ -13,8 +13,6 @@ export const createCustomer = async function (data) {
 
   const duplicated = await searchRecords('customers', 'uniqueCode', data.uniqueCode)
 
-  // self.postMessage({ status: 300, duplicated })
-
   if (duplicated.result.length > 0) return duplicatedCustomerError(409, data.uniqueCode)
 
   const { status, result } = await post('customer', data)

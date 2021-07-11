@@ -17,12 +17,8 @@ export const refreshListOfServices = async function () {
 
   const res = await Promise.all(promises)
 
-  // self.postMessage({ status: 300, message: 'SERVICES SAVED TO LOCAL DB', res })
-
   res.map(response => response.result)
     .forEach(service => servicesInfoHandler('set-service-data', service._id, { serviceName: service.serviceName, subscriptionFee: service.subscriptionFee }))
-
-  // self.postMessage({ status: 300, servicesInfo: servicesInfoHandler() })
 
   return Object.assign({ status: 200, route, action, result: res.map(response => response.result) })
 }

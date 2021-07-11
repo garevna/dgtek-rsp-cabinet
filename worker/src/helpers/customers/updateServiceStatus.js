@@ -1,3 +1,5 @@
+import { patch } from '../AJAX'
+
 const { invalidServiceDeliveryStatusRequest } = require('../error-handlers').default
 
 export const updateServiceStatus = async function (customerId, serviceId, newStatus, lots = []) {
@@ -31,9 +33,17 @@ export const updateServiceStatus = async function (customerId, serviceId, newSta
     log: Object.assign(services[index].log, { [Date.now()]: newStatus })
   }))
 
-  const response = await self.controller.updateCustomer(customerId, Object.assign(customerData, { services }))
+  // const response = await self.controller.updateCustomer(customerId, Object.assign(customerData, { services }))
+  const response = await patch(`customer/${customerId}`, { services })
 
-  if (response.status !== 200) return response
+  if (response.status !== 200) {
+    self.postDebugMessage({ response })
+    return Object.assign(response, {
+      error: true,
+      errorType: 'Customer service delivery status',
+      errorMessage: 'Failed to update service delivery status'
+    })
+  }
 
   return {
     status: response.status,
@@ -42,6 +52,6 @@ export const updateServiceStatus = async function (customerId, serviceId, newSta
     result: services,
     message: true,
     messageType: 'Customer service delivery status update',
-    messageText: 'Your scheduling request has been sent.'
+    messageText: 'Your request has been transmitted.'
   }
 }

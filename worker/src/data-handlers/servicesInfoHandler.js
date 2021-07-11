@@ -4,7 +4,6 @@ import { currentMonth } from './currentMonth'
 import { getInfo } from './getInfo'
 
 export const servicesInfoHandler = function (action, serviceId, params) {
-  // self.postMessage({ status: 300, services, action, serviceId, params })
   if (action === 'reset') {
     Object.keys(services).forEach(id => {
       services[id].lastMonth = 0
@@ -21,8 +20,6 @@ export const servicesInfoHandler = function (action, serviceId, params) {
     const { serviceName, subscriptionFee: charge } = params
 
     Object.assign(services[serviceId], { serviceName, charge })
-
-    // return self.postMessage({ status: 300, info: services })
     return
   }
 
@@ -39,8 +36,6 @@ export const servicesInfoHandler = function (action, serviceId, params) {
     if (status === 'Not connected') services[serviceId].notConnected += 1
 
     return
-
-    // return self.postMessage({ status: 300, info: services })
   }
 
   return getInfo()

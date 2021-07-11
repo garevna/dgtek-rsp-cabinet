@@ -5,13 +5,17 @@ import customers from './customers'
 import tickets from './tickets'
 import services from './services'
 
+import dashboard from './dashboard'
+
 import { getWeekNumber } from 'garevna-date-functions'
+
+self.postDebugMessage = function (message) {
+  self.postMessage(Object.assign(message, { status: 300 }))
+}
 
 self.getWeekNumber = getWeekNumber
 
-export const controller = Object.assign({}, rsp, customers, tickets, services)
-
-// self.postMessage({ status: 300, controller: Object.keys(controller) })
+export const controller = Object.assign({}, rsp, customers, tickets, services, dashboard)
 
 export {
   init,

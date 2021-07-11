@@ -1,6 +1,8 @@
 import { init } from './init'
 import { credentials } from './credentials'
 
+import { refreshMessages } from './dashboard'
+
 import { getFreeLotsOfSchedule } from './getFreeLotsOfSchedule'
 
 import {
@@ -52,6 +54,7 @@ export {
   init,
 
   credentials,
+  refreshMessages,
   refreshClientData,
   refreshCustomers,
   refreshServices,

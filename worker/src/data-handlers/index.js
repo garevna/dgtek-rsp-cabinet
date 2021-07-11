@@ -10,6 +10,9 @@ import { getConnectionsNumber } from './getConnectionsNumber'
 
 import { servicesInfoHandler } from './servicesInfoHandler'
 
+import { messagesHandler } from './messagesHandler'
+import { partnerUniqueCodeHandler } from './partnerUniqueCodeHandler'
+
 export {
   services,
   currentMonth,
@@ -19,5 +22,8 @@ export {
   getCharge,
   getConnectionsNumber,
 
-  servicesInfoHandler
+  servicesInfoHandler,
+
+  messagesHandler,
+  partnerUniqueCodeHandler
 }

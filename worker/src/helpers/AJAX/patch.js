@@ -4,11 +4,13 @@ import {
   credentialsHandler
 } from '../env'
 
-export const post = async (path, data) => {
+export const patch = async (path, data) => {
   if (!navigator.onLine) return { status: 0, result: 'Offline mode: Data has not been saved. Try later' }
 
+  self.postDebugMessage({ method: 'PATCH', path, data })
+
   const response = await fetch(`${hostHandler()}/${path}`, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
       Authorization: apiKeyHandler(),
@@ -17,11 +19,5 @@ export const post = async (path, data) => {
     body: JSON.stringify(data)
   })
 
-  const result = await response.json()
-
-  if (response.status !== 200) {
-    self.postDebugMessage({ result: { url: `${hostHandler()}/${path}`, status: response.status, result } })
-  }
-
-  return { status: response.status, result }
+  return { status: response.status, result: await response.json() }
 }

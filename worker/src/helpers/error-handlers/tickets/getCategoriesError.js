@@ -1,7 +1,7 @@
 export const getCategoriesError = function (status) {
   return {
     status,
-    route: 'categories',
+    route: 'ticket-categories',
     action: 'get',
     error: true,
     errorType: 'Ticket categories list',

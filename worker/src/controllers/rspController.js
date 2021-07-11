@@ -16,7 +16,6 @@ class RSPController {
   }
 
   async update (request) {
-    // self.postMessage({ status: 300, route: 'rsp', action: 'put', key: request.key, result: request.data })
     self.postMessage(await self.controller.updateClientDetails(request.data))
   }
 }

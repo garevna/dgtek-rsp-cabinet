@@ -1,3 +1,5 @@
+import { partnerUniqueCodeHandler } from './data-handlers'
+
 function removeVowels (string) {
   string = string.split(' ').join('')
   for (const vowel of 'aeiouyAEIOUY'.split('')) {
@@ -9,5 +11,5 @@ function removeVowels (string) {
 export const getBuildingUniqueCode = function (addressComponents) {
   if (!addressComponents) return ''
   const { number, postCode, street, streetType } = addressComponents
-  return `PA.${postCode}.${removeVowels(street)}.${streetType}.${number}`
+  return `${partnerUniqueCodeHandler()}.${postCode}.${removeVowels(street)}.${streetType}.${number}`
 }

@@ -3,8 +3,11 @@ import { initError } from './'
 import {
   refreshCustomers,
   refreshServices,
-  refreshTickets
+  refreshTickets,
+  refreshMessages
 } from '@/controllers/actions'
+
+console.log('REFRESH MESSAGES: ', refreshMessages)
 
 export function initCallback (event) {
   const { status } = event.data
@@ -15,5 +18,6 @@ export function initCallback (event) {
     refreshCustomers()
     refreshServices()
     refreshTickets()
+    refreshMessages()
   } else initError()
 }

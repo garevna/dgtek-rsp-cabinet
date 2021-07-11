@@ -9,7 +9,9 @@ const {
 
 export const routes = {
   dashboard: {
-    info: dashboardController.getCustomersServicesInfo
+    info: dashboardController.getCustomersServicesInfo,
+    'refresh-messages': dashboardController.refreshMessages,
+    'get-messages': dashboardController.getMessages
   },
   rsp: {
     credentials: rspController.credentials,

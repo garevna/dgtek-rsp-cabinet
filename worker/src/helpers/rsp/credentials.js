@@ -13,6 +13,8 @@ import {
   adminCredHandler
 } from '../env'
 
+import { partnerUniqueCodeHandler } from '../../data-handlers'
+
 const { credentialsError } = require('../error-handlers').default
 
 export const credentials = async function (data) {
@@ -43,6 +45,10 @@ export const credentials = async function (data) {
 
   if (response.status !== 200) return response
 
+  // self.postDebugMessage({ uniqueCode: response.result.uniqueCode })
+
+  partnerUniqueCodeHandler(response.result.uniqueCode)
+
   putRecordByKey('rsp', response.result._id, response.result)
 
   idHandler(response.result._id)
@@ -51,6 +57,6 @@ export const credentials = async function (data) {
     status: 200,
     route,
     action,
-    result: { role: response.result.userInfo.role }
+    result: { role: response.result.userInfo.role, uniqueCode: partnerUniqueCodeHandler() }
   }
 }

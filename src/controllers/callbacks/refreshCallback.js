@@ -1,7 +1,10 @@
 import { refreshError } from './'
+import { messagesHandler, partnerUniqueCodeHandler } from '../../helpers/data-handlers'
+
+console.log(partnerUniqueCodeHandler())
 
 export function refreshCallback (event) {
-  const { status, route } = event.data
+  const { status, route, action } = event.data
 
   event.stopImmediatePropagation()
 
@@ -9,9 +12,14 @@ export function refreshCallback (event) {
 
   const [proto, instance] = [window[Symbol.for('vue.prototype')], window[Symbol.for('vue.instance')]]
 
-  proto.$refreshed[route] = true
+  const key = route === 'dashboard' && action === 'refresh-messages' ? 'messages' : route
 
-  instance.$root.$emit('data-refreshed', { route })
+  proto.$refreshed[key] = true
+
+  instance.$root.$emit('data-refreshed', { route: key })
+
+  if (key === 'messages') messagesHandler(event.data.result)
+  console.log('KEY: ', key)
 
   if (Object.keys(proto.$refreshed).filter(key => !proto.$refreshed[key]).length) {
     instance.dispatchProgressEvent(false)

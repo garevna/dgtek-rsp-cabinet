@@ -4,8 +4,8 @@ import { put } from '../AJAX'
 
 const {
   getCustomerDataError,
-  putCustomerDataError,
-  duplicatedCustomerError
+  putCustomerDataError
+  // duplicatedCustomerError
 } = require('../error-handlers').default
 
 // import { getAllCustomers } from './'
@@ -25,7 +25,7 @@ export const updateCustomer = async function (id, data) {
 
   const { status: remoteStatus } = await put(`customer/${id}`, customer)
 
-  if (remoteStatus === 409) return duplicatedCustomerError(409, customer.uniqueCode)
+  // if (remoteStatus === 409) return duplicatedCustomerError(409, customer.uniqueCode)
 
   if (remoteStatus !== 200) return putCustomerDataError(remoteStatus, customer.uniqueCode)
 

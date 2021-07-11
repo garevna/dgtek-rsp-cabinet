@@ -1,6 +1,7 @@
 import { get } from '../AJAX'
 import { putRecordByKey, clearStore } from '../db'
 import { idHandler } from '../env'
+import { partnerUniqueCodeHandler } from '../../data-handlers'
 
 const { refreshClientDataError } = require('../error-handlers').default
 
@@ -10,6 +11,8 @@ export const refreshClientDetails = async function () {
   const response = await get(`user/${idHandler()}`)
 
   if (response.status !== 200) return refreshClientDataError(response.status)
+
+  partnerUniqueCodeHandler(response.result.uniqueCode)
 
   await clearStore('rsp')
 

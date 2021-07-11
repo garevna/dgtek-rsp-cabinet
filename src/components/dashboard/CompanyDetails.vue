@@ -9,10 +9,6 @@
         </v-col>
       </v-row>
       <v-row justify="center">
-        <!-- <v-btn dark color="buttons" @click="saveData">
-          SAVE
-        </v-btn> -->
-
         <v-btn dark class="buttons" @click="saveData" v-if="!saveDisabled">
           Update/save details
         </v-btn>
@@ -61,6 +57,7 @@ export default {
 
   methods: {
     getData (details) {
+      console.log(details.uniqueCode)
       for (const step in this.schema) {
         for (const prop in this.schema[step]) {
           this.schema[step][prop].value = details[step][prop]

@@ -1,47 +1,35 @@
-import { getRecordByKey, putRecordByKey } from '../db'
+// import { getRecordByKey, putRecordByKey } from '../db'
 
-import { put } from '../AJAX'
+import { patch } from '../AJAX'
 
-const {
-  getCustomerDataError,
-  putCustomerDataError
-} = require('../error-handlers').default
+const updateServicesError = {
+  error: true,
+  errorType: 'Update customer services',
+  errorMessage: 'Failed to update customer details'
+}
 
-export const updateCustomerServices = async function (id, data) {
-  const [route, action] = ['customers', 'services']
+export const updateCustomerServices = async function (customerId, services) {
+  self.postDebugMessage({ customerId, services })
 
-  const { status: getStatus, result: getResult } = await getRecordByKey('customers', id)
+  const { status, result } = await patch(`customer/${customerId}`, { services })
 
-  if (getStatus !== 200) return getCustomerDataError(getStatus)
+  self.postDebugMessage({ route: 'customers', action: 'services', result: { status, result } })
 
-  const response = Object.assign({}, getResult, { services: data })
+  if (status !== 200) return Object.assign({ status, result }, updateServicesError)
 
-  const { status: putStatus } = await putRecordByKey('customers', id, response)
+  // const customer = result.data
 
-  if (putStatus !== 200) return putCustomerDataError(putStatus)
+  // if (customer.services.length) {
+  //   const { status: serviceStatus, result: service } = await getRecordByKey('services', customer.services[0].id)
+  //   if (serviceStatus === 200) {
+  //     Object.assign(customer, {
+  //       serviceSpeed: `${service.upstreamSpeed}/${service.downstreamSpeed}`,
+  //       serviceStatus: customer.services[0].status,
+  //       servicePlan: service.subscriptionFee,
+  //       serviceTerm: service.contractTerm
+  //     })
+  //   }
+  // }
 
-  const { status, result } = await put(`customer/${id}`, response)
-
-  if (status !== 200) return putCustomerDataError(status, result)
-
-  const customer = result.data
-
-  if (customer.services.length) {
-    const { status: serviceStatus, result: service } = await getRecordByKey('services', customer.services[0].id)
-    if (serviceStatus === 200) {
-      Object.assign(customer, {
-        serviceSpeed: `${service.upstreamSpeed}/${service.downstreamSpeed}`,
-        serviceStatus: customer.services[0].status,
-        servicePlan: service.subscriptionFee,
-        serviceTerm: service.contractTerm
-      })
-    }
-  }
-
-  return {
-    status,
-    route,
-    action,
-    result: customer
-  }
+  return await self.controller.refreshCustomers()
 }

@@ -1,7 +1,9 @@
 import { get } from '../AJAX'
 import { clearStore, putRecordByKey } from '../db'
 
-import { servicesInfoHandler } from '../../data-handlers'
+import { servicesInfoHandler, partnerUniqueCodeHandler } from '../../data-handlers'
+
+const updateCode = code => `${partnerUniqueCodeHandler()}${code.slice(2)}`
 
 const { refreshCustomersListError } = require('../error-handlers').default
 
@@ -19,15 +21,14 @@ export const refreshCustomers = async function () {
 
     done = currentPage++ >= pages
 
-    const promises = result.map(customer => putRecordByKey('customers', customer._id, customer))
+    const promises = result
+      .map(customer => putRecordByKey('customers', customer._id, Object.assign(customer, { uniqueCode: updateCode(customer.uniqueCode) })))
     const res = (await Promise.all(promises)).map(response => response.result)
 
     self.controller.calculations(res)
   }
 
   self.postMessage({ status: 200, route: 'dashboard', action: 'info', result: servicesInfoHandler() })
-
-  // self.postMessage({ status: 300, message: 'CUSTOMERS REFRESHED', customers: (await self.controller.getAllCustomers()).result })
 
   return { status: 200, route, action, result: (await self.controller.getAllCustomers()).result }
 }

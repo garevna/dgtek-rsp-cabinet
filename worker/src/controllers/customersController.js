@@ -24,7 +24,7 @@ class CustomersController {
   }
 
   async updateCustomerServices (request) {
-    const response = await self.controller.updateCustomerServices(request.key, request.data)
+    const response = await self.controller.updateCustomerServices(request.customerId, request.services)
     self.postMessage(Object.assign(response, {
       message: true,
       messageType: 'Customer services',

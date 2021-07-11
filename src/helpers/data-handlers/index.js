@@ -8,6 +8,10 @@ import { customersListPageNumberHandler } from './customersListPageNumberHandler
 
 import { lotsHandler } from './lotsHandler'
 
+import { messagesHandler } from './messagesHandler'
+
+import { partnerUniqueCodeHandler } from './partnerUniqueCodeHandler'
+
 export {
   customerHandler,
   buildingHandler,
@@ -16,5 +20,7 @@ export {
   showMainMenuHandler,
   estimatesHandler,
   customersListPageNumberHandler,
-  lotsHandler
+  lotsHandler,
+  messagesHandler,
+  partnerUniqueCodeHandler
 }

@@ -18,7 +18,6 @@ export async function searchRecords (storeName, propName, partialValue) {
         if (cursor.value[propName].indexOf(partialValue) !== -1) result.push(cursor.value)
         cursor.continue()
       } else {
-        // self.postMessage({ status: 300, action: 'SEARCH', propName, partialValue, result })
         resolve({ status: 200, result })
       }
     }

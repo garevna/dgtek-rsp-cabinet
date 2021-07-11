@@ -20,7 +20,7 @@ export function createRspWorker () {
 
     if (event.data.action === 'credentials') return credentialCallback(event)
 
-    if (event.data.action === 'refresh') {
+    if (event.data.action.indexOf('refresh') !== -1) {
       refreshCallback(event)
       return event.data.status === 200 ? successCallback(event.data) : errorCallback(event.data)
     }
