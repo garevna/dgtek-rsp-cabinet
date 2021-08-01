@@ -1,8 +1,7 @@
 import Vue from 'vue'
 
-import { createController } from './controllers/createController'
-
 import {
+  createController,
   createMapWorker,
   createRspWorker
 } from './controllers'
@@ -10,11 +9,9 @@ import {
 import configPlugin from '../config'
 Vue.use(configPlugin)
 
-if (window.performance) {
-  console.info('window.performance OK')
-}
+if (window.performance) console.info('window.performance OK')
 
-const sourceOrigin = process.env.NODE_ENV === 'production' ? 'https://portal.dgtek.net' : 'http://192.168.0.102:8081/'
+const sourceOrigin = process.env.NODE_ENV === 'production' ? 'https://portal.dgtek.net' : 'http://192.168.0.101:8081/'
 
 window.opener.postMessage('ready', sourceOrigin)
 

@@ -36,6 +36,10 @@ class CustomersController {
     self.postMessage(await self.controller.getShortListOfCustomers(postCode, addressPart))
   }
 
+  async getFilteredShortListOfCustomers (request) {
+    self.postMessage(await self.controller.getFilteredShortListOfCustomers(request.filter))
+  }
+
   async activateServiceRequest ({ customerId, serviceId }) {
     const response = (await self.controller.activateServiceRequest(customerId, serviceId))
 

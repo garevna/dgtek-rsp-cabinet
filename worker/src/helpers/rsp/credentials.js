@@ -45,8 +45,6 @@ export const credentials = async function (data) {
 
   if (response.status !== 200) return response
 
-  // self.postDebugMessage({ uniqueCode: response.result.uniqueCode })
-
   partnerUniqueCodeHandler(response.result.uniqueCode)
 
   putRecordByKey('rsp', response.result._id, response.result)

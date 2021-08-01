@@ -4,5 +4,6 @@ export const stepsNames = [
   'Check the address',
   'Customers list',
   'Services',
-  'Tickets'
+  'Tickets',
+  'Documents'
 ]

@@ -11,6 +11,8 @@ import { sendSchedulingRequest } from './sendSchedulingRequest'
 import { getCustomersServicesInfo } from './getCustomersServicesInfo'
 import { getCustomersListForTicket } from './getCustomersListForTicket'
 
+import { getFilteredShortListOfCustomers } from './getFilteredShortListOfCustomers'
+
 export {
   deleteCustomer,
   getCustomerData,
@@ -24,5 +26,6 @@ export {
 
   getCustomersServicesInfo,
 
-  getCustomersListForTicket
+  getCustomersListForTicket,
+  getFilteredShortListOfCustomers
 }

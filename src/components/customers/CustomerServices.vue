@@ -84,13 +84,13 @@
 
     <Services v-else :opened.sync="showServices" />
 
-    <ServiceDeliveryUpdate
+    <!-- <ServiceDeliveryUpdate
       v-if="dialog"
       :dialog.sync="dialog"
       :serviceData.sync="selected"
       :address="address"
       :customerId="customerId"
-    />
+    /> -->
 
     <v-row class="mt-12 mb-4">
       <LotSelection
@@ -135,10 +135,10 @@ export default {
 
   components: {
     Services,
+    // ServiceDeliveryUpdate: () => import(/* webpackChunkName: 'service-delivery-update' */ '@/components/customers/ServiceDeliveryUpdate.vue'),
     TicketDetails: () => import(/* webpackChunkName: 'ticket-details' */ '@/components/tickets/TicketDetails.vue'),
     ConfirmActivationRequest: () => import(/* webpackChunkName: 'terms-and-conditions' */ '@/components/popups/ConfirmActivationRequest.vue'),
-    LotSelection: () => import(/* webpackChunkName: 'lot-selection' */ '@/components/schedule/LotSelection.vue'),
-    ServiceDeliveryUpdate: () => import(/* webpackChunkName: 'service-delivery-update' */ '@/components/customers/ServiceDeliveryUpdate.vue')
+    LotSelection: () => import(/* webpackChunkName: 'lot-selection' */ '@/components/schedule/LotSelection.vue')
   },
 
   props: ['services', 'address', 'update', 'customerId'],
@@ -148,7 +148,7 @@ export default {
     schema: [],
     details: {},
     showServices: false,
-    dialog: false,
+    // dialog: false,
     showSelect: false,
     selected: null,
     submit: false,
@@ -286,7 +286,8 @@ export default {
     },
 
     sendActivationRequest (data) {
-      this.dialog = true
+      // this.dialog = true
+      this.__sendServiceActivationRequest(this.customerId, this.serviceData.serviceId)
     },
 
     updateCustomerServices () {

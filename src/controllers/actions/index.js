@@ -15,7 +15,8 @@ import {
 import {
   refreshServices,
   getServices,
-  getServiceById
+  getServiceById,
+  getSLAContent
 } from './services'
 
 import {
@@ -29,7 +30,8 @@ import {
   sendServiceActivationRequest,
   sendSchedulingRequest,
   getCustomersServicesInfo,
-  getCustomersListForTicket
+  getCustomersListForTicket,
+  getFilteredShortListOfCustomers
 } from './customers'
 
 import {
@@ -75,9 +77,11 @@ export {
   sendServiceActivationRequest,
   sendSchedulingRequest,
   getCustomersListForTicket,
+  getFilteredShortListOfCustomers,
 
   getServices,
   getServiceById,
+  getSLAContent,
 
   getTickets,
   getCategories,

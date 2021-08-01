@@ -9,8 +9,6 @@ export const updateCategories = async function (array) {
   const response = await put('dictionary/ticket-categories', array)
   if (response.status !== 200) return updateCategoriesError(response.status)
 
-  self.postDebugMessage({ route, action, result: response.result })
-
   const { status, result } = putRecordByKey('categories', 'ticketsCategories', response.result)
 
   if (status !== 200) return updateCategoriesError(status)

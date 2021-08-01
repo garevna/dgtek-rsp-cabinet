@@ -1,9 +1,15 @@
 import { getRecordByKey } from '../db'
 
-const { getServiceDetailsError } = require('../error-handlers').default
+import { idHandler } from '../env'
+
+const { serviceUnavailable, getServiceDetailsError } = require('../error-handlers').default
 
 export const getServiceById = async function (id) {
-  const { status, result } = await getRecordByKey('services', id)
+  const { status, result: service } = await getRecordByKey('services', id)
+
   if (status !== 200) return getServiceDetailsError(status)
-  return { status, route: 'services', action: 'get', result }
+
+  if (!service.partners.includes(idHandler())) return serviceUnavailable(service.name)
+
+  return { status, route: 'services', action: 'get', result: service }
 }

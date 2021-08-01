@@ -63,8 +63,6 @@ import Fieldset from '@/components/Fieldset.vue'
 
 import { messagesHandler } from '@/helpers/data-handlers'
 
-console.log(messagesHandler())
-
 export default {
   name: 'Dashboard',
 

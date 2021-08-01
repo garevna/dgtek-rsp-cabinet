@@ -14,7 +14,7 @@ export const getAllCustomers = async function () {
 
     const { status, result: service } = await getRecordByKey('services', customer.services[0].id)
 
-    if (status !== 200) self.controller.postMessage(getServiceDetailsError(status))
+    if (status !== 200) self.postMessage(getServiceDetailsError(status))
 
     Object.assign(customer, {
       serviceSpeed: `${service.upstreamSpeed}/${service.downstreamSpeed}`,

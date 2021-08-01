@@ -14,6 +14,10 @@ class ServicesController {
   async getFreeLotsForSchedule () {
     self.postMessage(await self.controller.getFreeLotsForSchedule())
   }
+
+  async getSLAContent (request) {
+    self.postMessage(await self.controller.getSLAContent(request.key))
+  }
 }
 
 export const servicesController = new ServicesController()

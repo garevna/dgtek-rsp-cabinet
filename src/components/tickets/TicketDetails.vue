@@ -55,13 +55,14 @@
 
     <v-row>
       <v-col cols="3" class="text-right">
-        <p>Subject</p>
+        <p><small>Subject</small></p>
       </v-col>
       <v-col cols="9">
         <v-text-field
           v-model="subject"
           label="Subject"
           outlined
+          dense
           hide-details
         />
       </v-col>
@@ -100,19 +101,57 @@
       </table>
     </v-row>
 
-    <v-row>
-      <v-textarea
-        v-model="details"
-        label="Details"
-        outlined
-        hide-details
-        @input="updateDetails($event)"
-      />
-    </v-row>
+    <!-- <v-row> -->
+    <v-card flat class="my-5 pa-4" width="100%" style="background: #eee; padding: 16px; border-radius: 4px;">
+      <table width="100%">
+        <thead>
+          <tr v-if="ticket.history">
+            <th width="400">
+              Incoming
+            </th>
+            <th width="400">
+              Outgoing
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item of ticket.history" :key="item.date">
+            <td class="message">
+              <span v-if="item.source === 'admin'">
+                <small>{{ new Date(item.date).toISOString().slice(0, 10) }}</small><br>
+                <small>{{ item.message }}</small>
+              </span>
+            </td>
+            <td class="message">
+              <span v-if="item.source !== 'admin'">
+                <small>{{ new Date(item.date).toISOString().slice(0, 10) }}</small><br>
+                <small>{{ item.message }}</small>
+              </span>
+            </td>
+          </tr>
+          <tr v-if="ticket.history">
+            <td><hr class="my-5"></td>
+            <td><hr class="my-5"></td>
+          </tr>
+          <tr>
+            <td style="text-align: right">
+              <small style="padding-right: 16px">Send message:</small>
+            </td>
+            <td>
+              <span>
+                <small>{{ new Date().toISOString().slice(0, 10) }}</small><br>
+                <v-text-field v-model="newMessage" outlined />
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </v-card>
+    <!-- </v-row> -->
 
     <v-row>
       <v-col cols="12" md="6" class="text-right">
-        <p><small>Contact number of the responsible person</small></p>
+        <p><small><small>Contact number of the responsible person</small></small></p>
       </v-col>
       <v-col cols="12" md="6">
         <v-text-field
@@ -125,12 +164,6 @@
         />
       </v-col>
     </v-row>
-
-    <!-- <v-row v-if="ticket.history.length > 0">
-      <v-text-field v-for="item of ticket.history" :key="item.modified">
-
-      </v-text-field>
-    </v-row> -->
 
     <v-row class="mt-12">
       <v-btn outlined color="primary" @click="$emit('update:edit', false)">Back to tickets list</v-btn>
@@ -159,6 +192,7 @@ export default {
     customerName: '',
     customerUniqueCode: '',
     value: '',
+    newMessage: '',
     ready: false
   }),
 
@@ -270,7 +304,16 @@ export default {
 
     updateTicket () {
       this.update('modified', Date.now())
-      this.__saveTicketData(this.ticket._id, this.ticket)
+      if (this.newMessage) {
+        this.ticket.history.push({
+          date: Date.now(),
+          source: 'partner',
+          message: this.newMessage
+        })
+      }
+
+      console.log(this.ticket._id, this.ticket)
+      // this.__saveTicketData(this.ticket._id, this.ticket)
     },
 
     save () {
@@ -311,11 +354,27 @@ export default {
 }
 </script>
 
+<style>
+.v-label {
+  font-size: 14px!important;
+}
+</style>
+
 <style scoped>
 .customer-info {
   border: solid 1px #ddd;
   border-radius: 4px;
   padding: 8px 16px;
   margin-bottom: 16px;
+}
+
+.v-select__selection--comma {
+  font-size: 14px;
+}
+
+td.message {
+  border: solid 1px #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
 }
 </style>

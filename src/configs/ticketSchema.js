@@ -10,5 +10,6 @@ export const ticketSchema = {
   details: '',
   contactPhone: '',
   status: '',
-  files: []
+  files: [],
+  history: []
 }

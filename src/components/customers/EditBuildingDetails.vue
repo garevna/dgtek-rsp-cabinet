@@ -137,8 +137,6 @@ export default {
           this.schema[section][propName].value = buildingDetails[section][propName] || ''
         }
       }
-      this.schema.owner.headOfficeAddress.value = buildingDetails.ownersCorporationHeadOfficeAddress
-      this.schema.owner.managementPSNumber.value = buildingDetails.ownersCorporationManagementPSNumber
     },
 
     getNewBuildingId (data) {

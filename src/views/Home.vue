@@ -65,6 +65,15 @@
         >
           {{ stepsNames[5] }}
         </v-btn>
+
+        <v-btn
+          v-if="refreshed.documents"
+          class="mx-1"
+          :class="{ active: seven, tab: !seven }"
+          @click="step = 7"
+        >
+          {{ stepsNames[6] }}
+        </v-btn>
       </v-stepper-header>
     </v-row>
 
@@ -87,7 +96,8 @@ import {
   CompanyDetails,
   CheckAddress,
   Services,
-  Tickets
+  Tickets,
+  Documents
 } from '@/components/dashboard'
 
 import CustomersList from '@/components/customers/CustomersList.vue'
@@ -99,6 +109,7 @@ import { stepsNames } from '@/configs'
 
 export default {
   name: 'Home',
+
   data: () => ({
     step: 1,
     stepsNames: stepsNames,
@@ -106,7 +117,8 @@ export default {
       rsp: false,
       services: false,
       tickets: false,
-      customers: false
+      customers: false,
+      documents: true
     },
     pages: [
       Dashboard,
@@ -114,10 +126,12 @@ export default {
       CheckAddress,
       CustomersList,
       Services,
-      Tickets
+      Tickets,
+      Documents
     ],
     currentComponent: Dashboard
   }),
+
   computed: {
     first () {
       return this.step === 1
@@ -136,13 +150,18 @@ export default {
     },
     six () {
       return this.step === 6
+    },
+    seven () {
+      return this.step === 7
     }
   },
+
   watch: {
     step (value) {
       this.currentComponent = this.pages[value - 1]
     }
   },
+
   methods: {
     refreshCallback (event) {
       this.refreshed[event.route] = true
@@ -162,6 +181,10 @@ export default {
     createNewTicket (data) {
       this.step = 6
       this.currentComponent = TicketDetails
+    },
+    goToDocuments (data) {
+      this.step = 7
+      this.currentComponent = Documents
     }
   },
 

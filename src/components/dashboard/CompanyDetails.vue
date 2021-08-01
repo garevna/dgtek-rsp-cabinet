@@ -57,7 +57,6 @@ export default {
 
   methods: {
     getData (details) {
-      console.log(details.uniqueCode)
       for (const step in this.schema) {
         for (const prop in this.schema[step]) {
           this.schema[step][prop].value = details[step][prop]

@@ -12,7 +12,7 @@
 
       <v-card id="searchAddressResults" class="transparent mx-auto py-10 text-center" outlined>
         <ResultBar
-          :addressData="selected"
+          :addressData="selectedBuilding"
           :eventType="eventType"
           :newCustomer.sync="newCustomer"
           :selectCustomer.sync="selectCustomer"
@@ -22,10 +22,10 @@
 
       <v-row justify="center">
         <v-col cols="12" md="6" lg="5" xl="4">
-          <ListOfBuildings key="lit" type="lit" :selected.sync="selected" />
+          <ListOfBuildings key="lit" type="lit" :selected.sync="selectedBuilding" />
         </v-col>
         <v-col cols="12" md="6" lg="5" xl="4">
-          <ListOfBuildings key="footprint" type="footprint" :selected.sync="selected" />
+          <ListOfBuildings key="footprint" type="footprint" :selected.sync="selectedBuilding" />
         </v-col>
       </v-row>
     </v-card>
@@ -50,7 +50,7 @@ import {
   newBuilding
 } from '@/configs'
 
-const { management, owner } = newBuilding
+const { management: managementSchema, owner: ownerSchema } = newBuilding
 
 export default {
   name: 'CheckAddress',
@@ -74,13 +74,9 @@ export default {
     openSelectCustomer: false,
     showServices: false,
 
-    initialAddressData: {},
-
     map: null,
-    selected: null,
-    buildingId: '',
-    address: '',
-    status: '',
+    selectedBuilding: null,
+    initialAddressData: {},
 
     scrollOptions: {
       duration: 500,
@@ -90,77 +86,88 @@ export default {
   }),
 
   watch: {
-    selected: {
+    selectedBuilding: {
       deep: true,
       handler (data) {
+        this.getBuildingDetails(data)
         this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
       }
     },
+
     newCustomer (val) {
       if (!val) return
-      this.selected.status = this.selected.status === 'UnderConstruction' ? 'BuildCommenced' : this.selected.status
-      if (this.selected.id) {
-        this.$root.$on('building-data-received', this.getBuildingDetails)
-        this.__getBuildingById(this.selected.id)
-      } else {
-        this.createNewCustomer()
-      }
-    }
-    // initialAddressData: {
-    //   deep: true,
-    //   handler (val) {
-    //     console.log('INITIAL ADDRESS DATA CHANGED:\n', val)
-    //   }
-    // }
-  },
-  methods: {
-    getBuildingDetails (eventData) {
-      Object.assign(this.selected, {
-        management: eventData.management,
-        owner: eventData.owner
-      })
-
-      this.$root.$off('building-data-received', this.getBuildingDetails)
-
-      this.createNewCustomer()
+      if (this.initialAddressData.buildingId) this.__getBuildingById(this.selectedBuilding.id)
+      else this.openNewCustomerForm = val
     },
 
-    createNewCustomer () {
-      this.initialAddressData = {
-        buildingId: this.selected.id,
-        address: this.selected.address,
-        coordinates: this.selected.coordinates,
-        addressComponents: this.selected.addressComponents,
-        postCode: this.selected.addressComponents.postCode,
-        status: this.selected.status,
-        management: this.selected.management || management,
-        owner: this.selected.owner || owner
+    selectCustomer (val) {
+      val && this.$root.$emit('go-to-customers-list')
+    },
+
+    services (val) {
+      val && this.$root.$emit('go-to-services')
+    },
+
+    initialAddressData: {
+      deep: true,
+      handler (val) {
+        // console.log('INITIAL ADDRESS DATA CHANGED:\n', val)
       }
+    }
+  },
+
+  methods: {
+    getBuildingDetailsFromRemote (buildingDetails) {
+      const { status, management = Object.assign({}, managementSchema), owner = Object.assign({}, ownerSchema) } = buildingDetails
+      Object.assign(this.initialAddressData, { status, management, owner })
       this.openNewCustomerForm = true
     },
 
-    catchEvent (event) {
+    getBuildingDetails (buildingDetails) {
+      const buildingId = buildingDetails.id ? buildingDetails.id : buildingDetails.buildingId
+      const { address, addressComponents, coordinates, status } = buildingDetails
+      this.initialAddressData = {
+        buildingId,
+        address,
+        addressComponents,
+        coordinates,
+        postCode: addressComponents.postCode,
+        status,
+        management: Object.assign({}, managementSchema),
+        owner: Object.assign({}, ownerSchema)
+      }
+    },
+
+    catchMapEvent (event) {
       // console.group('Event handler')
       // console.log('Event type: ', event.type)
       // console.log('Event data:\n', event.data)
 
+      this.buildingId = event.data.buildingId
+
+      const { _id: buildingId, address, addressComponents, coordinates, status, management = managementSchema, owner = ownerSchema } = event.data
+
+      this.initialAddressData = { buildingId, address, addressComponents, postCode: addressComponents.postCode, coordinates, status, management, owner }
+
       if (Object.keys(buildingStatusConfig).indexOf(event.type) !== -1) {
         // console.log('EVENT AVAILABLE', event.type, event.data.address)
-        this.selected = Object.assign(event.data, { event: event.type })
+        this.selectedBuilding = Object.assign(event.data, { event: event.type })
       }
       // console.groupEnd('Event handler')
     }
   },
 
   beforeDestroy () {
+    this.$root.$off('building-data-received', this.getBuildingDetailsFromRemote)
     const container = document.getElementById('container-for-map')
     if (!container) return
-    dgtekMapEvents.forEach(eventName => container.removeEventListener(eventName, this.catchEvent))
+    dgtekMapEvents.forEach(eventName => container.removeEventListener(eventName, this.catchMapEvent))
   },
 
   mounted () {
+    this.$root.$on('building-data-received', this.getBuildingDetailsFromRemote)
     const container = document.getElementById('container-for-map')
-    dgtekMapEvents.forEach(eventName => container.addEventListener(eventName, this.catchEvent))
+    dgtekMapEvents.forEach(eventName => container.addEventListener(eventName, this.catchMapEvent))
 
     window.google = null
 

@@ -7,8 +7,6 @@ import {
 export const patch = async (path, data) => {
   if (!navigator.onLine) return { status: 0, result: 'Offline mode: Data has not been saved. Try later' }
 
-  self.postDebugMessage({ method: 'PATCH', path, data })
-
   const response = await fetch(`${hostHandler()}/${path}`, {
     method: 'PATCH',
     headers: {

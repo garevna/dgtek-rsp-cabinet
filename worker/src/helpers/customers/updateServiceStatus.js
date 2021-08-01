@@ -17,14 +17,7 @@ export const updateServiceStatus = async function (customerId, serviceId, newSta
 
   const index = services.findIndex(service => service.id === serviceId)
 
-  if (index === -1) {
-    return {
-      status: 404,
-      error: true,
-      errorType: 'Service activation',
-      errorMessage: 'Service was not found'
-    }
-  }
+  if (index === -1) return { status: 404, error: true, errorType: 'Service activation', errorMessage: 'Service was not found' }
 
   services.splice(index, 1, Object.assign(services[index], {
     modified: Date.now(),
@@ -33,17 +26,9 @@ export const updateServiceStatus = async function (customerId, serviceId, newSta
     log: Object.assign(services[index].log, { [Date.now()]: newStatus })
   }))
 
-  // const response = await self.controller.updateCustomer(customerId, Object.assign(customerData, { services }))
   const response = await patch(`customer/${customerId}`, { services })
 
-  if (response.status !== 200) {
-    self.postDebugMessage({ response })
-    return Object.assign(response, {
-      error: true,
-      errorType: 'Customer service delivery status',
-      errorMessage: 'Failed to update service delivery status'
-    })
-  }
+  if (response.status !== 200) return Object.assign(response, { error: true, errorType: 'Customer service delivery status', errorMessage: 'Failed to update service delivery status' })
 
   return {
     status: response.status,

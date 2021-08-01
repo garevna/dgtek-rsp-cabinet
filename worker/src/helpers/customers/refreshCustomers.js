@@ -9,7 +9,6 @@ const { refreshCustomersListError } = require('../error-handlers').default
 
 export const refreshCustomers = async function () {
   const [route, action] = ['customers', 'refresh']
-
   let currentPage = 1
   let done = false
   servicesInfoHandler('reset')

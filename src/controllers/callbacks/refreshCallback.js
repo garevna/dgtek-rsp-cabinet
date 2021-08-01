@@ -19,7 +19,6 @@ export function refreshCallback (event) {
   instance.$root.$emit('data-refreshed', { route: key })
 
   if (key === 'messages') messagesHandler(event.data.result)
-  console.log('KEY: ', key)
 
   if (Object.keys(proto.$refreshed).filter(key => !proto.$refreshed[key]).length) {
     instance.dispatchProgressEvent(false)

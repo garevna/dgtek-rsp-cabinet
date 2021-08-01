@@ -13,6 +13,7 @@ export const routes = {
     'refresh-messages': dashboardController.refreshMessages,
     'get-messages': dashboardController.getMessages
   },
+
   rsp: {
     credentials: rspController.credentials,
     password: rspController.passwordChange,
@@ -20,10 +21,12 @@ export const routes = {
     get: rspController.get,
     put: rspController.update
   },
+
   customers: {
     refresh: customersController.getFromRemote,
     list: customersController.getAllCustomers,
     short: customersController.getCustomersListForTicket,
+    'filtered-short-list': customersController.getFilteredShortListOfCustomers,
     services: customersController.updateCustomerServices,
     get: customersController.getCustomer,
     post: customersController.createCustomer,
@@ -33,19 +36,24 @@ export const routes = {
     scheduling: customersController.scheduling
     // info: customersController.getActiveServicesInfo
   },
+
   crypto: {
     init: cryptoController.init,
     encrypt: cryptoController.encrypt,
     decrypt: cryptoController.decrypt
   },
+
   services: {
     refresh: servicesController.refresh,
     list: servicesController.list,
-    get: servicesController.get
+    get: servicesController.get,
+    sla: servicesController.getSLAContent
   },
+
   schedule: {
     get: servicesController.getFreeLotsForSchedule
   },
+
   tickets: {
     refresh: ticketsController.refresh,
     list: ticketsController.list,
@@ -53,9 +61,11 @@ export const routes = {
     post: ticketsController.post,
     put: ticketsController.put
   },
+
   categories: {
     get: ticketsController.getCategories
   },
+
   lots: {
     get: customersController.getScheduleLots
   }

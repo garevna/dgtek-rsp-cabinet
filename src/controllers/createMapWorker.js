@@ -13,11 +13,14 @@ export function createMapWorker () {
   window[Symbol.for('map.worker')].postMessage({ action: 'host', data: window[Symbol.for('vue.prototype')].$buildingsHost() })
 
   window[Symbol.for('map.worker')].onmessage = function (event) {
-    if (!event.data) return
-    if (event.data.status === 300) return console.log('MAP WORKER DEBUGGING MESSAGE:\n', event.data)
+    if (!event.data) return console.info('Map worker: empty response')
+    if (event.data.status === 300) {
+      const { status, ...data } = event.data
+      return console.log('MAP WORKER DEBUGGING MESSAGE:\n', data)
+    }
 
     const { action, status } = event.data
-    if (action === 'store') return
+    if (['host', 'store', 'init'].includes(action)) return console.info('MAP WORKER CONFIGURED', action, status)
 
     if (status === 200) {
       if (!mapWorkerEvents[action]) return
@@ -25,7 +28,7 @@ export function createMapWorker () {
       window[Symbol.for('vue.instance')].$root.$emit('progress-event', false)
       window[Symbol.for('vue.instance')].$root.$emit(eventName, event.data)
     } else {
-      console.warn(event.data)
+      console.log(event.data)
       if (!mapWorkerErrors[action]) return
       const { type: errorType, message: errorMessage } = mapWorkerErrors[action]()
       window[Symbol.for('vue.instance')].$root.$emit('open-error-popup', {

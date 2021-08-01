@@ -1,16 +1,7 @@
 <template>
   <v-container style="margin-bottom: 320px">
-    <!-- <v-card flat class="transparent mx-auto" max-width="700">
-      <v-row justify="center" align="center">
-          <v-spacer />
-          <v-btn icon @click="$router.push({ name: 'services-list' })">
-            <v-icon large>mdi-close</v-icon>
-          </v-btn>
-        </v-row>
-    </v-card> -->
-
-    <fieldset class="mt-4 pa-8 mb-12 mx-auto" style="max-width: 600px; border: solid 1px #bbb; box-shadow: 0 0 3px #0007">
-      <legend class="ml-4" style="background: #fbfbfb; border-radius: 8px; border: solid 1px #bbb; padding: 4px 8px">
+    <fieldset class="mt-4 pa-8 mb-12 mx-auto" style="max-width: 700px; border: solid 1px #bbb; box-shadow: 0 0 3px #0005">
+      <legend class="ml-4 py-1">
         <h5><small>Service details</small></h5>
       </legend>
       <v-row align="start" justify="end">
@@ -22,14 +13,22 @@
         <table width="100%">
           <tbody>
             <tr v-for="(prop, propName) in service" :key="propName">
-              <td class="d-none d-md-flex" style="border: 1px solid #999; padding: 8px 16px">
-                <p style="margin-bottom: 0"><small>{{ prop.title }}</small></p>
+              <td class="d-none d-md-flex" style="padding: 8px 16px; text-align: right">
+                <p style="margin-bottom: 0; width: 100%; text-align: right;"><small>{{ prop.title }}</small></p>
               </td>
-              <td v-if="propName !== 'serviceSLA'" style="border: 1px solid #999; padding: 8px 16px">
+              <td v-if="propName !== 'serviceSLA'" style="padding: 8px 16px">
                 <p style="margin-bottom: 0"><small><b>{{ typeof prop.value === 'boolean' ? prop.value ? 'Yes' : 'No' : prop.value }}</b></small></p>
               </td>
               <td v-else>
-                <iframe width="360" height="480" :src="prop.value"></iframe>
+                <v-btn text @click="sla=true">
+                  <v-icon color="primary">mdi-open-in-new</v-icon>
+                  <span class="ml-2">{{ serviceSLATitle }}</span>
+                </v-btn>
+                <ViewPDF
+                  :dialog.sync="sla"
+                  :content="serviceSLAContent"
+                  :title="serviceSLATitle"
+                />
               </td>
             </tr>
           </tbody>
@@ -43,16 +42,21 @@
 
 import { serviceSchema } from '@/configs'
 
-// import { serviceHandler } from '@/helpers'
-
 export default {
   name: 'ServiceDetails',
 
   props: ['serviceDetails', 'opened'],
 
+  components: {
+    ViewPDF: () => import('@/components/inputs/ViewPDF.vue')
+  },
+
   data: () => ({
     service: serviceSchema,
-    ready: false
+    ready: false,
+    sla: false,
+    serviceSLATitle: '',
+    serviceSLAContent: ''
   }),
 
   computed: {
@@ -66,11 +70,28 @@ export default {
     }
   },
 
+  methods: {
+    getSLAContent (data) {
+      this.serviceSLATitle = data.title
+      this.serviceSLAContent = data.content
+    }
+  },
+
+  beforeDestroy () {
+    this.$root.$off('sla-content-received', this.getSLAContent)
+  },
+
+  beforeMount () {
+    this.$root.$on('sla-content-received', this.getSLAContent)
+    this.__getSLAContent(this.serviceDetails.serviceSLA)
+  },
+
   mounted () {
     this.service = JSON.parse(JSON.stringify(serviceSchema))
     delete this.service.partners
     if (this.serviceDetails) {
       for (const prop in this.service) {
+        if (prop === 'serviceSLA') continue
         this.service[prop].value = this.serviceDetails[prop]
       }
       this.ready = true

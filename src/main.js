@@ -60,12 +60,20 @@ Object.assign(Vue.prototype, {
   $sendMessageToWorker: instance.sendMessageToWorker
 })
 
-window.addEventListener('message', (event) => {
+const callback = event => {
   if (!event.data.credentials) return
   credentials(event)
-  // console.log('SOURCE ORIGIN: ', event.origin)
   event.source.postMessage('OK', event.origin)
-})
+  window.removeEventListener('message', callback)
+}
+
+window.addEventListener('message', callback)
+
+// window.addEventListener('message', (event) => {
+//   if (!event.data.credentials) return
+//   credentials(event)
+//   event.source.postMessage('OK', event.origin)
+// })
 
 /* ===================== MAP WORKER ========================= */
 

@@ -4,7 +4,7 @@ export const getServicesListError = function (status) {
     action: 'get',
     route: 'services',
     error: true,
-    errorType: 'Services',
-    errorMessage: 'Failed to get services from local DB'
+    errorType: 'Service list',
+    errorMessage: 'Failed to get data from local DB'
   }
 }
