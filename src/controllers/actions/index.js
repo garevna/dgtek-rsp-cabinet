@@ -16,7 +16,9 @@ import {
   refreshServices,
   getServices,
   getServiceById,
-  getSLAContent
+  getSLAContent,
+  getServicePendingConnections,
+  getServiceActiveConnections
 } from './services'
 
 import {
@@ -31,7 +33,8 @@ import {
   sendSchedulingRequest,
   getCustomersServicesInfo,
   getCustomersListForTicket,
-  getFilteredShortListOfCustomers
+  getFilteredShortListOfCustomers,
+  getAwaitingForConnectionCustomers
 } from './customers'
 
 import {
@@ -40,7 +43,8 @@ import {
   getTickets,
   postNewTicket,
   refreshTickets,
-  saveTicketData
+  saveTicketData,
+  getNewTicketNumber
 } from './tickets'
 
 import {
@@ -49,7 +53,8 @@ import {
   getBuildingsByStatus,
   getAddressListByStatus,
   postBuildingDetails,
-  putBuildingDetails
+  putBuildingDetails,
+  patchBuildingDetails
 } from './map.worker'
 
 export {
@@ -78,16 +83,20 @@ export {
   sendSchedulingRequest,
   getCustomersListForTicket,
   getFilteredShortListOfCustomers,
+  getAwaitingForConnectionCustomers,
 
   getServices,
   getServiceById,
   getSLAContent,
+  getServicePendingConnections,
+  getServiceActiveConnections,
 
   getTickets,
   getCategories,
   getTicketById,
   postNewTicket,
   saveTicketData,
+  getNewTicketNumber,
 
   getBuildingByAddress,
   getBuildingById,
@@ -95,6 +104,7 @@ export {
   getAddressListByStatus,
   postBuildingDetails,
   putBuildingDetails,
+  patchBuildingDetails,
 
   getFreeLotsOfSchedule
 }

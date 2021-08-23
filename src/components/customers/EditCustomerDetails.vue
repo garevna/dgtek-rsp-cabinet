@@ -52,7 +52,6 @@
             <td width="160">
               <v-text-field
                 v-model="customer.apartmentNumber"
-                @input="changeUniqueCode"
                 :rules="[rules.required]"
                 label="apt"
                 outlined
@@ -145,12 +144,12 @@ export default {
   data: () => ({
     customer: null,
     customerDetailsSchema: customerDetails,
-    buildingData: null,
     commercialSchema: commercial,
     rules: rules,
     buildings: [],
     customerType: null,
-    errorMessage: ''
+    errorMessage: '',
+    uniqueCode: ''
   }),
 
   computed: {
@@ -168,6 +167,11 @@ export default {
   },
 
   watch: {
+    'customer.apartmentNumber': {
+      handler (val) {
+        this.changeUniqueCode(val)
+      }
+    },
     customerType: {
       handler (newVal, oldVal) {
         if (newVal && (!this.customer.commercial || !Object.keys(this.customer.commercial))) {
@@ -178,10 +182,9 @@ export default {
   },
 
   methods: {
-    changeUniqueCode () {
-      const code = `${this.customer.uniqueCode.split('.').slice(0, -1).join('.')}.${this.customer.apartmentNumber}`
-      this.customer.uniqueCode = code
-      this.customerDetailsSchema.uniqueCode.value = code
+    changeUniqueCode (aptNumber) {
+      this.customer.uniqueCode = aptNumber ? `${this.uniqueCode}.${aptNumber}` : this.uniqueCode
+      this.customerDetailsSchema.uniqueCode.value = this.customer.uniqueCode
     },
 
     update (propName, propValue) {
@@ -203,10 +206,14 @@ export default {
     },
 
     testForErrors () {
-      if (!this.customer.apartmentNumber || this.customer.apartmentNumber === '0') {
-        this.errorMessage = 'Apartment number is required'
+      if (!this.customer?.buildingId) {
+        this.errorMessage = 'Building details should be saved first'
         return true
       }
+      // if (!this.customer.apartmentNumber || this.customer.apartmentNumber === '0') {
+      //   this.errorMessage = 'Apartment number is required'
+      //   return true
+      // }
 
       for (const fieldName in this.customerDetailsSchema) {
         const field = this.customerDetailsSchema[fieldName]
@@ -243,9 +250,7 @@ export default {
       this.createSchema()
 
       const { buildingId } = data.result
-      if (buildingId) {
-        this.__getBuildingById(buildingId)
-      }
+      buildingId && this.__getBuildingById(buildingId)
     },
 
     getBuildings (data) {
@@ -272,6 +277,8 @@ export default {
     this.customer = this.initialCustomer
     this.buildings = [this.customer.address]
     this.createSchema()
+
+    this.uniqueCode = this.initialCustomer.uniqueCode
 
     this.$root.$on('customer-updated', this.close)
     this.$root.$on('customer-created', this.close)

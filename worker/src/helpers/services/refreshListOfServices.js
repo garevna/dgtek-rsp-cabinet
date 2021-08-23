@@ -5,7 +5,7 @@ import { servicesInfoHandler } from '../../data-handlers'
 
 import { idHandler } from '../env'
 
-const { refreshServicesListError /*, putServicesListError */ } = require('../error-handlers').default
+const { refreshServicesListError } = require('../error-handlers').default
 
 const [route, action] = ['services', 'refresh']
 
@@ -16,7 +16,7 @@ export const refreshListOfServices = async function () {
 
   clearStore('services')
 
-  const promises = response.result
+  const promises = response.result.filter(service => service.partners.includes(idHandler()))
     .map(service => putRecordByKey('services', service._id, service))
 
   const res = await Promise.all(promises)
@@ -29,6 +29,5 @@ export const refreshListOfServices = async function () {
     route,
     action,
     result: res.map(response => response.result)
-      .filter(service => service.partners ? service.partners.includes(idHandler()) : false)
   }
 }

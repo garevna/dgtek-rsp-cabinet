@@ -2,7 +2,7 @@ import { dgtekMapEvents } from './dgtekMapEvents'
 import { buildingStatusConfig } from './buildingStatusConfig'
 import { stepsNames } from './steps'
 import { schema } from './schemaRSP'
-import { buildingSchema } from './buildingSchema'
+import { management, owner /* buildingSchema */ } from './buildingSchema'
 import { newBuilding } from './newBuilding'
 import { customerSchema } from './customerSchema'
 import { newCustomer } from './newCustomer'
@@ -20,7 +20,9 @@ export {
   buildingStatusConfig,
   stepsNames,
   schema,
-  buildingSchema,
+  // buildingSchema,
+  management,
+  owner,
   newBuilding,
   customerSchema,
   newCustomer,

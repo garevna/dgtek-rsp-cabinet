@@ -12,6 +12,7 @@
 
       <v-card id="searchAddressResults" class="transparent mx-auto py-10 text-center" outlined>
         <ResultBar
+          v-if="selectedBuilding"
           :addressData="selectedBuilding"
           :eventType="eventType"
           :newCustomer.sync="newCustomer"
@@ -33,24 +34,18 @@
     <CustomerDetails
       v-if="openNewCustomerForm"
       :dialog.sync="openNewCustomerForm"
-      :initialAddressData="initialAddressData"
+      :selectedBuildingId="selectedBuildingId"
     />
   </v-container>
 </template>
 
 <script>
 
-/* eslint-disable no-new */
-
 import DgtekMap from 'dgtek-map'
 
-import {
-  dgtekMapEvents,
-  buildingStatusConfig,
-  newBuilding
-} from '@/configs'
+import { dgtekMapEvents, buildingStatusConfig } from '@/configs'
 
-const { management: managementSchema, owner: ownerSchema } = newBuilding
+import { buildingDetailsHandler } from '@/helpers/data-handlers'
 
 export default {
   name: 'CheckAddress',
@@ -76,7 +71,7 @@ export default {
 
     map: null,
     selectedBuilding: null,
-    initialAddressData: {},
+    selectedBuildingId: null,
 
     scrollOptions: {
       duration: 500,
@@ -89,15 +84,20 @@ export default {
     selectedBuilding: {
       deep: true,
       handler (data) {
-        this.getBuildingDetails(data)
+        buildingDetailsHandler(data)
+        this.selectedBuildingId = data.id || data.buildingId
         this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
       }
     },
 
     newCustomer (val) {
       if (!val) return
-      if (this.initialAddressData.buildingId) this.__getBuildingById(this.selectedBuilding.id)
-      else this.openNewCustomerForm = val
+      if (this.selectedBuildingId) {
+        this.__getBuildingById(this.selectedBuildingId)
+      } else {
+        buildingDetailsHandler(this.selectedBuilding)
+        this.openNewCustomerForm = true
+      }
     },
 
     selectCustomer (val) {
@@ -106,66 +106,38 @@ export default {
 
     services (val) {
       val && this.$root.$emit('go-to-services')
-    },
-
-    initialAddressData: {
-      deep: true,
-      handler (val) {
-        // console.log('INITIAL ADDRESS DATA CHANGED:\n', val)
-      }
     }
   },
 
   methods: {
-    getBuildingDetailsFromRemote (buildingDetails) {
-      const { status, management = Object.assign({}, managementSchema), owner = Object.assign({}, ownerSchema) } = buildingDetails
-      Object.assign(this.initialAddressData, { status, management, owner })
+    showNewCustomerForm (data) {
+      buildingDetailsHandler(data.result)
       this.openNewCustomerForm = true
     },
 
     getBuildingDetails (buildingDetails) {
-      const buildingId = buildingDetails.id ? buildingDetails.id : buildingDetails.buildingId
-      const { address, addressComponents, coordinates, status } = buildingDetails
-      this.initialAddressData = {
-        buildingId,
-        address,
-        addressComponents,
-        coordinates,
-        postCode: addressComponents.postCode,
-        status,
-        management: Object.assign({}, managementSchema),
-        owner: Object.assign({}, ownerSchema)
-      }
+      this.initialAddressData = buildingDetailsHandler()
     },
 
     catchMapEvent (event) {
-      // console.group('Event handler')
-      // console.log('Event type: ', event.type)
-      // console.log('Event data:\n', event.data)
-
-      this.buildingId = event.data.buildingId
-
-      const { _id: buildingId, address, addressComponents, coordinates, status, management = managementSchema, owner = ownerSchema } = event.data
-
-      this.initialAddressData = { buildingId, address, addressComponents, postCode: addressComponents.postCode, coordinates, status, management, owner }
+      this.selectedBuildingId = event.data.buildingId
 
       if (Object.keys(buildingStatusConfig).indexOf(event.type) !== -1) {
-        // console.log('EVENT AVAILABLE', event.type, event.data.address)
         this.selectedBuilding = Object.assign(event.data, { event: event.type })
       }
-      // console.groupEnd('Event handler')
     }
   },
 
   beforeDestroy () {
-    this.$root.$off('building-data-received', this.getBuildingDetailsFromRemote)
+    this.$root.$emit('hide-snackbar')
+    this.$root.$off('building-details', this.showNewCustomerForm)
     const container = document.getElementById('container-for-map')
     if (!container) return
     dgtekMapEvents.forEach(eventName => container.removeEventListener(eventName, this.catchMapEvent))
   },
 
   mounted () {
-    this.$root.$on('building-data-received', this.getBuildingDetailsFromRemote)
+    this.$root.$on('building-details', this.showNewCustomerForm)
     const container = document.getElementById('container-for-map')
     dgtekMapEvents.forEach(eventName => container.addEventListener(eventName, this.catchMapEvent))
 
@@ -175,6 +147,8 @@ export default {
       container,
       center: { lat: -37.8357725, lng: 144.9738764 }
     })
+
+    this.$root.$emit('show-snackbar', 'Please enter BUILDING address only. Do not include unit/apartment number')
   }
 }
 </script>

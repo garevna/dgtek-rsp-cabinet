@@ -7,13 +7,13 @@ export const getListOfTickets = async function () {
 
   let { status, result } = await getAllRecords('tickets')
 
-  result = result
-    .map(ticket => Object.assign(ticket, {
+  if (status !== 200) return getTicketsListError(status)
+
+  result = result.sort((a, b) => a.created - b.created)
+    .map((ticket, index) => Object.assign(ticket, {
       created: new Date(ticket.created - 0).toISOString().slice(0, 10),
       modified: new Date(ticket.modified - 0).toISOString().slice(0, 10)
     }))
-
-  if (status !== 200) return getTicketsListError(status)
 
   return { status, route, action, result }
 }

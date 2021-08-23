@@ -4,6 +4,12 @@ import { getRecordByKey } from './getRecordByKey'
 import { getAllRecords } from './getAllRecords'
 import { deleteRecordByKey } from './deleteRecordByKey'
 
+import { searchActiveConnections } from './customers/searchActiveConnections'
+import { searchPendingConnections } from './customers/searchPendingConnections'
+import { searchAwaitingForConnectionCustomers } from './customers/searchAwaitingForConnectionCustomers'
+
+import { getTicketNumbers } from './tickets/getTicketNumbers'
+
 // import { getRecordsByIndex } from './getRecordsByIndex'
 
 import { searchRecords } from './searchRecords'
@@ -15,5 +21,11 @@ export {
   getRecordByKey,
   deleteRecordByKey,
   getAllRecords,
-  searchRecords
+  searchRecords,
+
+  searchActiveConnections,
+  searchPendingConnections,
+  searchAwaitingForConnectionCustomers,
+
+  getTicketNumbers
 }

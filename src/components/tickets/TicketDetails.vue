@@ -3,7 +3,7 @@
     <v-toolbar class="transparent" style="box-shadow: none">
       <v-toolbar-title>
         <v-icon>mdi-card-text-outline</v-icon>
-        Ticket
+        Ticket <b>{{ ticket.number }}</b>
       </v-toolbar-title>
       <v-spacer />
       <v-btn icon @click="$emit('update:edit', false)">
@@ -13,42 +13,15 @@
     <v-divider class="mb-12" />
     <v-row justify="center">
       <v-col cols="12" md="4" v-if="categories">
-        <v-select
-          :items="categories"
-          v-model="category"
-          label="Ticket category"
-          outlined
-          dense
-          hide-details
-          color="#900"
-          style="width: 270px"
-        ></v-select>
+        <Selector :value.sync="category" label="Ticket category" :available="categories" />
       </v-col>
 
       <v-col cols="12" md="4">
-        <v-select
-          :items="severities"
-          v-model="severity"
-          label="Severity"
-          outlined
-          dense
-          hide-details
-          color="#900"
-          style="width: 270px"
-        ></v-select>
+        <Selector :value.sync="severity" label="Severity" :available="severities" />
       </v-col>
 
       <v-col cols="12" md="4">
-        <v-select
-          :items="priorities"
-          v-model="priority"
-          label="Priority"
-          outlined
-          dense
-          hide-details
-          color="#900"
-          style="width: 270px"
-        ></v-select>
+        <Selector :value.sync="priority" label="Priority" :available="priorities" />
       </v-col>
 
     </v-row>
@@ -107,9 +80,11 @@
         <thead>
           <tr v-if="ticket.history">
             <th width="400">
+              <v-icon>mdi-transfer-down</v-icon>
               Incoming
             </th>
             <th width="400">
+              <v-icon>mdi-transfer-up</v-icon>
               Outgoing
             </th>
           </tr>
@@ -168,7 +143,9 @@
     <v-row class="mt-12">
       <v-btn outlined color="primary" @click="$emit('update:edit', false)">Back to tickets list</v-btn>
       <v-spacer />
-      <v-btn dark class="primary mr-2" @click="closeTheTicket">Archive the ticket</v-btn>
+      <v-btn dark class="primary mr-2" @click="closeTheTicket" v-if="!newTicket">
+        Archive the ticket
+      </v-btn>
       <v-btn dark class="primary" @click="save">Update/save details</v-btn>
     </v-row>
   </v-card>
@@ -178,13 +155,18 @@
 
 export default {
   name: 'TicketDetails',
-  // props: ['ticket', 'newTicket', 'edit'],
+
+  components: {
+    Selector: () => import('@/components/tickets/Selector.vue')
+  },
+
   props: ['ticket', 'categories', 'newTicket', 'edit'],
+
   data: () => ({
     customersList: [],
     postCode: '',
-    severities: ['Low', 'Medium', 'Hight'],
-    priorities: ['Low', 'Medium', 'Hight'],
+    severities: ['Low', 'Medium', 'High'],
+    priorities: ['Low', 'Medium', 'High'],
     customers: null,
     customersIds: null,
     customer: null,
@@ -295,25 +277,27 @@ export default {
       this.customersIds = data.map(customer => customer._id)
     },
 
-    postNewTicket () {
-      this.update('created', Date.now())
-      this.update('modified', Date.now())
-      const result = JSON.parse(JSON.stringify(this.ticket))
-      this.__postNewTicket(result)
-    },
-
-    updateTicket () {
-      this.update('modified', Date.now())
+    updateTicketHistory () {
       if (this.newMessage) {
+        this.ticket.history = Array.isArray(this.ticket.history) ? this.ticket.history : []
         this.ticket.history.push({
           date: Date.now(),
           source: 'partner',
           message: this.newMessage
         })
       }
+    },
 
-      console.log(this.ticket._id, this.ticket)
-      // this.__saveTicketData(this.ticket._id, this.ticket)
+    postNewTicket () {
+      this.updateTicketHistory()
+      const result = JSON.parse(JSON.stringify(this.ticket))
+      this.__postNewTicket(result)
+    },
+
+    updateTicket () {
+      this.update('modified', Date.now())
+      this.updateTicketHistory()
+      this.__saveTicketData(this.ticket._id, this.ticket)
     },
 
     save () {
@@ -339,15 +323,14 @@ export default {
   },
 
   mounted () {
-    if (this.ticket && this.ticket.customerId) {
-      this.__getCustomerData(this.ticket.customerId)
-    } else {
-      this.$emit('update:edit', true)
-    }
+    if (this.ticket && this.ticket.customerId) this.__getCustomerData(this.ticket.customerId)
+    else this.$emit('update:edit', true)
+
     if (!this.categories || !this.categories.length) {
       this.$root.$on('categories-received', this.getCategories)
       this.__getCategories()
     }
+
     this.$root.$on('customers-list-for-ticket-received', this.fillCustomerList)
     this.$root.$on('customer-data-received', this.updateCustomerInfo)
   }

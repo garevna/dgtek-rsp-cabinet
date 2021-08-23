@@ -1,3 +1,1 @@
-const crypto = require('crypto-js')
-
-export const hash = data => ({ status: 200, result: crypto.SHA256(data).toString() })
+export const hash = data => ({ status: 200, result: require('crypto-js/sha256')(data).toString() })

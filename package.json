@@ -1,6 +1,6 @@
 {
   "name": "dgtek-portal-rsp-cabinet",
-  "version": "4.0.8",
+  "version": "7.0.0",
   "scripts": {
     "worker-dev": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode development -w && yarn remove crypto-js",
     "worker": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode production && yarn remove crypto-js",
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "crypto-js": "^4.0.0",
-    "dgtek-map": "^1.7.0",
+    "dgtek-map": "^1.7.4",
     "dgtek-styles": "^0.0.8",
     "garevna-date-functions": "^1.1.5",
     "vue": "2.6.11",

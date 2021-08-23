@@ -28,10 +28,12 @@ export function createMapWorker () {
       window[Symbol.for('vue.instance')].$root.$emit('progress-event', false)
       window[Symbol.for('vue.instance')].$root.$emit(eventName, event.data)
     } else {
-      console.log(event.data)
-      if (!mapWorkerErrors[action]) return
-      const { type: errorType, message: errorMessage } = mapWorkerErrors[action]()
+      if (!mapWorkerErrors[action]) return console.log(event.data)
+
+      const { warning = false, type: errorType, message: errorMessage } = mapWorkerErrors[action](event.data)
+
       window[Symbol.for('vue.instance')].$root.$emit('open-error-popup', {
+        warning,
         errorType,
         errorMessage
       })

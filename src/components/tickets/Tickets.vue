@@ -36,12 +36,17 @@
             class="transparent"
             @click:row="editItem"
             width="700"
+            @pagination="pagination"
+            :options="{
+              page: tablePage,
+              itemsPerPage: rowsPerPage
+            }"
           >
             <template v-slot:top>
               <v-row>
                 <v-select
                   :items="customersList"
-                  label="Address"
+                  label="Customer address"
                   v-model="customer"
                   item-text="address"
                   item-value="customerId"
@@ -128,18 +133,17 @@ export default {
     categories: null,
     customersList: [],
     customer: null,
+    tablePage: 1,
+    tablePages: null,
+    rowsPerPage: 8,
     headers: [
-      {
-        text: 'Subject',
-        align: 'start',
-        value: 'subject'
-      },
+      { text: 'Ticket number', value: 'number' },
+      { text: 'Subject', align: 'start', value: 'subject' },
       { text: 'Date (created)', value: 'created' },
       { text: 'Date (modified)', value: 'modified' },
       { text: 'Category', value: 'category' },
       { text: 'Priority', value: 'priority' },
-      { text: 'Severity', value: 'severity' },
-      { text: 'Status', value: 'status' }
+      { text: 'Severity', value: 'severity' }
       // { text: 'Actions', value: 'actions', sortable: false }
     ],
     severities: ['High', 'Medium', 'Low'],
@@ -147,6 +151,7 @@ export default {
     priorities: ['High', 'Medium', 'Low'],
     priority: null
   }),
+
   computed: {
     filteredItems () {
       const filter = this.categories[this.category]
@@ -157,6 +162,7 @@ export default {
         .filter(ticket => !this.priority || (ticket.priority === this.priority))
     }
   },
+
   methods: {
     getCategories (data) {
       this.categories = data
@@ -177,10 +183,10 @@ export default {
     },
 
     createNewTicket () {
-      const { ticketSchema } = require('@/configs/ticketSchema')
+      const { ticketSchema } = JSON.parse(JSON.stringify(require('@/configs/ticketSchema')))
       this.selectedTicket = ticketSchema
-      this.edit = true
       this.newTicket = true
+      this.edit = true
     },
 
     editItem (item) {
@@ -191,6 +197,20 @@ export default {
 
     getCustomersList (data) {
       this.customersList = data
+    },
+
+    showNewTicketDetails (data) {
+      this.items.push(data)
+      this.goToEnd()
+    },
+
+    pagination (options) {
+      this.tablePage = options.page
+      this.tablePages = options.pageCount
+    },
+
+    goToEnd () {
+      this.tablePage = this.tablePages
     }
   },
 
@@ -205,6 +225,8 @@ export default {
     this.$root.$on('categories-received', this.getCategories)
     this.$root.$on('tickets-list-received', this.getTickets)
 
+    this.$root.$on('ticket-created', this.showNewTicketDetails)
+
     this.$root.$on('customers-filtered-short-list-received', this.getCustomersList)
 
     this.__getCategories()
@@ -215,6 +237,10 @@ export default {
 </script>
 
 <style scoped>
+
+.v-data-table > .v-data-table__wrapper > table > tbody > tr > td {
+  font-size: 13px !important;
+}
 
 .v-select.v-text-field:not(.v-text-field--single-line) input,
 .v-label {

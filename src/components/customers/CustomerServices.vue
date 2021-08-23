@@ -6,72 +6,73 @@
         <h5><small>{{ address }}</small></h5>
       </v-row>
 
-      <v-simple-table class="my-7">
-        <template v-slot:default>
-          <thead>
-            <tr>
-              <th></th>
-              <th class="text-left">
-                Service name
-              </th>
-              <th class="text-center">
-                Service status
-              </th>
-              <th class="text-center">
-                Status modified
-              </th>
-              <th class="text-center">
-                Selected lots
-              </th>
-              <th class="text-center">
-                Installation date
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="item of schema"
-              :key="item.serviceId"
-            >
-              <td>
-                <v-btn icon @click="disconnect(item)">
-                  <v-icon color="primary">mdi-delete</v-icon>
-                </v-btn>
-              </td>
-              <td>{{ item.serviceName }}</td>
+      <table width="100%">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="text-left" width="360">
+              <small>Service name</small>
+            </th>
+            <th class="text-center" width="80">
+              <small>Service status</small>
+            </th>
+            <th class="text-center" width="240">
+              <small>Status modified</small>
+            </th>
+            <th class="text-center" width="360">
+              <small>Selected lots</small>
+            </th>
+            <th class="text-center" width="240">
+              <small>Installation date</small>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item of schema" :key="item.serviceId">
+            <td>
+              <v-btn icon @click="disconnect(item)">
+                <v-icon small color="primary">mdi-delete</v-icon>
+              </v-btn>
+            </td>
+            <td style="text-align: left">
+              <small>{{ item.serviceName }}</small>
+            </td>
 
-              <td width="140">
-                <v-btn
-                  text
-                  small
-                  color="primary"
-                  @click="changeStatus(item)"
-                  :disabled="disable(item)"
-                >
-                  {{ item.serviceStatus }}
-                </v-btn>
-              </td>
+            <td>
+              <v-btn
+                text
+                small
+                color="primary"
+                @click="changeStatus(item)"
+                :disabled="disable(item)"
+              >
+                {{ item.serviceStatus }}
+              </v-btn>
+            </td>
 
-              <td width="140">{{ item.serviceStatusModified }}</td>
-              <td width="220">
-                <li v-if="item.lots && item.lots.length === 2">
-                  {{ item.lots[0].date }} <small>({{ item.lots[0].period.toUpperCase() }})</small>
-                </li>
-                <li v-if="item.lots && item.lots.length === 2">
-                  {{ item.lots[1].date }} <small>({{ item.lots[1].period.toUpperCase() }})</small>
-                </li>
-              </td>
-              <td width="160">
-                <p v-if="item.installation && item.installation.date">
-                  <small style="color: #900"><b>{{ item.installation.date }}({{ item.installation.period.toUpperCase() }})</b></small>
-                </p>
-              </td>
-            </tr>
-          </tbody>
-        </template>
-      </v-simple-table>
+            <td>
+              <small>
+                {{ item.serviceStatusModified }}
+              </small>
+            </td>
+            <td>
+              <li v-if="item.lots && item.lots.length === 2">
+                <small>{{ item.lots[0].date }} <small>({{ item.lots[0].period.toUpperCase() }})</small></small>
+              </li>
+              <li v-if="item.lots && item.lots.length === 2">
+                <small>{{ item.lots[1].date }} <small>({{ item.lots[1].period.toUpperCase() }})</small></small>
+              </li>
+            </td>
+            <td>
+              <p v-if="item.installation && item.installation.date">
+                <small style="color: #900"><b>{{ item.installation.date }}({{ item.installation.period.toUpperCase() }})</b></small>
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      <v-row class="mt-12 mb-4" v-if="!showSelect && !createTicket">
+      <v-row v-if="!showSelect && !createTicket" class="mt-12 mb-4">
         <v-btn outlined color="buttons" class="mr-2" @click="selectService">
           Assign new service
         </v-btn>
@@ -84,17 +85,8 @@
 
     <Services v-else :opened.sync="showServices" />
 
-    <!-- <ServiceDeliveryUpdate
-      v-if="dialog"
-      :dialog.sync="dialog"
-      :serviceData.sync="selected"
-      :address="address"
-      :customerId="customerId"
-    /> -->
-
-    <v-row class="mt-12 mb-4">
+    <v-row v-if="showSelect" class="mt-12 mb-4">
       <LotSelection
-        v-if="showSelect"
         :dialog.sync="showSelect"
         :serviceData.sync="selected"
         :address="address"
@@ -102,9 +94,8 @@
       />
     </v-row>
 
-    <v-row class="mt-12 mb-4">
+    <v-row v-if="createTicket" class="mt-12 mb-4">
       <TicketDetails
-        v-if="createTicket"
         :edit.sync="createTicket"
         :ticket="ticket"
         :categories.sync="categories"
@@ -115,6 +106,13 @@
     </v-row>
 
     <ConfirmActivationRequest />
+
+    <!-- <v-row v-if="" justify="center">
+      <CustomerDetails
+        :dialog.sync="edit"
+        :customerId.sync="selectedCustomerId"
+      />
+    </v-row> -->
   </v-container>
 </template>
 
@@ -135,7 +133,6 @@ export default {
 
   components: {
     Services,
-    // ServiceDeliveryUpdate: () => import(/* webpackChunkName: 'service-delivery-update' */ '@/components/customers/ServiceDeliveryUpdate.vue'),
     TicketDetails: () => import(/* webpackChunkName: 'ticket-details' */ '@/components/tickets/TicketDetails.vue'),
     ConfirmActivationRequest: () => import(/* webpackChunkName: 'terms-and-conditions' */ '@/components/popups/ConfirmActivationRequest.vue'),
     LotSelection: () => import(/* webpackChunkName: 'lot-selection' */ '@/components/schedule/LotSelection.vue')
@@ -144,11 +141,9 @@ export default {
   props: ['services', 'address', 'update', 'customerId'],
 
   data: () => ({
-    customerServices: [],
     schema: [],
     details: {},
     showServices: false,
-    // dialog: false,
     showSelect: false,
     selected: null,
     submit: false,
@@ -158,6 +153,17 @@ export default {
     categories: []
   }),
 
+  computed: {
+    customerServices: {
+      get () {
+        return this.services
+      },
+      set (data) {
+        this.$emit('update:services', data)
+      }
+    }
+  },
+
   watch: {
     selected: {
       deep: true,
@@ -166,37 +172,30 @@ export default {
         this.schema.splice(index, 1, Object.assign({}, this.schema[index], {
           serviceStatus: service.serviceStatus,
           serviceStatusModified: service.serviceStatusModified,
-          lots: service.lots,
-          installation: service.installation
+          lots: service.lots || [],
+          installation: service.installation || {}
         }))
         Object.assign(this.customerServices[index], {
           status: service.serviceStatus,
           modified: service.serviceStatusModified,
-          lots: service.lots,
-          installation: service.installation
+          lots: service.lots || [],
+          installation: service.installation || {}
         })
         this.showSubmitButton = service.serviceStatus !== 'Awaiting for connection'
         this.createTicket = service.serviceStatus === 'Awaiting for connection'
       }
     },
+
     showServices (newVal, oldVal) {
       if (oldVal && !newVal) {
         if (!serviceHandler()) return
         this.assignNewService()
       }
     },
+
     createTicket (newVal, oldVal) {
       if (!oldVal && newVal) {
-        const { ticketSchema } = require('@/configs/ticketSchema')
-        this.ticket = Object.assign({}, ticketSchema, {
-          created: Date.now(),
-          modified: Date.now(),
-          category: 'Customer issue',
-          subject: 'Awaiting for connection',
-          customerId: this.customerId,
-          details: '***',
-          status: 'Active'
-        })
+        this.makeTicket('Awaiting for connection')
         this.newTicket = true
       }
     }
@@ -204,9 +203,25 @@ export default {
 
   methods: {
     showError: showError,
+
+    getDateString (ms) {
+      return (new Date(ms || Date.now())).toISOString().slice(0, 10)
+    },
+
+    makeTicket (subject) {
+      this.ticket = Object.assign({}, require('@/configs/ticketSchema'), {
+        created: Date.now(),
+        modified: Date.now(),
+        category: 'Customer issue',
+        subject,
+        customerId: this.customerId,
+        details: '...',
+        status: 'Active'
+      })
+    },
+
     disable (item) {
       const available = ['Awaiting for scheduling', 'Not connected', 'Awaiting for connection']
-      // return item.modified || !(item.serviceStatus === 'Awaiting for scheduling' || item.serviceStatus === 'Not connected' || item.serviceStatus === 'Awaiting for connection')
       return this.createTicket || item.modified || !available.includes(item.serviceStatus)
     },
 
@@ -227,13 +242,7 @@ export default {
     },
 
     assignNewService () {
-      const {
-        serviceId,
-        serviceName,
-        serviceSpeed,
-        servicePlan,
-        serviceTerm
-      } = serviceHandler()
+      const { serviceId, serviceName, serviceSpeed, servicePlan, serviceTerm } = serviceHandler()
 
       if (this.services.find(service => service.id === serviceId)) return this.showError()
 
@@ -271,7 +280,15 @@ export default {
     },
 
     disconnect (service) {
-      console.log('disconnect', service)
+      console.log('disconnect\n', service)
+      console.log('customerServices:\n', this.customerServices)
+      if (service.serviceStatus === 'Not connected') {
+        const index = this.customerServices.findIndex(item => item.id === service.serviceId)
+        this.customerServices.splice(index, 1)
+        return
+      }
+      this.makeTicket('Disconnect service')
+      this.newTicket = true
     },
 
     changeStatus (item) {
@@ -285,9 +302,17 @@ export default {
       if (item.serviceStatus === 'Not connected') this.$root.$emit('open-terms-and-conditions')
     },
 
-    sendActivationRequest (data) {
-      // this.dialog = true
-      this.__sendServiceActivationRequest(this.customerId, this.serviceData.serviceId)
+    sendActivationRequest () {
+      this.__sendServiceActivationRequest(this.customerId, this.selected.serviceId)
+    },
+
+    showActivationSuccess (data) {
+      data.forEach((service, index) => {
+        this.schema[index].serviceStatus = service.status
+        this.schema[index].serviceStatusModified = new Date(service.modified).toISOString().slice(0, 10)
+      })
+      this.customerServices = JSON.parse(JSON.stringify(data))
+      this.$emit('update:services', this.customerServices)
     },
 
     updateCustomerServices () {
@@ -298,30 +323,32 @@ export default {
   },
 
   beforeDestroy () {
+    this.$root.$off('service-activation-request-sent', this.showActivationSuccess)
     this.$root.$off('service-details-received', this.getServiceDetails)
     this.$root.$off('customer-created', this.close)
     this.$root.$off('operation-confirmed', this.sendActivationRequest)
   },
 
   mounted () {
-    this.customerServices = this.services.map(item => ({
-      id: item.id,
-      status: item.status,
-      modified: item.modified,
-      log: item.log,
-      lots: item.lots,
-      installation: item.installation
-    }))
+    this.customerServices = Array.isArray(this.services)
+      ? this.services.map(item => ({
+        id: item.id,
+        status: item.status,
+        modified: item.modified,
+        log: item.log,
+        lots: item.lots,
+        installation: item.installation
+      })) : []
 
     this.$emit('update:services', this.customerServices)
 
     this.$root.$on('service-details-received', this.getServiceDetails)
     this.$root.$on('service-selected', this.assignNewService)
     this.$root.$on('operation-confirmed', this.sendActivationRequest)
+    this.$root.$on('service-activation-request-sent', this.showActivationSuccess)
+
     for (const service of this.services) {
-      if (service.name) {
-        delete service.name
-      }
+      if (service.name) delete service.name
       this.__getServiceById(service.id)
     }
 

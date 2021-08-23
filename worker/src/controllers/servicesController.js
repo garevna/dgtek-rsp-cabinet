@@ -18,6 +18,14 @@ class ServicesController {
   async getSLAContent (request) {
     self.postMessage(await self.controller.getSLAContent(request.key))
   }
+
+  async getActiveConnections (request) {
+    self.postMessage(await self.controller.getServiceActiveConnections(request.key))
+  }
+
+  async getPendingConnections (request) {
+    self.postMessage(await self.controller.getServicePendingConnections(request.key))
+  }
 }
 
 export const servicesController = new ServicesController()

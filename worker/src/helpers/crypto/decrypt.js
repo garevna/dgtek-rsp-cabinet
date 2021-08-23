@@ -1,8 +1,6 @@
 import { secretHandler } from '../env'
 import { emptyData, secretError, decryptError } from '../../configs'
 
-const crypto = require('crypto-js')
-
 export const decrypt = (ciphertext) => {
   const action = 'decrypt'
   if (!ciphertext) return { status: 422, action, result: emptyData }
@@ -11,8 +9,8 @@ export const decrypt = (ciphertext) => {
 
   if (!secret) return { status: 500, action, result: secretError }
 
-  const bytes = crypto.AES.decrypt(ciphertext, secret)
-  const text = bytes.toString(crypto.enc.Utf8)
+  const bytes = require('crypto-js/aes').decrypt(ciphertext, secret)
+  const text = bytes.toString(require('crypto-js').enc.Utf8)
 
   const result = text.match(/[[]{}]+/g) ? JSON.parse(text) : text
 

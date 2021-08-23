@@ -1,79 +1,77 @@
 <template>
-  <v-card flat class="transparent">
-    <v-row justify="center" align="start">
-      <v-col cols="12" md="6" lg="4" xl="3">
-        <Info :dashboard="true" />
-      </v-col>
-      <v-col cols="12" md="6" lg="4" xl="3">
-        <Fieldset legend="Customers awaiting connection">
-          <v-simple-table dense fixed-header height="240px">
-            <template v-slot:default>
-              <tbody>
-                <tr v-for="customer in awaitingCustomers" :key="customer">
-                  <td>{{ customer }}</td>
-                </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
-        </Fieldset>
-      </v-col>
+  <v-container>
+    <v-card v-if="!showCustomer" flat class="transparent">
+      <v-row justify="center" align="start" style="height: max-content !important">
+        <v-col cols="12" md="6" lg="6" xl="4">
+          <Info :dashboard="true" />
+        </v-col>
+        <v-col cols="12" md="6" lg="4" xl="3">
+          <Fieldset legend="Messages from DGtek">
+            <Messages />
+          </Fieldset>
+        </v-col>
+      </v-row>
+
+      <v-divider class="my-4" />
+
+      <v-row justify="center" align="start">
+        <v-col cols="12" md="10" lg="8" xl="6">
+          <Fieldset legend="Customers awaiting connection">
+            <v-simple-table dense fixed-header height="240px">
+              <template v-slot:default>
+                <tbody>
+                  <tr v-for="customer in customers" :key="customer.customerId">
+                    <td @click="showCustomerDetails(customer.customerId)">
+                      {{ customer.uniqueCode }}
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </Fieldset>
+        </v-col>
+      </v-row>
+
+      <v-row justify="center" align="start">
+        <v-col cols="12" md="10" lg="8" xl="6">
+          <Fieldset legend="DGtek promotions">
+            <v-card flat class="transparent" height="140">
+              ...
+            </v-card>
+          </Fieldset>
+        </v-col>
+      </v-row>
+    </v-card>
+
+    <v-row v-else justify="center">
+      <CustomerDetails
+        :dialog.sync="showCustomer"
+        :customerId.sync="selectedCustomerId"
+      />
     </v-row>
-    <v-row justify="center" align="start">
-      <v-col cols="12" md="10" lg="8" xl="6">
-        <Fieldset legend="Message from DGtek" style="margin-top: -60px!important">
-          <v-card flat class="transparent" height="240" v-if="messages" style="overflow-y: auto">
-            <div v-for="message of messages" :key="message._id">
-              <p><sup><small>{{ new Date(message.modified).toISOString().slice(0, 10) }}</small></sup></p>
-              <h5>
-                <small>
-                  <sup>
-                    <v-icon>mdi-alert-box</v-icon>
-                    {{ message.subject }}
-                  </sup>
-                </small>
-              </h5>
-              <p>
-                <small v-html="message.content.split('\n').join('<br>')"></small>
-              </p>
-              <v-divider class="my-4" />
-            </div>
-          </v-card>
-        </Fieldset>
-      </v-col>
-    </v-row>
-    <v-row justify="center" align="start">
-      <v-col cols="12" md="10" lg="8" xl="6">
-        <Fieldset legend="DGtek promotions" style="margin-top: -60px!important">
-          <v-card flat class="transparent" height="140">
-            ...
-          </v-card>
-        </Fieldset>
-      </v-col>
-    </v-row>
-    <v-row justify="center">
-    </v-row>
-    <v-row justify="center">
-    </v-row>
-  </v-card>
+  </v-container>
 </template>
 
 <script>
 
 import Fieldset from '@/components/Fieldset.vue'
 
-import { messagesHandler } from '@/helpers/data-handlers'
-
 export default {
   name: 'Dashboard',
 
   components: {
     Fieldset,
-    Info: () => import('@/components/dashboard/Info.vue')
+    Info: () => import('@/components/dashboard/Info.vue'),
+    CustomerDetails: () => import('@/components/customers/CustomerDetails.vue'),
+    Messages: () => import('@/components/dashboard/Messages.vue')
   },
 
   data: () => ({
     ready: false,
+    showCustomer: false,
     customers: [],
+    selectedCustomerId: null,
+
     activeCustomersNumber: '',
     currentMonthlyCharge: '',
     monthlyChargeIncludingPendingConnections: '',
@@ -82,34 +80,24 @@ export default {
     messages: null
   }),
 
-  computed: {
-    awaitingCustomers () {
-      return !this.customers ? [] : this.customers
-        .filter(customer => customer.status === 'Awaiting for connection')
-        .map(customer => customer.uniqueCode)
-        // .map(customer => `${customer.apartmentNumber}/${customer.address}`)
-    }
-  },
-
   methods: {
     getCustomers (data) {
       this.customers = data
     },
-    getMessages (data) {
-      this.messages = messagesHandler()
+
+    showCustomerDetails (customerId) {
+      this.selectedCustomerId = customerId
+      this.showCustomer = true
     }
   },
 
   beforeDestroy () {
-    this.$root.$off('customers-list-received', this.getCustomers)
-    this.$root.$off('messages-from-dgtek-refreshed', this.getMessages)
+    this.$root.$off('awaiting-for-connection-customers-received', this.getCustomers)
   },
 
   beforeMount () {
-    this.$root.$on('customers-list-received', this.getCustomers)
-    this.$root.$on('messages-from-dgtek-refreshed', this.getMessages)
-    this.__getCustomers()
-    this.messages = messagesHandler()
+    this.$root.$on('awaiting-for-connection-customers-received', this.getCustomers)
+    this.__getAwaitingForConnectionCustomers()
   }
 }
 </script>

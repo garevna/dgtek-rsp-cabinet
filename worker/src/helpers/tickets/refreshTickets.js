@@ -1,27 +1,50 @@
-import { get } from '../AJAX'
+import { get, patch } from '../AJAX'
 import { clearStore, putRecordByKey } from '../db'
-// import { getDateNumber } from './'
 
-const { refreshTicketsListError, getTicketDataError } = require('../error-handlers').default
+import { getTicketNumber } from './getTicketNumber'
+import { getShortTicketInfo } from './getShortTicketInfo'
+
+const { refreshTicketsListError, putTicketToLocalDBError } = require('../error-handlers').default
+
+const [route, action] = ['tickets', 'refresh']
 
 export const refreshTickets = async function () {
-  const [route, action] = ['tickets', 'refresh']
+  let currentPage = 1
+  const perPage = 30
 
-  const { status, result } = await get('ticket')
+  let categories = false
 
-  if (status !== 200) return refreshTicketsListError(status)
-
-  const { ticketCategories, tickets } = result
+  const shortList = []
 
   await clearStore('tickets')
 
-  const { status: categoryStatus } = await putRecordByKey('categories', 'ticketsCategories', ticketCategories)
+  do {
+    var { status, result } = await get(`ticket?page=${currentPage++}&per_page=${perPage}`)
 
-  if (categoryStatus !== 200) return refreshTicketsListError(categoryStatus)
+    var { ticketCategories, tickets, page, pages } = result
 
-  const promises = tickets.map(record => putRecordByKey('tickets', record._id, record).catch(() => self.postMessage(getTicketDataError(500))))
+    if (status !== 200) return refreshTicketsListError(status)
 
-  const response = (await Promise.all(promises)).map(item => item.result)
+    if (!categories) {
+      const { status } = await putRecordByKey('categories', 'ticketsCategories', ticketCategories)
+      if (status !== 200) self.postMessage(refreshTicketsListError(status))
+      else categories = true
+    }
 
-  return { status, route, action, result: response }
+    shortList.concat(tickets.map(ticket => getShortTicketInfo(ticket)))
+
+    for (const ticket of tickets) {
+      const number = getTicketNumber(ticket)
+      ticket.number !== number && await patch(`ticket/${ticket._id}`, { number })
+      Object.assign(ticket, { number })
+    }
+
+    const promises = tickets.map(record => putRecordByKey('tickets', record._id, record))
+    const response = await Promise.all(promises)
+    if (response.filter(item => item.status !== 200).length) self.postMessage(putTicketToLocalDBError())
+  } while (page < pages)
+
+  shortList.sort((a, b) => a.created - b.created)
+
+  return { status, route, action, result: shortList }
 }

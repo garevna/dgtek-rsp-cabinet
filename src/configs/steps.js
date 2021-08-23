@@ -1,7 +1,7 @@
 export const stepsNames = [
   'Dashboard',
   'Edit company details',
-  'Check the address',
+  'Check address',
   'Customers list',
   'Services',
   'Tickets',

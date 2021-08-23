@@ -11,7 +11,7 @@
         <h6 class="text-right">{{ item.title }}</h6>
       </v-col>
 
-      <v-col cols="12" sm="8">
+      <v-col cols="11" md="7">
         <v-text-field
           v-if="textField(item)"
           v-model="item.value"
@@ -65,6 +65,12 @@
           dense
         />
       </v-col>
+
+      <v-col cols="1">
+        <v-icon v-if="checkFields.includes(propName)" large color="primary">
+          mdi-alert-outline
+        </v-icon>
+      </v-col>
     </v-row>
   </v-card>
 </template>
@@ -73,6 +79,7 @@
 
 import { testTextField } from '@/helpers'
 import { rules } from '@/configs'
+import { messagesHandler } from '@/helpers/data-handlers'
 
 export default {
   name: 'CompanyDetailsStep',
@@ -86,6 +93,7 @@ export default {
 
   data: () => ({
     ready: false,
+    checkFields: [],
     schema: {},
     showPassword: false,
     rules,
@@ -106,6 +114,9 @@ export default {
   },
 
   methods: {
+    markField (propName) {
+      return this.checkFields.includes(propName)
+    },
     appendIcon (item) {
       return item.type !== 'password' ? '' : this.showPassword ? 'mdi-eye' : 'mdi-eye-off'
     },
@@ -132,6 +143,13 @@ export default {
     required (item) {
       return item.required ? this.rules.required : value => true
     }
+  },
+
+  mounted () {
+    this.checkFields = messagesHandler().filter(message => message.type === 'update-company-details')
+      .flatMap(message => message.fields)
+      .filter(field => field.section === this.step)
+      .map(item => item.field)
   }
 }
 </script>

@@ -1,80 +1,97 @@
 <template>
-  <v-card flat class="transparent pb-12 px-12 mx-auto" max-width="1440" v-if="ready">
-    <v-card v-if="!showServiceDetails" flat class="transparent">
-      <v-card-title v-if="showSelect">
-        <p v-if="!selected[0]" class="primary--text">
-          <b>Select the service which should be assigned to the customer</b>
-        </p>
-        <p v-if="selected[0]" style="margin-bottom: 0 !important">
-          <b>{{ selected[0].serviceName }}</b>
-        </p>
-        <v-btn
-          v-if="selected[0]"
-          outlined
-          color="primary"
-          class="ml-4"
-          @click="$emit('update:opened', false)"
-        >
-          <!-- <v-icon class="mr-4">mdi-arrow-left-bold-circle</v-icon> -->
-          Assign the service
-        </v-btn>
-      </v-card-title>
+  <v-container>
+    <v-row v-if="!openCustomerDetails">
+      <v-card flat class="transparent pb-12 px-12 mx-auto" max-width="1440" v-if="ready">
+        <v-card v-if="!showServiceDetails" flat class="transparent">
+          <v-card-title v-if="showSelect">
+            <p v-if="!selected[0]" class="primary--text">
+              <b>Select the service which should be assigned to the customer</b>
+            </p>
+            <p v-if="selected[0]" style="margin-bottom: 0 !important">
+              <b>{{ selected[0].serviceName }}</b>
+            </p>
+            <v-btn
+              v-if="selected[0]"
+              outlined
+              color="primary"
+              class="ml-4"
+              @click="$emit('update:opened', false)"
+            >
+              <!-- <v-icon class="mr-4">mdi-arrow-left-bold-circle</v-icon> -->
+              Assign the service
+            </v-btn>
+          </v-card-title>
 
-      <v-card-title>
-        <SelectorsForServices
-          :type.sync="serviceType"
-          :speed.sync="serviceSpeed"
-          :contractTerm.sync="contractTerm"
-          :plan.sync="servicePlan"
-          :plans="plans"
-          :contractTerms="contractTerms"
-          :search.sync="search"
+          <v-card-title>
+            <SelectorsForServices
+              :type.sync="serviceType"
+              :speed.sync="serviceSpeed"
+              :contractTerm.sync="contractTerm"
+              :plan.sync="servicePlan"
+              :plans="plans"
+              :contractTerms="contractTerms"
+              :search.sync="search"
+            />
+          </v-card-title>
+
+          <v-data-table
+            :headers="headers"
+            :items="filteredItems"
+            :search="search"
+            single-select
+            single-expand
+            :expanded.sync="expanded"
+            show-expand
+            item-key="serviceName"
+            :show-select="showSelect"
+            v-model="selected"
+            @click:row="openServiceDetails"
+          >
+            <template v-slot:item.active="{ item }">
+              <v-chip color="#777" outlined v-if="item.active" @click.stop="getActiveConnections(item)">
+                {{ item.active }}
+              </v-chip>
+            </template>
+
+            <template v-slot:item.pending="{ item }">
+              <v-chip color="primary" outlined v-if="item.pending" @click.stop="getPendingConnections(item)">
+                {{ item.pending }}
+              </v-chip>
+            </template>
+
+            <template v-slot:expanded-item="{ headers, item }">
+              <td :colspan="headers.length" v-if="item.promo" class="pa-4">
+                <h5>PROMO</h5>
+                <p><small>
+                  {{ item.promo }}
+                </small></p>
+              </td>
+            </template>
+          </v-data-table>
+        </v-card>
+
+        <v-card v-else flat class="transparent">
+          <ServiceDetails
+            :serviceDetails="serviceDetails"
+            :opened.sync="showServiceDetails"
+          />
+        </v-card>
+
+        <ServiceConnectionInfo
+          :openCustomerDetails.sync="openCustomerDetails"
+          :customerId.sync="customerId"
         />
-      </v-card-title>
+      </v-card>
+    </v-row>
 
-      <v-data-table
-        :headers="headers"
-        :items="filteredItems"
-        :search="search"
-        single-select
-        single-expand
-        :expanded.sync="expanded"
-        show-expand
-        item-key="serviceName"
-        :show-select="showSelect"
-        v-model="selected"
-        @click:row="openServiceDetails"
-      >
-        <template v-slot:item.active="{ item }">
-          <v-chip color="#777" outlined v-if="item.active">
-            {{ item.active }}
-          </v-chip>
-        </template>
-
-        <template v-slot:item.pending="{ item }">
-          <v-chip color="primary" outlined v-if="item.pending">
-            {{ item.pending }}
-          </v-chip>
-        </template>
-
-        <template v-slot:expanded-item="{ headers, item }">
-          <td :colspan="headers.length" v-if="item.promo" class="pa-4">
-            <h5>PROMO</h5>
-            <p><small>
-              {{ item.promo }}
-            </small></p>
-          </td>
-        </template>
-      </v-data-table>
-    </v-card>
-
-    <v-card v-else flat class="transparent">
-      <ServiceDetails
-        :serviceDetails="serviceDetails"
-        :opened.sync="showServiceDetails"
+    <v-row v-else>
+      <CustomerDetails
+        v-if="openCustomerDetails"
+        :dialog.sync="openCustomerDetails"
+        :customerId="customerId"
       />
-    </v-card>
-  </v-card>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -86,7 +103,9 @@ export default {
 
   components: {
     ServiceDetails: () => import('@/components/services/ServiceDetails.vue'),
-    SelectorsForServices: () => import('@/components/services/SelectorsForServices.vue')
+    SelectorsForServices: () => import('@/components/services/SelectorsForServices.vue'),
+    ServiceConnectionInfo: () => import('@/components/popups/ServiceConnectionInfo.vue'),
+    CustomerDetails: () => import('@/components/customers/CustomerDetails.vue')
   },
 
   props: ['opened'],
@@ -94,6 +113,9 @@ export default {
   data: () => ({
     ready: false,
     items: null,
+
+    serviceName: '',
+
     serviceSpeed: '',
     serviceType: '',
     servicePlan: '',
@@ -120,7 +142,10 @@ export default {
       // { text: 'PROMO', value: 'promo' }
     ],
     showServiceDetails: false,
-    serviceDetails: null
+    serviceDetails: null,
+
+    customerId: null,
+    openCustomerDetails: false
   }),
 
   computed: {
@@ -162,6 +187,32 @@ export default {
   },
 
   methods: {
+    getActiveConnections (service) {
+      this.serviceName = service.serviceName
+      this.__getServiceActiveConnections(service._id)
+    },
+
+    getPendingConnections (service) {
+      this.serviceName = service.serviceName
+      this.__getServicePendingConnections(service._id)
+    },
+
+    showPendingConnections (data) {
+      this.$root.$emit('open-connection-popup', {
+        serviceName: this.serviceName,
+        connections: data,
+        type: 'pending'
+      })
+    },
+
+    showActiveConnections (data) {
+      this.$root.$emit('open-connection-popup', {
+        serviceName: this.serviceName,
+        connections: data,
+        type: 'active'
+      })
+    },
+
     speedToString (item) {
       return `${item.downstreamSpeed}/${item.upstreamSpeed}`
     },
@@ -188,11 +239,19 @@ export default {
 
   beforeDestroy () {
     this.$root.$off('services-list-received', this.getData)
+
+    this.$root.$off('service-pending-connections-received', this.showPendingConnections)
+    this.$root.$off('service-active-connections-received', this.showActiveConnections)
+
     showServiceSelectHandler('reset')
   },
 
   mounted () {
     this.$root.$on('services-list-received', this.getData)
+
+    this.$root.$on('service-pending-connections-received', this.showPendingConnections)
+    this.$root.$on('service-active-connections-received', this.showActiveConnections)
+
     this.__getServices()
     this.$vuetify.goTo(0)
   }

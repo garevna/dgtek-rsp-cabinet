@@ -5,6 +5,7 @@ import vuetify from './plugins/vuetify'
 import ErrorMessage from '@/components/popups/error.vue'
 import Message from '@/components/popups/message.vue'
 import Confirmation from '@/components/popups/Confirmation.vue'
+// import ServiceConnectionInfo from '@/components/popups/ServiceConnectionInfo.vue'
 
 import { credentials } from '@/controllers/actions'
 
@@ -29,11 +30,25 @@ Object.assign(Vue.prototype, {
   getWeekDatesByWeekNumber
 })
 
+/* eslint-disable no-extend-native */
+
+String.prototype.toKebab = function () {
+  return this.split(' ').join('-').split('')
+    .map((char, index) => char.charCodeAt(0) < 91 && char.charCodeAt(0) > 64 ? `${index ? '-' : ''}${char.toLowerCase()}` : char)
+    .join('').split('--').join('-')
+}
+
+String.prototype.fromKebab = function () {
+  const string = this.split('-').join(' ')
+  return `${string[0].toUpperCase()}${string.slice(1)}`
+}
+
 Vue.config.productionTip = false
 
 Vue.component('error-message', ErrorMessage)
 Vue.component('simple-message', Message)
 Vue.component('confirmation-popup', Confirmation)
+// Vue.component('service-connections-popup', ServiceConnectionInfo)
 
 const instance = new Vue({
   vuetify,

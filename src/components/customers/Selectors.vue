@@ -4,6 +4,17 @@
       <tbody>
         <tr>
           <td>
+            <v-text-field
+              v-model="localSearch"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              dense
+              outlined
+              style="display: inline-block; width: 280px"
+            ></v-text-field>
+          </td>
+          <td>
             <v-select
               :items="statuses"
               v-model="localStatus"
@@ -13,7 +24,7 @@
               dense
               color="primary"
               class="selector-content"
-              style="width: 270px"
+              style="width: 200px"
               :menu-props="{ maxHeight: 360 }"
             ></v-select>
           </td>
@@ -27,7 +38,7 @@
               dense
               color="primary"
               class="selector-content"
-              style="width: 180px"
+              style="width: 140px"
               bottom
               :offset-y="true"
             ></v-select>
@@ -42,7 +53,7 @@
               dense
               color="primary"
               class="selector-content"
-              style="width: 120px"
+              style="width: 100px"
               bottom
               :offset-y="true"
             ></v-select>
@@ -66,6 +77,10 @@
       </tbody>
     </table>
     <v-spacer />
+    <v-btn text @click="gotoCheckAddressPage" class="mr-12 mb-5">
+      <v-icon>mdi-plus</v-icon>
+      Add new customer
+    </v-btn>
     <v-btn text @click="refreshCustomersList" class="mr-12 mb-5">
       <v-icon>mdi-refresh</v-icon>
       Refresh
@@ -78,7 +93,7 @@
 export default {
   name: 'Selectors',
 
-  props: ['status', 'speed', 'plan', 'postCode', 'postalCodes', 'plans', 'refresh'],
+  props: ['status', 'speed', 'plan', 'postCode', 'postalCodes', 'plans', 'refresh', 'search'],
 
   data: () => ({
     statuses: [
@@ -95,6 +110,15 @@ export default {
   }),
 
   computed: {
+    localSearch: {
+      get () {
+        return this.search
+      },
+      set (value) {
+        this.$emit('update:search', value)
+      }
+    },
+
     localStatus: {
       get () {
         return this.status
@@ -103,6 +127,7 @@ export default {
         this.$emit('update:status', value)
       }
     },
+
     localSpeed: {
       get () {
         return this.speed
@@ -111,6 +136,7 @@ export default {
         this.$emit('update:speed', value)
       }
     },
+
     localPlan: {
       get () {
         return this.plan
@@ -119,6 +145,7 @@ export default {
         this.$emit('update:plan', value)
       }
     },
+
     localPostCode: {
       get () {
         return this.postCode
@@ -133,6 +160,10 @@ export default {
     refreshCustomersList () {
       this.$emit('update:refresh', true)
       this.__refreshCustomers()
+    },
+
+    gotoCheckAddressPage () {
+      this.$root.$emit('go-to-check-address')
     }
   }
 }

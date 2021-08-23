@@ -11,7 +11,7 @@ Vue.use(configPlugin)
 
 if (window.performance) console.info('window.performance OK')
 
-const sourceOrigin = process.env.NODE_ENV === 'production' ? 'https://portal.dgtek.net' : 'http://192.168.0.101:8081/'
+const sourceOrigin = process.env.NODE_ENV === 'production' ? 'https://portal.dgtek.net' : 'http://192.168.0.100:8081/'
 
 window.opener.postMessage('ready', sourceOrigin)
 

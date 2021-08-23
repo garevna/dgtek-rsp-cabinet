@@ -1,8 +1,11 @@
 import { customerHandler } from './customerHandler'
-import { buildingHandler } from './buildingHandler'
+
+import { buildingIdHandler } from './buildingIdHandler'
+import { buildingDetailsHandler } from './buildingDetailsHandler'
+
 import { serviceHandler } from './serviceHandler'
 import { showServiceSelectHandler } from './showServiceSelectHandler'
-import { showMainMenuHandler } from './showMainMenuHandler'
+// import { showMainMenuHandler } from './showMainMenuHandler'
 import { estimatesHandler } from './estimatesHandler'
 import { customersListPageNumberHandler } from './customersListPageNumberHandler'
 
@@ -14,10 +17,11 @@ import { partnerUniqueCodeHandler } from './partnerUniqueCodeHandler'
 
 export {
   customerHandler,
-  buildingHandler,
+  buildingIdHandler,
+  buildingDetailsHandler,
   serviceHandler,
   showServiceSelectHandler,
-  showMainMenuHandler,
+  // showMainMenuHandler,
   estimatesHandler,
   customersListPageNumberHandler,
   lotsHandler,

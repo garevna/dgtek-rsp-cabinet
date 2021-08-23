@@ -1,8 +1,6 @@
 import { secretHandler } from '../env'
 import { emptyData, secretError, encryptError } from '../../configs'
 
-const crypto = require('crypto-js')
-
 export const encrypt = (data) => {
   const action = 'encrypt'
   if (!data) {
@@ -27,7 +25,7 @@ export const encrypt = (data) => {
     }
   }
 
-  const result = crypto.AES.encrypt(data, secretHandler()).toString()
+  const result = require('crypto-js/aes').encrypt(data, secretHandler()).toString()
 
   return result ? { status: 200, action, result } : { status: 500, action, result: encryptError }
 }

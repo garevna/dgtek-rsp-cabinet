@@ -1,6 +1,7 @@
 import {
   customerHandler,
-  buildingHandler,
+  buildingIdHandler,
+  buildingDetailsHandler,
   serviceHandler,
   showServiceSelectHandler,
   estimatesHandler,
@@ -12,11 +13,12 @@ import { testTextField } from './testTextField'
 import { validateAddress } from './validateAddress'
 import { validateABN } from './validateABN'
 import { readFile } from './readFile'
-import { getBuildingUniqueCode } from './getBuildingUniqueCode'
+import { getCustomerUniqueCode, getBuildingUniqueCode } from './getBuildingUniqueCode'
 
 export {
   customerHandler,
-  buildingHandler,
+  buildingIdHandler,
+  buildingDetailsHandler,
   serviceHandler,
   showServiceSelectHandler,
   estimatesHandler,
@@ -27,5 +29,6 @@ export {
   validateAddress,
   validateABN,
   readFile,
-  getBuildingUniqueCode
+  getBuildingUniqueCode,
+  getCustomerUniqueCode
 }

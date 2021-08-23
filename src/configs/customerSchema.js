@@ -14,7 +14,7 @@ export const customerSchema = {
   customerAddress: {
     apartmentNumber: {
       title: 'Apt number',
-      required: true,
+      required: false,
       type: 'simple-text',
       value: ''
     },
@@ -46,13 +46,13 @@ export const customerSchema = {
     },
     phoneWork: {
       title: 'Phone (work)',
-      required: true,
+      required: false,
       type: 'phone',
       value: ''
     },
     phoneMobile: {
       title: 'Phone (mobile)',
-      required: false,
+      required: true,
       type: 'mobile',
       value: ''
     },

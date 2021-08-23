@@ -12,6 +12,7 @@ import { getCustomersServicesInfo } from './getCustomersServicesInfo'
 import { getCustomersListForTicket } from './getCustomersListForTicket'
 
 import { getFilteredShortListOfCustomers } from './getFilteredShortListOfCustomers'
+import { getAwaitingForConnectionCustomers } from './getAwaitingForConnectionCustomers'
 
 export {
   deleteCustomer,
@@ -27,5 +28,6 @@ export {
   getCustomersServicesInfo,
 
   getCustomersListForTicket,
-  getFilteredShortListOfCustomers
+  getFilteredShortListOfCustomers,
+  getAwaitingForConnectionCustomers
 }

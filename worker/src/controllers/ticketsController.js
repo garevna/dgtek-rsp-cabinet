@@ -19,9 +19,17 @@ class TicketsController {
     self.postMessage(await self.controller.putTicketData(request.key, request.data))
   }
 
+  async patch (request) {
+    self.postMessage(await self.controller.patchTicketHistory(request.key, request.history))
+  }
+
   async post (request) {
     self.postMessage(await self.controller.postNewTicket(request))
   }
+
+  // async getNumber () {
+  //   self.postMessage(await self.controller.getTicketNumber())
+  // }
 }
 
 export const ticketsController = new TicketsController()

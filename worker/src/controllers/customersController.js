@@ -40,6 +40,10 @@ class CustomersController {
     self.postMessage(await self.controller.getFilteredShortListOfCustomers(request.filter))
   }
 
+  async getAwaitingForConnection () {
+    self.postMessage(await self.controller.getAwaitingCustomerShortList())
+  }
+
   async activateServiceRequest ({ customerId, serviceId }) {
     const response = (await self.controller.activateServiceRequest(customerId, serviceId))
 

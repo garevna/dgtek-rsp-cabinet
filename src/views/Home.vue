@@ -8,7 +8,7 @@
       </v-stepper-items>
     </v-stepper>
 
-    <v-row justify="center" class="homefone py-12 mx-0 px-0">
+    <v-row justify="center" class="homefone py-12 mx-0 px-0" v-if="showMainMenu">
       <v-stepper-header
         elevation="0"
         class="homefone text-center mx-auto d-none d-md-block"
@@ -21,15 +21,6 @@
         >
           {{ stepsNames[0] }}
         </v-btn>
-
-        <v-btn
-          v-if="refreshed.rsp"
-          class="mx-1"
-          :class="{ active: second, tab: !second }"
-          @click="step = 2"
-        >
-            {{ stepsNames[1] }}
-          </v-btn>
 
         <v-btn
           class="mx-1"
@@ -74,6 +65,15 @@
         >
           {{ stepsNames[6] }}
         </v-btn>
+
+        <v-btn
+          v-if="refreshed.rsp"
+          class="mx-1"
+          :class="{ active: second, tab: !second }"
+          @click="step = 2"
+        >
+            {{ stepsNames[1] }}
+          </v-btn>
       </v-stepper-header>
     </v-row>
 
@@ -113,6 +113,9 @@ export default {
   data: () => ({
     step: 1,
     stepsNames: stepsNames,
+
+    showMainMenu: true,
+
     refreshed: {
       rsp: false,
       services: false,
@@ -120,6 +123,7 @@ export default {
       customers: false,
       documents: true
     },
+
     pages: [
       Dashboard,
       CompanyDetails,
@@ -129,6 +133,7 @@ export default {
       Tickets,
       Documents
     ],
+
     currentComponent: Dashboard
   }),
 
@@ -170,6 +175,10 @@ export default {
       this.step = 5
       this.currentComponent = Services
     },
+    goToCheckAddress () {
+      this.step = 3
+      this.currentComponent = CheckAddress
+    },
     goToCustomer () {
       this.step = 4
       this.currentComponent = CustomerDetails
@@ -182,26 +191,54 @@ export default {
       this.step = 6
       this.currentComponent = TicketDetails
     },
-    goToDocuments (data) {
+    goToDocuments () {
       this.step = 7
       this.currentComponent = Documents
+    },
+    goToCompanyDetails () {
+      this.step = 2
+      this.currentComponent = CompanyDetails
+    },
+
+    hideMainMenu () {
+      this.showMainMenu = false
+    },
+
+    displayMainMenu () {
+      this.showMainMenu = true
     }
   },
 
   beforeDestroy () {
     this.$root.$off('data-refreshed', this.refreshCallback)
+
     this.$root.$off('go-to-services', this.goToServices)
+    this.$root.$off('go-to-check-address', this.goToCheckAddress)
     this.$root.$off('go-to-customer-details', this.goToCustomer)
     this.$root.$off('go-to-customers-list', this.goToCustomersList)
+
+    this.$root.$off('go-to-company-details', this.goToCompanyDetails)
+
     this.$root.$off('create-new-ticket', this.createNewTicket)
+
+    this.$root.$off('hide-main-menu', this.hideMainMenu)
+    this.$root.$off('show-main-menu', this.displayMainMenu)
   },
 
   created () {
     this.$root.$on('data-refreshed', this.refreshCallback)
+
     this.$root.$on('go-to-services', this.goToServices)
+    this.$root.$on('go-to-check-address', this.goToCheckAddress)
     this.$root.$on('go-to-customer-details', this.goToCustomer)
     this.$root.$on('go-to-customers-list', this.goToCustomersList)
+
+    this.$root.$on('go-to-company-details', this.goToCompanyDetails)
+
     this.$root.$on('create-new-ticket', this.createNewTicket)
+
+    this.$root.$on('hide-main-menu', this.hideMainMenu)
+    this.$root.$on('show-main-menu', this.displayMainMenu)
   }
 }
 </script>

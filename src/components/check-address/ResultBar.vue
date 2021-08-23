@@ -4,7 +4,7 @@
       <p>DGtek service at</p>
       <h5>{{ addressData.address }}</h5>
       <p>check results</p>
-      <p>Status: {{ addressData.event }}</p>
+      <p>Status: {{ addressData.event.fromKebab() }}</p>
       <p>Estimated service delivery time: {{ addressData.estimatedServiceDeliveryTime || 'Not defined' }}</p>
 
     </v-card-text>
@@ -47,12 +47,14 @@ import { buildingStatusConfig } from '@/configs'
 
 export default {
   name: 'ResultBar',
+
   props: [
     'addressData',
     'newCustomer',
     'selectCustomer',
     'services'
   ],
+
   computed: {
     newCustomerDisabled () {
       return buildingStatusConfig[this.addressData.event].newCustomerDisabled

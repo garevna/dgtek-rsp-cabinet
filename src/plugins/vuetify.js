@@ -37,7 +37,7 @@ export default new Vuetify({
         accent: '#f3f3f3',
         inputs: '#EFEFEF',
         activefield: '#D9D9D9',
-        warning: '#FAFF00',
+        warning: '#fa0',
         info: '#fbfbfb'
       },
       dark: {
@@ -49,7 +49,7 @@ export default new Vuetify({
         accent: '#f3f3f3',
         inputs: '#EFEFEF',
         activefield: '#D9D9D9',
-        warning: '#FAFF00',
+        warning: '#fa0',
         info: '#fbfbfb'
       }
     }

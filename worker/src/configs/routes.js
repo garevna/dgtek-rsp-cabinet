@@ -26,6 +26,7 @@ export const routes = {
     refresh: customersController.getFromRemote,
     list: customersController.getAllCustomers,
     short: customersController.getCustomersListForTicket,
+    'awaiting-for-connection': customersController.getAwaitingForConnection,
     'filtered-short-list': customersController.getFilteredShortListOfCustomers,
     services: customersController.updateCustomerServices,
     get: customersController.getCustomer,
@@ -47,7 +48,9 @@ export const routes = {
     refresh: servicesController.refresh,
     list: servicesController.list,
     get: servicesController.get,
-    sla: servicesController.getSLAContent
+    sla: servicesController.getSLAContent,
+    active: servicesController.getActiveConnections,
+    pending: servicesController.getPendingConnections
   },
 
   schedule: {
@@ -59,7 +62,9 @@ export const routes = {
     list: ticketsController.list,
     get: ticketsController.get,
     post: ticketsController.post,
-    put: ticketsController.put
+    put: ticketsController.put,
+    patch: ticketsController.patch,
+    number: ticketsController.getNumber
   },
 
   categories: {

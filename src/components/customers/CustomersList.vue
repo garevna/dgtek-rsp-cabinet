@@ -1,8 +1,8 @@
 <template>
   <transition name="fade">
-    <v-container v-if="ready">
+    <v-container v-if="ready" style="max-width: 1440px">
       <v-row v-if="!edit" justify="center">
-        <v-card flat class="transparent pb-12 px-12 mx-auto">
+        <v-card flat class="transparent pb-12 px-4 mx-auto">
           <Selectors
             :status.sync="status"
             :speed.sync="speed"
@@ -11,6 +11,7 @@
             :refresh.sync="refresh"
             :postalCodes="postalCodes"
             :plans="plans"
+            :search.sync="search"
           />
 
           <v-data-table
@@ -33,24 +34,15 @@
                 {{ item.serviceStatus }}
               </span>
             </template>
-
-            <!-- <template v-slot:item.actions="{ item }">
-              <v-btn outlined @click="editItem(item)" dark class="primary">Edit</v-btn>
-            </template> -->
           </v-data-table>
 
           <div style="margin-top: -48px">
-            <v-text-field
-              v-model="search"
-              append-icon="mdi-magnify"
-              label="Search"
-              single-line
-              dense
-              outlined
-              hide-details
-              style="display: inline-block; width: 280px"
-            ></v-text-field>
-
+            <v-btn v-if="status !== 'pending'" outlined color="primary" @click="status = 'pending'">
+              Show all pending connections
+            </v-btn>
+            <v-btn v-else outlined color="primary" @click="resetFilters">
+              Show all
+            </v-btn>
             <span class="ml-12"><small>Total selected customers: {{ selectedCustomersNumber }}</small></span>
           </div>
         </v-card>
@@ -62,14 +54,14 @@
                 <Info :dashboard="false" />
               </Fieldset>
             </v-col>
-            <v-col cols="4">
+            <!-- <v-col cols="4">
               <v-btn v-if="status !== 'pending'" outlined color="primary" @click="status = 'pending'">
                 Show all pending connections
               </v-btn>
               <v-btn v-else outlined color="primary" @click="resetFilters">
                 Show all
               </v-btn>
-            </v-col>
+            </v-col> -->
           </v-row>
         </v-card>
       </v-row>
@@ -283,4 +275,8 @@ export default {
 .fade-enter, .fade-leave-to {
   opacity: 0;
 } */
+
+.v-data-footer__select {
+  visibility: hidden;
+}
 </style>

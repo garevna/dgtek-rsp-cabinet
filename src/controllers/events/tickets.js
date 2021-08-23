@@ -4,5 +4,8 @@ export const tickets = {
   list: 'tickets-list-received',
   get: 'ticket-data-received',
   post: 'ticket-created',
-  put: 'ticket-updated'
+  create: 'new-ticket-created',
+  put: 'ticket-updated',
+  patch: 'ticket-updated',
+  number: 'new-ticket-number-received'
 }

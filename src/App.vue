@@ -22,7 +22,7 @@
       </v-main>
     </v-row>
 
-    <v-snackbar v-model="snackbar" timeout="5000" color="primary" top>
+    <v-snackbar v-model="snackbar" :timeout="-1" color="primary" top>
       {{ message }}
       <template v-slot:action="{ attrs }">
         <v-btn
@@ -61,7 +61,20 @@ export default {
     message: 'Welcome to DGtek provisioning RSP portal'
   }),
 
+  methods: {
+    showSnackbar (message) {
+      this.message = message
+      this.snackbar = true
+    },
+    hideSnackbar () {
+      this.snackbar = false
+    }
+  },
+
   mounted () {
+    this.$root.$on('show-snackbar', this.showSnackbar)
+    this.$root.$on('hide-snackbar', this.hideSnackbar)
+
     this.$root.$on('progress-event', function (event) {
       this.progress = event.progress
     }.bind(this))
@@ -78,11 +91,20 @@ export default {
 body {
   overflow: hidden;
   margin-bottom: 88px;
-  background: #fbfbfb!important;
+  background: #fbfbfb !important;
 }
 
 * {
   user-select: none;
+}
+
+.v-snack--top {
+  padding-top: 280px !important;
+  position: absolute !important;
+}
+
+.v-snack:not(.v-snack--absolute) {
+  z-index: 4 !important;
 }
 
 .v-toolbar__content, .v-toolbar__extension {

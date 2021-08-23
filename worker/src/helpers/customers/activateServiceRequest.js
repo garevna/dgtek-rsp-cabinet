@@ -1,6 +1,4 @@
-const {
-  invalidServiceDeliveryStatusRequest
-} = require('../error-handlers').default
+const { invalidServiceDeliveryStatusRequest } = require('../error-handlers').default
 
 export const activateServiceRequest = async function (customerId, serviceId) {
   const [route, action] = ['customers', 'activate']
@@ -16,6 +14,6 @@ export const activateServiceRequest = async function (customerId, serviceId) {
     result,
     message: true,
     messageType: 'Customer service delivery',
-    messageText: 'You service delivery update request has been sent.'
+    messageText: 'Service activation request has been sent.'
   }
 }
