@@ -14,12 +14,12 @@ const geoscapeKeyHandler = (() => {
 })()
 
 const buildingsHostHandler = (() => {
-  const buildingHost = process.env.VUE_APP_BUILDINGS_API_HOST
+  const buildingHost = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_BUILDINGS_API_HOST : 'http://dgtek-staging.herokuapp.com'
   return () => buildingHost
 })()
 
 const hostHandler = (() => {
-  const host = process.env.VUE_APP_API_HOST
+  const host = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_API_HOST : 'http://dgtek-staging.herokuapp.com'
   return () => host
 })()
 

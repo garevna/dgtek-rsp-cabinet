@@ -12,6 +12,7 @@ import { normalizeAddress } from './normalizeAddress'
 import { testTextField } from './testTextField'
 import { validateAddress } from './validateAddress'
 import { validateABN } from './validateABN'
+import { validateStreetType } from './validateStreetType'
 import { readFile } from './readFile'
 import { getCustomerUniqueCode, getBuildingUniqueCode } from './getBuildingUniqueCode'
 
@@ -28,6 +29,8 @@ export {
   testTextField,
   validateAddress,
   validateABN,
+  validateStreetType,
+
   readFile,
   getBuildingUniqueCode,
   getCustomerUniqueCode

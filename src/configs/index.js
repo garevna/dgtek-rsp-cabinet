@@ -15,6 +15,9 @@ import { rules } from './rules'
 import { icons } from './icons'
 import { colors } from './colors'
 
+import { availableStreetTypes } from './availableStreetTypes'
+import { availableStreetTypeInputs } from './availableStreetTypeInputs'
+
 export {
   dgtekMapEvents,
   buildingStatusConfig,
@@ -33,5 +36,8 @@ export {
   validateABN,
   rules,
   icons,
-  colors
+  colors,
+
+  availableStreetTypes,
+  availableStreetTypeInputs
 }

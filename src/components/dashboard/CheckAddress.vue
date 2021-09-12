@@ -10,6 +10,10 @@
         class="transparent"
       ></v-card>
 
+      <v-row justify="center">
+        <InputAddressByParts :value.sync="address" :components.sync="addressComponents" />
+      </v-row>
+
       <v-card id="searchAddressResults" class="transparent mx-auto py-10 text-center" outlined>
         <ResultBar
           v-if="selectedBuilding"
@@ -51,6 +55,7 @@ export default {
   name: 'CheckAddress',
 
   components: {
+    InputAddressByParts: () => import('@/components/inputs/InputAddressByParts.vue'),
     ListOfBuildings: () => import('@/components/check-address/ListOfBuildings.vue'),
     ResultBar: () => import('@/components/check-address/ResultBar.vue'),
     CustomerDetails: () => import('@/components/customers/CustomerDetails.vue')
@@ -73,6 +78,9 @@ export default {
     selectedBuilding: null,
     selectedBuildingId: null,
 
+    address: '',
+    addressComponents: {},
+
     scrollOptions: {
       duration: 500,
       offset: 0,
@@ -81,6 +89,10 @@ export default {
   }),
 
   watch: {
+    // address (val) {
+    //   console.log(val)
+    // },
+
     selectedBuilding: {
       deep: true,
       handler (data) {

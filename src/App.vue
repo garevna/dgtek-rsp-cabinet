@@ -94,8 +94,13 @@ body {
   background: #fbfbfb !important;
 }
 
-* {
+/* * {
   user-select: none;
+} */
+
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .v-snack--top {
@@ -168,6 +173,12 @@ body {
 @media screen and (max-width: 420px) {
   h3 {
     font-size: 18px;
+  }
+  h4 {
+    font-size: 16px;
+  }
+  h5 {
+    font-size: 14px;
   }
 }
 </style>
