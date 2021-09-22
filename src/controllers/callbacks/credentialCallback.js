@@ -2,12 +2,23 @@ import { credentialsError } from './'
 
 import { partnerUniqueCodeHandler } from '../../helpers/data-handlers'
 
-import {
+// import {
+//   refreshSettings,
+//   refreshCustomers,
+//   refreshServices,
+//   refreshTickets,
+//   refreshMessages
+// } from '@/controllers/actions'
+
+import { actions } from '@/controllers/actions'
+
+const {
+  refreshSettings,
   refreshCustomers,
   refreshServices,
   refreshTickets,
   refreshMessages
-} from '@/controllers/actions'
+} = actions
 
 export function credentialCallback (event) {
   const { status } = event.data
@@ -18,6 +29,7 @@ export function credentialCallback (event) {
   window[Symbol.for('vue.instance')].$root.$emit('data-refreshed', { route: 'rsp' })
 
   if (status === 200) {
+    refreshSettings()
     refreshCustomers()
     refreshServices()
     refreshTickets()

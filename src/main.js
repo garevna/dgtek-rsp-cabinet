@@ -5,14 +5,13 @@ import vuetify from './plugins/vuetify'
 import ErrorMessage from '@/components/popups/error.vue'
 import Message from '@/components/popups/message.vue'
 import Confirmation from '@/components/popups/Confirmation.vue'
-// import ServiceConnectionInfo from '@/components/popups/ServiceConnectionInfo.vue'
 
-import { credentials } from '@/controllers/actions'
-
-// import { init, credentials } from '@/controllers/actions'
-// import { initCallback, refreshCallback } from '@/controllers/callbacks'
+// import { credentials } from '@/controllers/actions'
+import { actions } from '@/controllers/actions'
 
 import { setBuildingHandlers } from '@/helpers/map.worker'
+
+// import { createController } from './controllers'
 
 import {
   getWeekNumber,
@@ -22,6 +21,8 @@ import {
   getWeekDatesByWeekNumber
 } from 'garevna-date-functions'
 
+// import 'dgtek-google-autocomplete'
+
 Object.assign(Vue.prototype, {
   getWeekNumber,
   getWeekDay,
@@ -29,6 +30,8 @@ Object.assign(Vue.prototype, {
   getWeekEndDateByWeekNumber,
   getWeekDatesByWeekNumber
 })
+
+const { credentials } = actions
 
 /* eslint-disable no-extend-native */
 
@@ -48,7 +51,6 @@ Vue.config.productionTip = false
 Vue.component('error-message', ErrorMessage)
 Vue.component('simple-message', Message)
 Vue.component('confirmation-popup', Confirmation)
-// Vue.component('service-connections-popup', ServiceConnectionInfo)
 
 const instance = new Vue({
   vuetify,
@@ -75,19 +77,20 @@ Object.assign(Vue.prototype, {
   $sendMessageToWorker: instance.sendMessageToWorker
 })
 
-const callback = event => {
-  if (!event.data.credentials) return
-  credentials(event)
-  event.source.postMessage('OK', event.origin)
-  window.removeEventListener('message', callback)
+window.onload = (event) => {
+  if (location.hash.slice(1)) {
+    credentials(location.hash.slice(1))
+    location.hash = ''
+  }
 }
 
-window.addEventListener('message', callback)
+window[Symbol.for('api.host')] = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_API_HOST_PROD : process.env.VUE_APP_API_HOST_DEV
 
-// window.addEventListener('message', (event) => {
-//   if (!event.data.credentials) return
-//   credentials(event)
-//   event.source.postMessage('OK', event.origin)
+console.log(window[Symbol.for('api.host')])
+
+// window.addEventListener('new-address-data', function (event) {
+//   const { address, addressComponents, status, url, coordinates } = event.detail
+//   console.log(address, addressComponents, status, url, coordinates)
 // })
 
 /* ===================== MAP WORKER ========================= */

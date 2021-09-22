@@ -1,8 +1,8 @@
-import * as actions from './actions'
+import { actions } from './actions'
 
 export const createController = function () {
   window[Symbol.for('vue.prototype')].$dispatchProgressEvent = function (value) {
-    window[Symbol.for('vue.instance')].$root.$emit('progress-event', value)
+    window[Symbol.for('vue.instance')] && window[Symbol.for('vue.instance')].$root.$emit('progress-event', value)
   }
 
   window[Symbol.for('vue.prototype')].$sendMessageToWorker = function (message) {

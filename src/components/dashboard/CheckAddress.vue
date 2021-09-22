@@ -10,15 +10,15 @@
         class="transparent"
       ></v-card>
 
-      <v-row justify="center">
-        <InputAddressByParts :value.sync="address" :components.sync="addressComponents" />
+      <v-row v-if="mapIsReady" justify="center" align="center" class="mt-12 mb-12">
+        <!-- <InputAddressByParts :value.sync="address" :components.sync="addressComponents" /> -->
+        <DgtekGoogleAutocomplete />
       </v-row>
 
       <v-card id="searchAddressResults" class="transparent mx-auto py-10 text-center" outlined>
         <ResultBar
           v-if="selectedBuilding"
-          :addressData="selectedBuilding"
-          :eventType="eventType"
+          :addressData.sync="selectedBuilding"
           :newCustomer.sync="newCustomer"
           :selectCustomer.sync="selectCustomer"
           :services.sync="services"
@@ -45,18 +45,25 @@
 
 <script>
 
-import DgtekMap from 'dgtek-map'
+import DgtekMap from 'dgtek-portal-map-package'
+// import 'dgtek-google-autocomplete'
+import 'dgtek-google-autocomplete/dist/dgtek-google-autocomplete.css'
 
-import { dgtekMapEvents, buildingStatusConfig } from '@/configs'
+import { dgtekMapEvents /* , addressStatus, buildingStatusConfig */ } from '@/configs'
+// import { setAPIHost } from '@/helpers'
 
 import { buildingDetailsHandler } from '@/helpers/data-handlers'
+
+import ListOfBuildings from '@/components/check-address/ListOfBuildings.vue'
+
+const { DgtekGoogleAutocomplete } = require('dgtek-google-autocomplete').default
 
 export default {
   name: 'CheckAddress',
 
   components: {
-    InputAddressByParts: () => import('@/components/inputs/InputAddressByParts.vue'),
-    ListOfBuildings: () => import('@/components/check-address/ListOfBuildings.vue'),
+    DgtekGoogleAutocomplete,
+    ListOfBuildings,
     ResultBar: () => import('@/components/check-address/ResultBar.vue'),
     CustomerDetails: () => import('@/components/customers/CustomerDetails.vue')
   },
@@ -75,11 +82,15 @@ export default {
     showServices: false,
 
     map: null,
+    mapIsReady: false,
     selectedBuilding: null,
     selectedBuildingId: null,
 
     address: '',
     addressComponents: {},
+
+    statusToDisplay: '',
+    estimatedServiceDeliveryTime: '',
 
     scrollOptions: {
       duration: 500,
@@ -89,15 +100,12 @@ export default {
   }),
 
   watch: {
-    // address (val) {
-    //   console.log(val)
-    // },
-
     selectedBuilding: {
       deep: true,
       handler (data) {
-        buildingDetailsHandler(data)
         this.selectedBuildingId = data.id || data.buildingId
+        delete data.id
+        buildingDetailsHandler(Object.assign(data, { buildingId: this.selectedBuildingId }))
         this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
       }
     },
@@ -132,24 +140,40 @@ export default {
     },
 
     catchMapEvent (event) {
-      this.selectedBuildingId = event.data.buildingId
+      const { address, addressComponents, status, buildingId, coordinates, estimatedServiceDeliveryTime } = event.data
 
-      if (Object.keys(buildingStatusConfig).indexOf(event.type) !== -1) {
-        this.selectedBuilding = Object.assign(event.data, { event: event.type })
+      this.selectedBuildingId = buildingId
+      this.selectedBuilding = { address, addressComponents, status, buildingId, coordinates, estimatedServiceDeliveryTime }
+    },
+
+    catchGoogleAutocompleteEvent (event) {
+      const { address, addressComponents, status, buildingId, url, coordinates } = event.detail
+
+      this.selectedBuilding = { address, addressComponents, status, buildingId, coordinates, url }
+      this.selectedBuildingId = buildingId
+
+      if (!buildingId) {
+        this.$root.$emit('open-error-popup', {
+          warning: true,
+          errorType: address,
+          errorMessage: 'Building was not found in DB. If you want to create new one please do not forget to save building details before saving customer details.'
+        })
       }
     }
   },
 
   beforeDestroy () {
-    this.$root.$emit('hide-snackbar')
     this.$root.$off('building-details', this.showNewCustomerForm)
     const container = document.getElementById('container-for-map')
     if (!container) return
     dgtekMapEvents.forEach(eventName => container.removeEventListener(eventName, this.catchMapEvent))
+
+    window.removeEventListener('new-address-data', this.catchGoogleAutocompleteEvent)
   },
 
   mounted () {
     this.$root.$on('building-details', this.showNewCustomerForm)
+
     const container = document.getElementById('container-for-map')
     dgtekMapEvents.forEach(eventName => container.addEventListener(eventName, this.catchMapEvent))
 
@@ -160,7 +184,16 @@ export default {
       center: { lat: -37.8357725, lng: 144.9738764 }
     })
 
-    this.$root.$emit('show-snackbar', 'Please enter BUILDING address only. Do not include unit/apartment number')
+    this.map.setHost(this.$apiHost())
+
+    function waitForGoogleMaps () {
+      if (!window.google) window.requestAnimationFrame(waitForGoogleMaps.bind(this))
+      else this.mapIsReady = true
+    }
+
+    window.requestAnimationFrame(waitForGoogleMaps.bind(this))
+
+    window.addEventListener('new-address-data', this.catchGoogleAutocompleteEvent)
   }
 }
 </script>

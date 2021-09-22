@@ -4,8 +4,8 @@
       <p>DGtek service at</p>
       <h5>{{ addressData.address }}</h5>
       <p>check results</p>
-      <p>Status: {{ addressData.event.fromKebab() }}</p>
-      <p>Estimated service delivery time: {{ addressData.estimatedServiceDeliveryTime || 'Not defined' }}</p>
+      <p>Status: {{ statusToDisplay }}</p>
+      <p>Estimated service delivery time: {{ addressData.estimatedServiceDeliveryTime || estimatedServiceDeliveryTime }}</p>
 
     </v-card-text>
 
@@ -43,8 +43,6 @@
 
 <script>
 
-import { buildingStatusConfig } from '@/configs'
-
 export default {
   name: 'ResultBar',
 
@@ -55,10 +53,40 @@ export default {
     'services'
   ],
 
-  computed: {
-    newCustomerDisabled () {
-      return buildingStatusConfig[this.addressData.event].newCustomerDisabled
+  data: () => ({
+    statusToDisplay: '',
+    estimatedServiceDeliveryTime: '',
+    newCustomerDisabled: false
+  }),
+
+  watch: {
+    addressData: {
+      deep: true,
+      immediate: true,
+      handler (data) {
+        this.__getEstimatedServiceDeliveryTime(data.status)
+      }
     }
+  },
+
+  methods: {
+    getSettings (data) {
+      const { toDisplay, statusToDisplay, value, estimatedServiceDeliveryTime, newCustomerDisabled } = data
+
+      this.statusToDisplay = toDisplay || statusToDisplay
+      this.estimatedServiceDeliveryTime = estimatedServiceDeliveryTime || value
+      this.newCustomerDisabled = newCustomerDisabled
+
+      !this.addressData.buildingId && this.$emit('update:addressData', Object.assign(this.addressData, { estimatedServiceDeliveryTime: this.estimatedServiceDeliveryTime }))
+    }
+  },
+
+  beforeDestroy () {
+    this.$root.$off('settings-data-received', this.getSettings)
+  },
+
+  mounted () {
+    this.$root.$on('settings-data-received', this.getSettings)
   }
 }
 </script>

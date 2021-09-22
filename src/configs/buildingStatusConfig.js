@@ -1,4 +1,4 @@
-export const buildingStatusConfig = {
+const buildingStatusConfig = {
   'on-net': {
     title: 'on-net',
     terms: '1-3 days',
@@ -38,4 +38,8 @@ export const buildingStatusConfig = {
     storeName: 'other',
     newCustomerDisabled: true
   }
+}
+
+export {
+  buildingStatusConfig
 }

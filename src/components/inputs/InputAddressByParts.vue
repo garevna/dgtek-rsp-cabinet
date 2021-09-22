@@ -1,5 +1,5 @@
 <template>
-  <v-card flat class="transparent mx-auto mt-12" style="border: solid 4px red">
+  <v-card flat class="manual-input-address mx-auto">
     <v-row justify="center" align="center">
       <v-btn v-if="!show" outlined @click="show = true">
         <v-icon>mdi-keyboard</v-icon>
@@ -11,7 +11,7 @@
         <h5>{{ address }}</h5>
       </v-col>
       <v-col cols="3">
-        <v-btn outlined @click="submit" color="primary">SUBMIT</v-btn>
+        <v-btn :disabled="!ready" outlined @click="submit" color="primary">SUBMIT</v-btn>
       </v-col>
     </v-row>
     <v-row v-if="show" justify="center">
@@ -117,6 +117,9 @@ export default {
     }
   }),
   computed: {
+    ready () {
+
+    },
     address () {
       const { number, street, streetType, city, state, postCode } = this.addressComponents
       return `${number.value} ${street.value.toUpperCase()} ${streetType.value}, ${city.value.toUpperCase()} ${state.value} ${postCode.value}`
@@ -134,3 +137,15 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.manual-input-address {
+  border: solid 1px #aaa;
+  border-radius: 4px;
+  padding-bottom: 48px;
+  padding-top: 32px;
+  background: #eee;
+  max-width: 1400px;
+  min-width: 960px;
+}
+</style>

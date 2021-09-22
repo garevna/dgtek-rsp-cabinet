@@ -1,7 +1,5 @@
 import { refreshError } from './'
-import { messagesHandler, partnerUniqueCodeHandler } from '../../helpers/data-handlers'
-
-console.log(partnerUniqueCodeHandler())
+import { messagesHandler } from '../../helpers/data-handlers'
 
 export function refreshCallback (event) {
   const { status, route, action } = event.data

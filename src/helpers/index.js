@@ -15,8 +15,10 @@ import { validateABN } from './validateABN'
 import { validateStreetType } from './validateStreetType'
 import { readFile } from './readFile'
 import { getCustomerUniqueCode, getBuildingUniqueCode } from './getBuildingUniqueCode'
+import { setAPIHost } from './setAPIHost'
 
 export {
+  setAPIHost,
   customerHandler,
   buildingIdHandler,
   buildingDetailsHandler,

@@ -47,11 +47,13 @@
 import '@/sass/main.scss'
 import 'dgtek-styles'
 
+import Home from '@/views/Home.vue'
+
 export default {
   name: 'App',
 
   components: {
-    Home: () => import('@/views/Home.vue')
+    Home
   },
 
   data: () => ({

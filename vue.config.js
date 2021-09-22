@@ -2,6 +2,6 @@ module.exports = {
   transpileDependencies: [
     'vuetify'
   ],
-  publicPath: process.env.NODE_ENV === 'production' ? '/reseller-cabinet/' : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? '/rsp/' : '/',
   runtimeCompiler: true
 }

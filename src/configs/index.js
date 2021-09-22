@@ -1,5 +1,6 @@
 import { dgtekMapEvents } from './dgtekMapEvents'
 import { buildingStatusConfig } from './buildingStatusConfig'
+import { addressStatus } from './addressStatus'
 import { stepsNames } from './steps'
 import { schema } from './schemaRSP'
 import { management, owner /* buildingSchema */ } from './buildingSchema'
@@ -21,6 +22,7 @@ import { availableStreetTypeInputs } from './availableStreetTypeInputs'
 export {
   dgtekMapEvents,
   buildingStatusConfig,
+  addressStatus,
   stepsNames,
   schema,
   // buildingSchema,

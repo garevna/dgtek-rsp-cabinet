@@ -5,6 +5,8 @@ import customers from './customers'
 import tickets from './tickets'
 import services from './services'
 
+import settings from './settings'
+
 import dashboard from './dashboard'
 
 import { getWeekNumber } from 'garevna-date-functions'
@@ -15,7 +17,7 @@ self.postDebugMessage = function (message) {
 
 self.getWeekNumber = getWeekNumber
 
-export const controller = Object.assign({}, rsp, customers, tickets, services, dashboard)
+export const controller = Object.assign({}, rsp, customers, tickets, services, settings, dashboard)
 
 export {
   init,

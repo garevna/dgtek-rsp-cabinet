@@ -1,17 +1,17 @@
-import { getCategories } from './getCategories'
-import { getTicketById } from './getTicketById'
-import { getTickets } from './getTickets'
-import { getNewTicketNumber } from './getNewTicketNumber'
-import { postNewTicket } from './postNewTicket'
-import { refreshTickets } from './refreshTickets'
-import { saveTicketData } from './saveTicketData'
+const modules = {}
 
-export {
-  getCategories,
-  getTicketById,
-  getTickets,
-  getNewTicketNumber,
-  postNewTicket,
-  refreshTickets,
-  saveTicketData
-}
+const context = require.context('./', false)
+
+let modulesNames = context.keys()
+  .filter(key => key !== './' && key !== './index' && key !== './index.js')
+  .map(key => key.split('.js').join(''))
+
+modulesNames = Array.from(new Set(modulesNames))
+
+modulesNames.forEach((moduleName) => {
+  modules[moduleName.split('./').join('')] = context(moduleName)
+})
+
+const result = Object.assign({}, ...Object.keys(modules).map(key => ({ [key]: modules[key][key] })))
+
+export default result

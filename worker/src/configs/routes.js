@@ -1,4 +1,5 @@
 const {
+  settingsController,
   dashboardController,
   cryptoController,
   customersController,
@@ -73,5 +74,12 @@ export const routes = {
 
   lots: {
     get: customersController.getScheduleLots
+  },
+
+  settings: {
+    refresh: settingsController.refresh,
+    get: settingsController.get,
+    esdt: settingsController.getEstimatedServiceDeliveryTime,
+    tc: settingsController.getTicketCategories
   }
 }

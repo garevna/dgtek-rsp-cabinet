@@ -13,6 +13,9 @@ import { servicesInfoHandler } from './servicesInfoHandler'
 import { messagesHandler } from './messagesHandler'
 import { partnerUniqueCodeHandler } from './partnerUniqueCodeHandler'
 
+import { estimatedServiceDeliveryTimeHandler } from './estimatedServiceDeliveryTimeHandler'
+import { ticketCategoriesHandler } from './ticketCategoriesHandler'
+
 export {
   services,
   currentMonth,
@@ -25,5 +28,8 @@ export {
   servicesInfoHandler,
 
   messagesHandler,
-  partnerUniqueCodeHandler
+  partnerUniqueCodeHandler,
+
+  estimatedServiceDeliveryTimeHandler,
+  ticketCategoriesHandler
 }

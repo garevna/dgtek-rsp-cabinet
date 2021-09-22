@@ -6,8 +6,10 @@ import rspErrors from './rsp'
 
 import customersErrors from './customers'
 
+import settingsErrors from './settings'
+
 import dashboardErrors from './dashboard'
 
-const result = Object.assign({}, ticketsErrors, servicesErrors, rspErrors, customersErrors, dashboardErrors)
+const result = Object.assign({}, ticketsErrors, servicesErrors, rspErrors, customersErrors, settingsErrors, dashboardErrors)
 
 export default result

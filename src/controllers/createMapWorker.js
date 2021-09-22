@@ -10,7 +10,9 @@ export function createMapWorker () {
     console.warn('Map worker Error\n', error)
   }
 
-  window[Symbol.for('map.worker')].postMessage({ action: 'host', data: window[Symbol.for('vue.prototype')].$buildingsHost() })
+  console.log('HOST: ', window[Symbol.for('vue.prototype')].$buildingsHost())
+
+  window[Symbol.for('map.worker')].postMessage({ action: 'host', host: window[Symbol.for('vue.prototype')].$buildingsHost() })
 
   window[Symbol.for('map.worker')].onmessage = function (event) {
     if (!event.data) return console.info('Map worker: empty response')
