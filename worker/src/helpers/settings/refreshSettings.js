@@ -1,6 +1,10 @@
 import { get } from '../AJAX'
 
-import { estimatedServiceDeliveryTimeHandler, ticketCategoriesHandler } from '../../data-handlers'
+import {
+  estimatedServiceDeliveryTimeHandler,
+  ticketCategoriesHandler,
+  scheduleCalendarSettingsHandler
+} from '../../data-handlers'
 
 const { refreshSettingsError } = require('../error-handlers').default
 
@@ -11,10 +15,11 @@ export const refreshSettings = async function () {
 
   if (status !== 200) return refreshSettingsError(status)
 
-  const { estimatedServiceDeliveryTime, ticketCategories } = result
+  const { estimatedServiceDeliveryTime, ticketCategories, schedule } = result
 
   estimatedServiceDeliveryTimeHandler(estimatedServiceDeliveryTime)
   ticketCategoriesHandler(ticketCategories)
+  scheduleCalendarSettingsHandler(schedule)
 
   return {
     status,
@@ -22,7 +27,8 @@ export const refreshSettings = async function () {
     action,
     result: {
       estimatedServiceDeliveryTime,
-      ticketCategories
+      ticketCategories,
+      scheduleCalendarSettings: schedule
     }
   }
 }

@@ -21,7 +21,7 @@
             :search="search"
             :page.sync="page"
             fixed-header
-            @click:row="editItem"
+            @click:row="editCustomerDetails"
             dense
             calculate-widths
           >
@@ -30,7 +30,7 @@
               <v-icon :color="getIcon(item.serviceStatus).color" small class="mr-1">
                 {{ getIcon(item.serviceStatus).icon }}
               </v-icon>
-              <span @click="editItem(item)" style="cursor: pointer">
+              <span @click="editCustomerDetails(item)" style="cursor: pointer">
                 {{ item.serviceStatus }}
               </span>
             </template>
@@ -54,14 +54,6 @@
                 <Info :dashboard="false" />
               </Fieldset>
             </v-col>
-            <!-- <v-col cols="4">
-              <v-btn v-if="status !== 'pending'" outlined color="primary" @click="status = 'pending'">
-                Show all pending connections
-              </v-btn>
-              <v-btn v-else outlined color="primary" @click="resetFilters">
-                Show all
-              </v-btn>
-            </v-col> -->
           </v-row>
         </v-card>
       </v-row>
@@ -69,7 +61,9 @@
       <v-row v-else justify="center">
         <CustomerDetails
           :dialog.sync="edit"
+          mode="list"
           :customerId.sync="selectedCustomerId"
+          :buildingId.sync="selectedCustomerBuildingId"
         />
       </v-row>
     </v-container>
@@ -79,8 +73,9 @@
 <script>
 
 import {
-  customerHandler,
-  estimatesHandler,
+  // customerHandler,
+  // buildingDetailsHandler,
+  // estimatesHandler,
   // serviceHandler,
   customersListPageNumberHandler
 } from '@/helpers'
@@ -98,11 +93,14 @@ export default {
   },
 
   data: () => ({
+    worker: window[Symbol.for('map.worker')],
     ready: false,
     refresh: false,
     edit: false,
     selectedCustomerId: null,
-    data: null,
+    selectedCustomerBuildingId: null,
+    // data: null,
+    customers: null,
     search: '',
     page: customersListPageNumberHandler(),
     status: null,
@@ -110,6 +108,7 @@ export default {
     plan: null,
     postCode: null,
     headers: [
+      { text: 'Created', value: 'customerCreationDate', width: '120', class: 'creation-date', cellClass: 'creation-date' },
       {
         text: 'Customer name',
         align: 'start',
@@ -123,27 +122,11 @@ export default {
       { text: 'Plan', value: 'servicePlan' },
       { text: 'Approx ETA', value: 'approxETA' },
       { text: 'Term', value: 'serviceTerm' }
-    ]
+    ],
+    estimates: null
   }),
 
   computed: {
-    customers () {
-      if (!this.data) return
-
-      return this.data.map(customer => ({
-        name: `${customer.firstName} ${customer.lastName}`,
-        uniqueCode: customer.uniqueCode,
-        postCode: customer.postCode,
-        address: `${customer.apartmentNumber}/${customer.address}`,
-        serviceSpeed: customer.serviceSpeed || '',
-        servicePlan: customer.servicePlan || '',
-        serviceStatus: customer.serviceStatus || '',
-        approxETA: estimatesHandler(customer.buildingId) || customer.approxETA,
-        serviceTerm: customer.serviceTerm || '',
-        id: customer._id
-      }))
-    },
-
     postalCodes () {
       const set = new Set(this.customers.map(customer => customer.postCode))
       return Array.from(set)
@@ -174,10 +157,15 @@ export default {
   },
 
   watch: {
+    edit (newVal, oldVal) {
+      if (!newVal && oldVal) this.__getCustomersListForTable(this.getData)
+    },
+
     refresh (val) {
       if (val) {
         this.ready = false
         this.refresh = false
+        this.__refreshCustomers(this.customersListRefreshed)
       }
     }
   },
@@ -200,83 +188,59 @@ export default {
       return { icon: icons[status], color: colors[status] }
     },
 
-    async getData (data) {
-      this.data = data
+    getData (data) {
+      this.customers = data
+      if (this.estimates) this.setEstimates()
       this.ready = true
     },
 
-    getEstimates (data) {
-      const estimates = Array.isArray(data.result) ? data.result.map(item => ({ [item.id]: item.estimatedServiceDeliveryTime })) : []
-      estimatesHandler(estimates)
+    setEstimates () {
+      for (const customer of this.customers) {
+        Object.assign(customer, { approxETA: this.estimates[customer.address] || '...' })
+      }
     },
 
-    editItem (item) {
-      this.selectedCustomerId = item.id
-      customerHandler(item.id)
+    getEstimates (data) {
+      this.estimates = Object.assign({}, ...data.map(item => ({ [item.address]: item.estimatedServiceDeliveryTime })))
+      if (this.customers) this.setEstimates()
+    },
+
+    editCustomerDetails (customer) {
+      this.selectedCustomerId = customer._id
+      this.selectedCustomerBuildingId = customer.buildingId
       this.edit = true
     },
 
-    updateCustomerServices (data) {
-      const {
-        _id,
-        services,
-        serviceSpeed,
-        serviceStatus,
-        servicePlan,
-        serviceTerm
-      } = data
-
-      const index = this.customers.findIndex(customer => customer.id === _id)
-      if (index === -1) return
-      this.customers.splice(index, 1, Object.assign(this.customers[index], {
-        services,
-        serviceSpeed,
-        serviceStatus,
-        servicePlan,
-        serviceTerm
-      }))
-    },
-
-    customersListRefreshed (event) {
-      this.getData(event)
+    customersListRefreshed (data) {
+      this.__getCustomersListForTable(this.getData)
       this.$vuetify.goTo(0)
     }
   },
 
-  beforeDestroy () {
-    this.$root.$off('customers-list-refreshed', this.customersListRefreshed)
-    this.$root.$off('customers-list-received', this.getData)
-    this.$root.$off('buildings-data-list', this.getEstimates)
-    this.$root.$off('customer-services-updated', this.updateCustomerServices)
-  },
-
   created () {
-    this.$root.$on('buildings-data-list', this.getEstimates)
-    this.__getBuildingsByStatus('lit')
-    this.__getBuildingsByStatus('footprint')
-    this.__getBuildingsByStatus('build')
-    this.__getBuildingsByStatus('soon')
+    this.worker.getBuildingsListForTable('lit', this.getEstimates)
   },
 
   mounted () {
-    this.$root.$on('customers-list-refreshed', this.customersListRefreshed)
-    this.$root.$on('customers-list-received', this.getData)
-    this.$root.$on('customer-services-updated', this.updateCustomerServices)
-    this.__getCustomers()
+    this.__getCustomersListForTable(this.getData)
     this.$vuetify.goTo(0)
   }
 }
 </script>
 
 <style>
-/* .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+
+.sortable.active {
+  background: #ddd !important;
+  color: #900 !important;
 }
-.fade-enter, .fade-leave-to {
-  opacity: 0;
-} */
 
 .v-data-footer__select {
   visibility: hidden;
+}
+
+.creation-date {
+  font-size: 12px !important;
+  color: #900;
 }
 </style>

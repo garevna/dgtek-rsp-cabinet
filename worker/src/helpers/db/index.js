@@ -4,6 +4,8 @@ import { getRecordByKey } from './getRecordByKey'
 import { getAllRecords } from './getAllRecords'
 import { deleteRecordByKey } from './deleteRecordByKey'
 
+import { getCustomersTableData } from './customers/getCustomersTableData'
+
 import { searchActiveConnections } from './customers/searchActiveConnections'
 import { searchPendingConnections } from './customers/searchPendingConnections'
 import { searchAwaitingForConnectionCustomers } from './customers/searchAwaitingForConnectionCustomers'
@@ -22,6 +24,8 @@ export {
   deleteRecordByKey,
   getAllRecords,
   searchRecords,
+
+  getCustomersTableData,
 
   searchActiveConnections,
   searchPendingConnections,

@@ -1,4 +1,4 @@
-import { dgtekMapEvents } from './dgtekMapEvents'
+// import { dgtekMapEvents } from './dgtekMapEvents'
 import { buildingStatusConfig } from './buildingStatusConfig'
 import { addressStatus } from './addressStatus'
 import { stepsNames } from './steps'
@@ -20,7 +20,7 @@ import { availableStreetTypes } from './availableStreetTypes'
 import { availableStreetTypeInputs } from './availableStreetTypeInputs'
 
 export {
-  dgtekMapEvents,
+  // dgtekMapEvents,
   buildingStatusConfig,
   addressStatus,
   stepsNames,

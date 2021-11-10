@@ -110,10 +110,12 @@ export default {
   data: () => ({
     ready: false,
     popup: false,
+    scheduleCalendarSettings: [],
     lots: null,
     selectedSlot: null,
     period: null,
     arrayEvents: null,
+    availableDates: [],
     dates: [],
     result: [],
     message: ''
@@ -167,6 +169,7 @@ export default {
       this.popup = false
       this.$emit('update:dialog', false)
     },
+
     submit () {
       if (this.result.length === 2) this.result.shift()
       this.result.push({
@@ -177,6 +180,7 @@ export default {
       this.message = ''
       this.close()
     },
+
     close () {
       this.period = null
       this.popup = false
@@ -189,8 +193,9 @@ export default {
     },
 
     available (lot = 'am') {
+      console.log(this.selectedSlot)
       if (!this.selectedSlot) return false
-      return this.lots[this.selectedSlot][lot]
+      return this.availableDates[this.selectedSlot][lot]
     },
 
     selectDate (value) {
@@ -220,9 +225,7 @@ export default {
     },
 
     allowedDates (date) {
-      const current = new Date().toISOString().slice(0, 10)
-      const allowed = Object.keys(this.lots).filter(d => (current < d) && (this.lots[d].am || this.lots[d].pm))
-      return allowed.includes(date)
+      return this.availableDates[date]
     },
 
     functionEvents (date) {
@@ -231,12 +234,45 @@ export default {
       const test = current < date && Object.keys(this.lots).includes(date)
 
       return [
-        !test ? '#ddd' : this.lots[date].am ? '#900' : '#aaa',
-        !test ? '#ddd' : this.lots[date].pm ? '#900' : '#aaa'
+        !test ? '#ddd' : this.availableDates[date].am ? '#900' : '#aaa',
+        !test ? '#ddd' : this.availableDates[date].pm ? '#900' : '#aaa'
       ]
     },
+
+    getAvailableDates () {
+      this.availableDates = {}
+
+      const date = new Date()
+      const current = date.toISOString().slice(0, 10)
+
+      const weekNumber = this.getWeekNumber(date)
+
+      for (const week of [weekNumber, weekNumber + 1, weekNumber + 2, weekNumber + 3]) {
+        const weekdates = this.getWeekDatesByWeekNumber(week)
+        weekdates.forEach((d, index) => {
+          if (d > current) {
+            if (this.lots[d]) {
+              console.log(this.lots[d].am.length, this.lots[d].pm.length)
+              const am = this.lots[d].am.length < this.scheduleCalendarSettings[index]
+              const pm = this.lots[d].pm.length < this.scheduleCalendarSettings[index]
+              if (am || pm) this.availableDates[d] = { am, pm }
+            } else this.availableDates[d] = { am: true, pm: true }
+          }
+        })
+      }
+
+      console.log(this.availableDates)
+    },
+
+    getScheduleCalendarSettings (data) {
+      this.scheduleCalendarSettings = data
+
+      if (this.lots) this.getAvailableDates()
+    },
+
     getLots (data) {
       this.lots = data
+      if (this.scheduleCalendarSettings) this.getAvailableDates()
       this.ready = true
     },
     showResponse (response) {
@@ -245,13 +281,17 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('schedule-lots-received', this.getLots)
+    // this.$root.$off('schedule-lots-received', this.getLots)
     this.$root.$off('scheduling-request-sent', this.showResponse)
+    // this.$root.$off('settings-data-received', this.getScheduleCalendarSettings)
   },
   mounted () {
     this.$root.$on('scheduling-request-sent', this.showResponse)
-    this.$root.$on('schedule-lots-received', this.getLots)
-    this.__getFreeLotsOfSchedule()
+    // this.$root.$on('schedule-lots-received', this.getLots)
+    // this.$root.$on('settings-data-received', this.getScheduleCalendarSettings)
+
+    this.__getScheduleCalendarSettings(this.getScheduleCalendarSettings)
+    this.__getFreeLotsOfSchedule(this.getLots)
   }
 }
 </script>

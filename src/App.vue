@@ -22,12 +22,12 @@
       </v-main>
     </v-row>
 
-    <v-snackbar v-model="snackbar" :timeout="-1" color="primary" top>
+    <v-snackbar v-model="snackbar" right class="mr-2" :timeout="-1" color="#9009" top>
       {{ message }}
       <template v-slot:action="{ attrs }">
         <v-btn
           color="#fff"
-          class="close-icon-snackbar"
+          class="transparent close-icon-snackbar"
           icon
           v-bind="attrs"
           @click="snackbar = false"
@@ -60,7 +60,7 @@ export default {
     ready: false,
     progress: false,
     snackbar: false,
-    message: 'Welcome to DGtek provisioning RSP portal'
+    message: 'Welcome to DGtek provisioning RSP portal.'
   }),
 
   methods: {
@@ -76,6 +76,8 @@ export default {
   mounted () {
     this.$root.$on('show-snackbar', this.showSnackbar)
     this.$root.$on('hide-snackbar', this.hideSnackbar)
+
+    if (this.$apiHost() === 'https://portal.staging.dgtek.net') this.$root.$emit('show-snackbar', 'Staging release. You are at testing mode now.')
 
     this.$root.$on('progress-event', function (event) {
       this.progress = event.progress
@@ -106,12 +108,12 @@ input, textarea {
 }
 
 .v-snack--top {
-  padding-top: 280px !important;
   position: absolute !important;
 }
 
 .v-snack:not(.v-snack--absolute) {
-  z-index: 4 !important;
+  z-index: 20 !important;
+  margin-top: -88px !important;
 }
 
 .v-toolbar__content, .v-toolbar__extension {

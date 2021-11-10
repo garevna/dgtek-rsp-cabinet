@@ -1,7 +1,11 @@
-export const refreshSettings = function () {
-  window[Symbol.for('vue.instance')].$root.$emit('progress-event', true)
-  window[Symbol.for('vue.prototype')].sendMessageToWorker({
+import { eventsTable } from '@/controllers/events-table'
+import { settings } from '@/controllers/events'
+
+export const refreshSettings = function (callback) {
+  window[Symbol.for('vue.prototype')].$sendMessageToWorker({
     route: 'settings',
     action: 'refresh'
   })
+
+  eventsTable[settings.refresh] = callback
 }

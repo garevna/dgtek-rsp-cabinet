@@ -32,6 +32,10 @@ class CustomersController {
     }))
   }
 
+  async getCustomersListForTable () {
+    self.postMessage(await self.controller.getCustomersListForTable())
+  }
+
   async getCustomersListForTicket (postCode, addressPart) {
     self.postMessage(await self.controller.getShortListOfCustomers(postCode, addressPart))
   }

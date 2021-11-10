@@ -1,6 +1,11 @@
 export const newBuilding = {
   address: '',
-  buildingUniqueCode: '',
+  coordinates: [],
+  addressComponents: {},
+  buildingName: '',
+  uniqueCode: '',
+  estimatedServiceDeliveryTime: '',
+  status: 'LIT',
   management: {
     managerName: '',
     managerPhoneWork: '',

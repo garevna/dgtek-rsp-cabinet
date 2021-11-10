@@ -26,6 +26,7 @@ export const routes = {
   customers: {
     refresh: customersController.getFromRemote,
     list: customersController.getAllCustomers,
+    table: customersController.getCustomersListForTable,
     short: customersController.getCustomersListForTicket,
     'awaiting-for-connection': customersController.getAwaitingForConnection,
     'filtered-short-list': customersController.getFilteredShortListOfCustomers,

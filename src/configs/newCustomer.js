@@ -4,7 +4,7 @@ export const newCustomer = {
   postCode: '',
   apartmentNumber: '',
   address: '',
-  commercial: {},
+  commercial: null,
   firstName: '',
   lastName: '',
   phoneMobile: '',

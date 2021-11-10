@@ -173,7 +173,7 @@ export default {
 
       const list = Array.from(new Set(this.items.map(ticket => ticket.customerId)))
 
-      this.__getFilteredShortListOfCustomers(list)
+      this.__getFilteredShortListOfCustomers(list, this.getCustomersList)
 
       this.ready = true
     },
@@ -214,23 +214,13 @@ export default {
     }
   },
 
-  beforeDestroy () {
-    this.$root.$off('categories-received', this.getCategories)
-    this.$root.$off('tickets-list-received', this.getTickets)
-
-    this.$root.$off('customers-filtered-short-list-received', this.getCustomersList)
-  },
-
   mounted () {
-    this.$root.$on('categories-received', this.getCategories)
-    this.$root.$on('tickets-list-received', this.getTickets)
-
     this.$root.$on('ticket-created', this.showNewTicketDetails)
 
-    this.$root.$on('customers-filtered-short-list-received', this.getCustomersList)
+    // this.$root.$on('customers-filtered-short-list-received', this.getCustomersList)
 
-    this.__getCategories()
-    this.__getTickets()
+    this.__getTicketCategories(this.getCategories)
+    this.__getTickets(this.getTickets)
     if (this.create) this.createNewTicket()
   }
 }

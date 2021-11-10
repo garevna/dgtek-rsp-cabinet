@@ -2,14 +2,6 @@ import { credentialsError } from './'
 
 import { partnerUniqueCodeHandler } from '../../helpers/data-handlers'
 
-// import {
-//   refreshSettings,
-//   refreshCustomers,
-//   refreshServices,
-//   refreshTickets,
-//   refreshMessages
-// } from '@/controllers/actions'
-
 import { actions } from '@/controllers/actions'
 
 const {

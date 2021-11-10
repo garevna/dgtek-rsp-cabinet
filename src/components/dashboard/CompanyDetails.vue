@@ -74,7 +74,7 @@ export default {
           result[stepName][propName] = step[propName].value
         }
       }
-      this.__putClientData(result)
+      this.__putClientData(result, response => console.log('Partner \' details saved'))
     },
 
     testForErrors () {
@@ -103,13 +103,12 @@ export default {
         login: this.schema.userInfo.login.value,
         userPhone: this.schema.userInfo.phoneNumber.value,
         password: this.schema.userInfo.password.value
-      })
+      }, response => console.log('Partner \' details saved'))
     }
   },
 
   mounted () {
-    this.__getClientData()
-    this.$root.$on('client-data-received', this.getData)
+    this.__getClientData(this.getData)
   }
 }
 </script>

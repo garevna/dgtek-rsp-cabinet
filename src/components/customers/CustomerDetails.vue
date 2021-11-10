@@ -5,13 +5,19 @@
         <v-row justify="center" align="center">
           <v-spacer />
           <v-btn text @click="section = 'Building details'">
-            <b :style="{ color: section === 'Building details' ? '#900' : '#999' }">Building details</b>
+            <b :style="{ color: section === 'Building details' ? '#900' : '#999' }">
+              Building details
+            </b>
           </v-btn>
           <v-btn v-if="customerDetailsAvailable" text @click="section = 'Customer details'">
-            <b :style="{ color: section === 'Customer details' ? '#900' : '#999' }">Customer details</b>
+            <b :style="{ color: section === 'Customer details' ? '#900' : '#999' }">
+              Customer details
+            </b>
           </v-btn>
           <v-btn v-if="serviceDetailsAvailable" text @click="section = 'Service details'" :disabled="serviceDetailsDisabled">
-            <b :style="{ color: section === 'Service details' ? '#900' : '#999' }">Service details</b>
+            <b :style="{ color: section === 'Service details' ? '#900' : '#999' }">
+              Service details
+            </b>
           </v-btn>
           <v-spacer />
           <v-btn icon @click="close">
@@ -38,19 +44,18 @@
           </td>
           <td>
             <Fieldset legend="Customer details" v-if="section === 'Customer details'">
-              <EditCustomerDetails :initialCustomer.sync="customer" />
+              <EditCustomerDetails :customerId.sync="customerId" :buildingId.sync="buildingId" />
             </Fieldset>
 
             <Fieldset legend="Service details" v-if="section === 'Service details'">
               <CustomerServices
-                :services.sync="customer.services"
-                :customerId="customer._id"
-                :address="`${customer.apartmentNumber}/${customer.address}`"
+                :customerId="customerId"
+                :address="customerAddress"
               />
             </Fieldset>
 
             <Fieldset legend="Building details" v-if="section === 'Building details'">
-              <EditBuildingDetails :buildingId.sync="customer.buildingId" />
+              <EditBuildingDetails :__buildingId.sync="buildingId" />
             </Fieldset>
           </td>
           <td width="100" style="text-align: center; vertical-align: top; padding-top: 40px">
@@ -91,9 +96,13 @@
 
 import { newCustomer } from '@/configs'
 
-import { getCustomerUniqueCode } from '@/helpers'
+// import { getCustomerUniqueCode } from '@/helpers'
 
-import { buildingDetailsHandler } from '@/helpers/data-handlers'
+import {
+  buildingDetailsHandler,
+  customerHandler,
+  customerServicesHandler
+} from '@/helpers/data-handlers'
 
 import Fieldset from '@/components/Fieldset.vue'
 
@@ -107,29 +116,28 @@ export default {
     EditBuildingDetails: () => import('@/components/customers/EditBuildingDetails.vue')
   },
 
-  props: ['dialog', 'mode', 'customerId', 'sectionName', 'selectedBuildingId'],
+  props: {
+    mode: { type: String, required: false },
+    dialog: { type: Boolean, required: true },
+    sectionName: { type: String, default: 'Customer details', required: false },
+    customerId: { type: String, default: null, required: false }, /* new customer has no id */
+    buildingId: { type: String, default: null, required: false } /* new building has no id */
+  },
 
   data: () => ({
+    worker: window[Symbol.for('map.worker')],
     ready: false,
-    section: 'Service details',
+    section: 'Customer details',
     customer: JSON.parse(JSON.stringify(newCustomer)),
+    customerAddress: '',
     update: false,
     customerDetailsAvailable: true,
     serviceDetailsAvailable: true
   }),
 
   computed: {
-    buildingId: {
-      get () {
-        return this.customer?.buildingId || this.selectedBuildingId
-      },
-      set (val) {
-        this.$emit('update:selectedBuildingId', val)
-      }
-    },
-
     serviceDetailsDisabled () {
-      return !this.customer?.buildingId || !this.customerId
+      return !this.customerId
     },
 
     selectedCustomerServices: {
@@ -142,20 +150,6 @@ export default {
     }
   },
 
-  watch: {
-    buildingId: {
-      immediate: true,
-      handler (value) {
-        this.customer && Object.assign(this.customer, { buildingId: value })
-        value && this.__getBuildingById(value)
-      }
-    },
-
-    buildingPostCode (value) {
-      Object.assign(this.customer, { postCode: value })
-    }
-  },
-
   methods: {
     goToBack () {
       this.section = this.section === 'Customer details' ? 'Building details' : 'Customer details'
@@ -165,29 +159,39 @@ export default {
       this.section = this.section === 'Building details' ? 'Customer details' : 'Service details'
     },
 
-    getBuildingDetails (data) {
-      buildingDetailsHandler(data.result)
+    getCustomerDetails (data) {
+      const { services, ...customerDetails } = data
+      customerHandler(customerDetails)
+      customerServicesHandler(services)
+      this.customerAddress = `${customerHandler().apartmentNumber}/${customerHandler().address}`
+      if (!customerDetails.buildingId) this.section = 'Building details'
+      else this.worker.getBuildingDetailsById(customerDetails.buildingId, this.updateBuildingDetails)
+
       this.ready = true
     },
 
-    getCustomerDetails (data) {
-      this.customer = data
-      this.buildingId = this.customer.buildingId
-      if (!this.customer.buildingId) {
-        this.customerDetailsAvailable = false
-        this.serviceDetailsAvailable = false
-
-        this.section = 'Building details'
+    updateBuildingDetails (data) {
+      console.log('UPDATE BUILDING DETAILS:\n', data)
+      if (data) {
+        buildingDetailsHandler(data)
+        this.setCustomerDetailsSection()
       } else {
-        this.section = this.serviceDetailsDisabled ? 'Customer details' : 'Service details'
+        console.log('BUILDING WAS NOT FOUND!!!!!!!!!!!')
+        buildingDetailsHandler('reset')
+        console.log(buildingDetailsHandler())
+        console.log(customerHandler().uniqueCode)
+        customerHandler(Object.assign(customerHandler(), { buildingId: null }))
       }
-
-      this.ready = true
     },
 
     setCustomerDetailsSection () {
       this.customerDetailsAvailable = true
       this.section = 'Customer details'
+    },
+
+    setBuildingDetailsSection () {
+      this.buildingDetailsAvailable = true
+      this.section = 'Building details'
     },
 
     setServicesSection (customerId) {
@@ -199,26 +203,10 @@ export default {
       this.section = 'Service details'
     },
 
-    createNewCustomer () {
-      this.section = this.buildingId ? 'Customer details' : 'Building details'
-
-      const {
-        address,
-        addressComponents,
-        postCode
-      } = buildingDetailsHandler()
-
-      this.customer = JSON.parse(JSON.stringify(newCustomer))
-
-      Object.assign(this.customer, {
-        address,
-        buildingId: this.selectedBuildingId,
-        postCode,
-        uniqueCode: getCustomerUniqueCode(addressComponents)
-        // uniqueCode: `${getCustomerUniqueCode(addressComponents)}.0`
-      })
-
-      this.ready = true
+    getNewBuildingId (buildingId) {
+      if (!buildingId) return console.error('Building was not created!!!')
+      customerHandler(Object.assign(customerHandler(), { buildingId }))
+      this.customer = customerHandler()
     },
 
     close () {
@@ -229,40 +217,36 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('customer-data-received', this.getCustomerDetails)
-    this.$root.$off('new-building-created', this.setCustomerDetailsSection)
-    this.$root.$off('building-data-updated', this.setCustomerDetailsSection)
-    this.$root.$off('customer-created', this.setServicesSection)
-    this.$root.$off('customer-updated', this.setServicesSection)
-
-    this.$root.$off('building-details', this.getBuildingDetails)
+    ['new-building-created', 'building-data-updated'].forEach(event => this.$root.$off(event, this.setCustomerDetailsSection));
+    ['customer-created', 'customer-updated'].forEach(event => this.$root.$off(event, this.setServicesSection))
 
     this.$root.$emit('show-main-menu')
   },
 
   beforeMount () {
-    this.$root.$emit('hide-main-menu')
+    ['new-building-created', 'building-data-updated'].forEach(event => this.$root.$on(event, this.setCustomerDetailsSection));
+    ['customer-created', 'customer-updated'].forEach(event => this.$root.$on(event, this.setServicesSection))
 
-    this.$root.$on('new-building-created', this.setCustomerDetailsSection)
-    this.$root.$on('building-data-updated', this.setCustomerDetailsSection)
-    this.$root.$on('customer-created', this.setServicesSection)
-    this.$root.$on('customer-updated', this.setServicesSection)
+    if (!this.customerId) {
+      this.serviceDetailsAvailable = false
+      this.customer = customerHandler()
+      this.customerAddress = `${customerHandler().apartmentNumber}/${customerHandler().address}`
 
-    this.$root.$on('building-details', this.getBuildingDetails)
+      this.section = this.customer.buildingId ? 'Customer details' : 'Building details'
 
-    if (this.initialAddressData) {
-      const { address, addressComponents, coordinates, postCode, buildingId, management, owner, status } = this.initialAddressData
-      buildingDetailsHandler({ address, addressComponents, coordinates, postCode, buildingId, management, owner, status })
+      this.ready = true
+    } else {
+      this.__getCustomerData(this.customerId, this.getCustomerDetails)
     }
   },
 
   mounted () {
+    this.$root.$emit('hide-main-menu')
     this.$root.$emit('hide-snackbar')
-    if (this.customerId) {
-      this.$root.$on('customer-data-received', this.getCustomerDetails)
-      this.__getCustomerData(this.customerId)
-      this.section = this.sectionName ? this.sectionName : 'Customer details'
-    } else this.createNewCustomer()
+
+    this.$root.$on('new-building-created', this.getNewBuildingId)
+
+    console.log('CUSTOMER ID: ', this.customerId)
 
     this.$vuetify.goTo(0)
   }

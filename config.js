@@ -14,12 +14,12 @@ const geoscapeKeyHandler = (() => {
 })()
 
 const buildingsHostHandler = (() => {
-  const buildingHost = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_API_HOST_PROD : process.env.VUE_APP_API_HOST_DEV
+  const buildingHost = process.env.NODE_ENV === 'production' && location.host === 'portal.dgtek.net' ? 'https://portal.dgtek.net' : 'https://portal.staging.dgtek.net'
   return () => buildingHost
 })()
 
 const hostHandler = (() => {
-  const host = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_API_HOST_PROD : process.env.VUE_APP_API_HOST_DEV
+  const host = process.env.NODE_ENV === 'production' && location.host === 'portal.dgtek.net' ? 'https://portal.dgtek.net' : 'https://portal.staging.dgtek.net'
   return () => host
 })()
 

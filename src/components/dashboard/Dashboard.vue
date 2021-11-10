@@ -91,13 +91,8 @@ export default {
     }
   },
 
-  beforeDestroy () {
-    this.$root.$off('awaiting-for-connection-customers-received', this.getCustomers)
-  },
-
   beforeMount () {
-    this.$root.$on('awaiting-for-connection-customers-received', this.getCustomers)
-    this.__getAwaitingForConnectionCustomers()
+    this.__getAwaitingForConnectionCustomers(this.getCustomers)
   }
 }
 </script>

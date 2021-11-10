@@ -102,7 +102,6 @@ import {
 
 import CustomersList from '@/components/customers/CustomersList.vue'
 import CustomerDetails from '@/components/customers/CustomerDetails.vue'
-
 import TicketDetails from '@/components/tickets/TicketDetails.vue'
 
 import { stepsNames } from '@/configs'
@@ -134,7 +133,8 @@ export default {
       Documents
     ],
 
-    currentComponent: Dashboard
+    currentComponent: Dashboard,
+    transitions: null
   }),
 
   computed: {
@@ -210,35 +210,25 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('data-refreshed', this.refreshCallback)
+    for (const event in this.transitions) this.$root.$off(event, this.transitions[event])
+  },
 
-    this.$root.$off('go-to-services', this.goToServices)
-    this.$root.$off('go-to-check-address', this.goToCheckAddress)
-    this.$root.$off('go-to-customer-details', this.goToCustomer)
-    this.$root.$off('go-to-customers-list', this.goToCustomersList)
-
-    this.$root.$off('go-to-company-details', this.goToCompanyDetails)
-
-    this.$root.$off('create-new-ticket', this.createNewTicket)
-
-    this.$root.$off('hide-main-menu', this.hideMainMenu)
-    this.$root.$off('show-main-menu', this.displayMainMenu)
+  beforeMount () {
+    for (const event in this.transitions) this.$root.$on(event, this.transitions[event])
   },
 
   created () {
-    this.$root.$on('data-refreshed', this.refreshCallback)
-
-    this.$root.$on('go-to-services', this.goToServices)
-    this.$root.$on('go-to-check-address', this.goToCheckAddress)
-    this.$root.$on('go-to-customer-details', this.goToCustomer)
-    this.$root.$on('go-to-customers-list', this.goToCustomersList)
-
-    this.$root.$on('go-to-company-details', this.goToCompanyDetails)
-
-    this.$root.$on('create-new-ticket', this.createNewTicket)
-
-    this.$root.$on('hide-main-menu', this.hideMainMenu)
-    this.$root.$on('show-main-menu', this.displayMainMenu)
+    this.transitions = {
+      'data-refreshed': this.refreshCallback,
+      'go-to-services': this.goToServices,
+      'go-to-check-address': this.goToCheckAddress,
+      'go-to-customer-details': this.goToCustomer,
+      'go-to-customers-list': this.goToCustomersList,
+      'go-to-company-details': this.goToCompanyDetails,
+      'create-new-ticket': this.createNewTicket,
+      'hide-main-menu': this.hideMainMenu,
+      'show-main-menu': this.displayMainMenu
+    }
   }
 }
 </script>

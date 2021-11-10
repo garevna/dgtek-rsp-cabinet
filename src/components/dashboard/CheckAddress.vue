@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-card v-if="!openNewCustomerForm" flat class="transparent">
-      <h3>Check the service availability by typing the address in the textbox below</h3>
+      <h5>Check the service availability by typing the address in the textbox below</h5>
       <v-card
         id="container-for-map"
         ref="container-for-map"
@@ -10,15 +10,14 @@
         class="transparent"
       ></v-card>
 
-      <v-row v-if="mapIsReady" justify="center" align="center" class="mt-12 mb-12">
-        <!-- <InputAddressByParts :value.sync="address" :components.sync="addressComponents" /> -->
+      <v-row v-if="mapIsReady" justify="center" align="center" class="mb-2">
         <DgtekGoogleAutocomplete />
       </v-row>
 
-      <v-card id="searchAddressResults" class="transparent mx-auto py-10 text-center" outlined>
+      <v-card id="searchAddressResults" class="transparent mx-auto mb-12 pb-12 text-center" outlined>
         <ResultBar
           v-if="selectedBuilding"
-          :addressData.sync="selectedBuilding"
+          :addressData="selectedBuilding"
           :newCustomer.sync="newCustomer"
           :selectCustomer.sync="selectCustomer"
           :services.sync="services"
@@ -37,8 +36,8 @@
 
     <CustomerDetails
       v-if="openNewCustomerForm"
+      mode="new"
       :dialog.sync="openNewCustomerForm"
-      :selectedBuildingId="selectedBuildingId"
     />
   </v-container>
 </template>
@@ -46,13 +45,10 @@
 <script>
 
 import DgtekMap from 'dgtek-portal-map-package'
-// import 'dgtek-google-autocomplete'
 import 'dgtek-google-autocomplete/dist/dgtek-google-autocomplete.css'
 
-import { dgtekMapEvents /* , addressStatus, buildingStatusConfig */ } from '@/configs'
-// import { setAPIHost } from '@/helpers'
-
 import { buildingDetailsHandler } from '@/helpers/data-handlers'
+import { createNewBuilding, createNewCustomer, getBuildingUniqueCode } from '@/helpers'
 
 import ListOfBuildings from '@/components/check-address/ListOfBuildings.vue'
 
@@ -69,6 +65,7 @@ export default {
   },
 
   data: () => ({
+    worker: window[Symbol.for('map.worker')],
     container: null,
 
     eventType: null,
@@ -84,13 +81,6 @@ export default {
     map: null,
     mapIsReady: false,
     selectedBuilding: null,
-    selectedBuildingId: null,
-
-    address: '',
-    addressComponents: {},
-
-    statusToDisplay: '',
-    estimatedServiceDeliveryTime: '',
 
     scrollOptions: {
       duration: 500,
@@ -103,21 +93,22 @@ export default {
     selectedBuilding: {
       deep: true,
       handler (data) {
-        this.selectedBuildingId = data.id || data.buildingId
+        const buildingId = data.id || data.buildingId
+
         delete data.id
-        buildingDetailsHandler(Object.assign(data, { buildingId: this.selectedBuildingId }))
-        this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
+        data.buildingId = buildingId
+
+        buildingDetailsHandler(data)
+
+        createNewCustomer(data.address, buildingId, data.estimatedServiceDeliveryTime)
+
+        if (buildingId) this.worker.getBuildingDetailsById(buildingId, this.updateSelectedBuilding)
+        else this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
       }
     },
 
     newCustomer (val) {
-      if (!val) return
-      if (this.selectedBuildingId) {
-        this.__getBuildingById(this.selectedBuildingId)
-      } else {
-        buildingDetailsHandler(this.selectedBuilding)
-        this.openNewCustomerForm = true
-      }
+      if (val) this.openNewCustomerForm = true
     },
 
     selectCustomer (val) {
@@ -130,52 +121,55 @@ export default {
   },
 
   methods: {
-    showNewCustomerForm (data) {
-      buildingDetailsHandler(data.result)
-      this.openNewCustomerForm = true
+    updateSelectedBuilding (data) {
+      buildingDetailsHandler(data)
+      this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
     },
 
-    getBuildingDetails (buildingDetails) {
-      this.initialAddressData = buildingDetailsHandler()
-    },
-
-    catchMapEvent (event) {
-      const { address, addressComponents, status, buildingId, coordinates, estimatedServiceDeliveryTime } = event.data
-
-      this.selectedBuildingId = buildingId
-      this.selectedBuilding = { address, addressComponents, status, buildingId, coordinates, estimatedServiceDeliveryTime }
+    catchMapEvent (data) {
+      const { address, addressComponents, status, buildingId, coordinates, uniqueCode, estimatedServiceDeliveryTime } = data
+      this.storeSearchResults(address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime)
     },
 
     catchGoogleAutocompleteEvent (event) {
-      const { address, addressComponents, status, buildingId, url, coordinates } = event.detail
+      let { address, addressComponents, status, buildingId, coordinates, estimatedServiceDeliveryTime } = event.detail
 
-      this.selectedBuilding = { address, addressComponents, status, buildingId, coordinates, url }
-      this.selectedBuildingId = buildingId
+      const uniqueCode = getBuildingUniqueCode(addressComponents)
 
-      if (!buildingId) {
-        this.$root.$emit('open-error-popup', {
-          warning: true,
-          errorType: address,
-          errorMessage: 'Building was not found in DB. If you want to create new one please do not forget to save building details before saving customer details.'
+      if (!estimatedServiceDeliveryTime) {
+        this.__getEstimatedServiceDeliveryTime(status, (response) => {
+          estimatedServiceDeliveryTime = response.value || response.estimatedServiceDeliveryTime
         })
       }
+
+      this.storeSearchResults(address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime)
+    },
+
+    storeSearchResults (address, addressComponents, status, buildingId, coordinates, uniqueCode, estimatedServiceDeliveryTime) {
+      createNewBuilding({ address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime })
+      createNewCustomer(address, buildingId, estimatedServiceDeliveryTime)
+      this.selectedBuilding = { address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime }
+      this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
+      if (!buildingId) this.showWarning(address)
+    },
+
+    showWarning (address) {
+      this.$root.$emit('open-error-popup', {
+        warning: true,
+        errorType: address,
+        errorMessage: 'Building was not found in DB. If you want to create new one please do not forget to save building details before saving customer details.'
+      })
     }
   },
 
   beforeDestroy () {
-    this.$root.$off('building-details', this.showNewCustomerForm)
     const container = document.getElementById('container-for-map')
     if (!container) return
-    dgtekMapEvents.forEach(eventName => container.removeEventListener(eventName, this.catchMapEvent))
-
     window.removeEventListener('new-address-data', this.catchGoogleAutocompleteEvent)
   },
 
   mounted () {
-    this.$root.$on('building-details', this.showNewCustomerForm)
-
     const container = document.getElementById('container-for-map')
-    dgtekMapEvents.forEach(eventName => container.addEventListener(eventName, this.catchMapEvent))
 
     window.google = null
 
@@ -184,7 +178,7 @@ export default {
       center: { lat: -37.8357725, lng: 144.9738764 }
     })
 
-    this.map.setHost(this.$apiHost())
+    this.worker.searchCallback = this.catchMapEvent
 
     function waitForGoogleMaps () {
       if (!window.google) window.requestAnimationFrame(waitForGoogleMaps.bind(this))

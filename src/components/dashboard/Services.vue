@@ -189,12 +189,12 @@ export default {
   methods: {
     getActiveConnections (service) {
       this.serviceName = service.serviceName
-      this.__getServiceActiveConnections(service._id)
+      this.__getServiceActiveConnections(service._id, this.showActiveConnections)
     },
 
     getPendingConnections (service) {
       this.serviceName = service.serviceName
-      this.__getServicePendingConnections(service._id)
+      this.__getServicePendingConnections(service._id, this.showPendingConnections)
     },
 
     showPendingConnections (data) {
@@ -218,7 +218,7 @@ export default {
     },
 
     getData (data) {
-      this.items = Array.isArray(data) ? data : data.result ? data.result : []
+      this.items = data
       this.items.forEach(item => {
         item.speed = this.speedToString(item)
         item.active = this.$root.servicesInfo.services[item._id].active
@@ -238,21 +238,11 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('services-list-received', this.getData)
-
-    this.$root.$off('service-pending-connections-received', this.showPendingConnections)
-    this.$root.$off('service-active-connections-received', this.showActiveConnections)
-
     showServiceSelectHandler('reset')
   },
 
   mounted () {
-    this.$root.$on('services-list-received', this.getData)
-
-    this.$root.$on('service-pending-connections-received', this.showPendingConnections)
-    this.$root.$on('service-active-connections-received', this.showActiveConnections)
-
-    this.__getServices()
+    this.__getServices(this.getData)
     this.$vuetify.goTo(0)
   }
 }

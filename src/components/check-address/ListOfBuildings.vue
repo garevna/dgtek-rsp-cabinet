@@ -8,6 +8,7 @@
       :label="title"
       outlined
       dense
+      hide-details
       :loading="loading"
       v-model="selectedAddress"
     ></v-combobox>
@@ -31,6 +32,7 @@ export default {
   props: ['type', 'selected'],
 
   data: () => ({
+    worker: window[Symbol.for('map.worker')],
     buildings: null,
     selectedAddress: null,
     eventType: null,
@@ -51,26 +53,23 @@ export default {
   },
 
   methods: {
-    getListOfBuildings (event) {
-      if (event.store !== this.type) return
-      this.buildings = event.result
-      this.eventType = event.result.event
+    getListOfBuildings (data) {
+      const { buildingStatus, /* polygonStatus, */ event } = data
+      if (buildingStatus.toLowerCase() !== this.type) return
+      this.buildings = data
+      this.eventType = event
       this.loading = false
       this.ready = true
     },
+
     clickListItem (item) {
       const event = this.type === 'lit' ? 'on-net' : this.type
       this.$emit('update:selected', Object.assign(item, { event }))
     }
   },
 
-  beforeDestroy () {
-    this.$root.$off('buildings-data-list', this.getListOfBuildings)
-  },
-
-  mounted () {
-    this.$root.$on('buildings-data-list', this.getListOfBuildings)
-    this.__getBuildingsByStatus(this.type)
+  beforeMount () {
+    this.worker.getBuildingsListForTable(this.type, this.getListOfBuildings)
   }
 }
 </script>

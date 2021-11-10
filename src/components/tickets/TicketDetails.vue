@@ -239,7 +239,7 @@ export default {
 
   methods: {
     closeTheTicket () {
-      this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }))
+      this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }), () => console.log('Ticket closed'))
       this.$emit('update:edit', false)
     },
 
@@ -266,7 +266,7 @@ export default {
     },
 
     getList (partOfAddress) {
-      partOfAddress && this.__getCustomersListForTicket(partOfAddress)
+      partOfAddress && this.__getCustomersListForTicket(partOfAddress, this.fillCustomerList)
     },
 
     fillCustomerList (data) {
@@ -291,13 +291,13 @@ export default {
     postNewTicket () {
       this.updateTicketHistory()
       const result = JSON.parse(JSON.stringify(this.ticket))
-      this.__postNewTicket(result)
+      this.__postNewTicket(result, response => console.log('Ticket created', response))
     },
 
     updateTicket () {
       this.update('modified', Date.now())
       this.updateTicketHistory()
-      this.__saveTicketData(this.ticket._id, this.ticket)
+      this.__saveTicketData(this.ticket._id, this.ticket, () => console.log('Ticket updated'))
     },
 
     save () {
@@ -316,23 +316,13 @@ export default {
     }
   },
 
-  beforeDestroy () {
-    this.$root.$off('categories-received', this.getCategories)
-    this.$root.$off('customers-list-for-ticket-received', this.fillCustomerList)
-    this.$root.$off('customer-data-received', this.updateCustomerInfo)
-  },
-
   mounted () {
-    if (this.ticket && this.ticket.customerId) this.__getCustomerData(this.ticket.customerId)
+    if (this.ticket && this.ticket.customerId) this.__getCustomerData(this.ticket.customerId, this.updateCustomerInfo)
     else this.$emit('update:edit', true)
 
     if (!this.categories || !this.categories.length) {
-      this.$root.$on('categories-received', this.getCategories)
-      this.__getCategories()
+      this.__getTicketCategories(this.getCategories)
     }
-
-    this.$root.$on('customers-list-for-ticket-received', this.fillCustomerList)
-    this.$root.$on('customer-data-received', this.updateCustomerInfo)
   }
 }
 </script>

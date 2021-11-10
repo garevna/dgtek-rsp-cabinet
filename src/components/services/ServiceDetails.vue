@@ -77,13 +77,8 @@ export default {
     }
   },
 
-  beforeDestroy () {
-    this.$root.$off('sla-content-received', this.getSLAContent)
-  },
-
   beforeMount () {
-    this.$root.$on('sla-content-received', this.getSLAContent)
-    this.__getSLAContent(this.serviceDetails.serviceSLA)
+    this.__getSLAContent(this.serviceDetails.serviceSLA, this.getSLAContent)
   },
 
   mounted () {

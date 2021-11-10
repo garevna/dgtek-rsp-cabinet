@@ -1,8 +1,12 @@
-export const getServicePendingConnections = function (id) {
-  window[Symbol.for('vue.instance')].$root.$emit('progress-event', true)
+import { eventsTable } from '@/controllers/events-table'
+import { services } from '@/controllers/events'
+
+export const getServicePendingConnections = function (serviceId, callback) {
   window[Symbol.for('vue.prototype')].sendMessageToWorker({
     route: 'services',
     action: 'pending',
-    key: id
+    key: serviceId
   })
+
+  eventsTable[services.pending] = callback
 }

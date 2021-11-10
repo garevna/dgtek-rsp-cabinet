@@ -3,10 +3,13 @@
       <table>
         <tbody>
           <tr>
-            <td width="160" class="d-none d-md-flex">
-              Residential/commercial
+            <td width="280">Customer creation date</td>
+            <td width="480">
+              <DatePicker :date.sync="customer.customerCreationDate" title="Created" />
             </td>
-            <td width="*" colspan="2">
+            <td width="280" class="d-none d-md-flex">
+            </td>
+            <td width="320">
               <SwitchValues
                 label="Residential/commercial"
                 :value.sync="customerType"
@@ -16,6 +19,10 @@
               />
             </td>
           </tr>
+        </tbody>
+      </table>
+      <table>
+        <tbody>
           <tr v-if="customerType">
             <td class="d-none d-md-flex">Company name</td>
             <td colspan="2">
@@ -68,11 +75,10 @@
                 outlined
                 dense
                 label="address"
-                :menu-props="{ bottom: true, offsetY: true }"
               />
             </td>
           </tr>
-          <tr v-for="(prop, propName) in customerDetailsSchema" :key="propName">
+          <tr v-for="(prop, propName) in customerSchema" :key="propName">
             <td class="d-none d-md-flex">{{ prop.title }}</td>
             <td colspan="2">
               <v-text-field
@@ -90,7 +96,7 @@
                 v-model="prop.value"
                 @input="update(propName, prop.value)"
                 prefix="+61"
-                :rules="[prop.required && !customerDetailsSchema.phoneWork.value ? rules.required : (value) => true, rules.mobile]"
+                :rules="[prop.required && !customerSchema.phoneWork.value ? rules.required : (value) => true, rules.mobile]"
                 label="mobile phone number"
                 outlined
                 dense
@@ -125,7 +131,9 @@
 
 import { customerSchema, rules } from '@/configs'
 import { testTextField } from '@/helpers'
-import { SwitchValues } from '@/components/inputs'
+import { SwitchValues, DatePicker } from '@/components/inputs'
+
+import { partnerUniqueCodeHandler, customerHandler, buildingDetailsHandler } from '@/helpers/data-handlers'
 
 const { customerDetails, commercial } = customerSchema
 
@@ -133,18 +141,17 @@ export default {
   name: 'EditCustomerDetails',
 
   components: {
-    SwitchValues
+    SwitchValues,
+    DatePicker
   },
 
-  props: {
-    dialog: Boolean,
-    initialCustomer: Object
-  },
+  props: ['dialog'],
 
   data: () => ({
-    customer: null,
-    customerDetailsSchema: customerDetails,
-    commercialSchema: commercial,
+    worker: window[Symbol.for('map.worker')],
+    customer: customerHandler(),
+    customerSchema: JSON.parse(JSON.stringify(customerDetails)),
+    commercialSchema: JSON.parse(JSON.stringify(commercial)),
     rules: rules,
     buildings: [],
     customerType: null,
@@ -154,7 +161,7 @@ export default {
 
   computed: {
     saveDisabled () {
-      return !this.customer || !this.customer.buildingId || this.testForErrors()
+      return !this.customer || this.testForErrors()
     },
     buildingId: {
       get () {
@@ -178,13 +185,44 @@ export default {
           this.customer.commercial = this.commercialSchema
         }
       }
+    },
+    'customer.buildingId': {
+      handler (val) {
+        console.log('BUILDING ID CHANGED!!!!!!!!!!!!!', val)
+        this.customer.buildingId = val
+        this.worker.getBuildingDetailsById(val, this.getBuildingById)
+      }
     }
   },
 
   methods: {
-    changeUniqueCode (aptNumber) {
-      this.customer.uniqueCode = aptNumber ? `${this.uniqueCode}.${aptNumber}` : this.uniqueCode
-      this.customerDetailsSchema.uniqueCode.value = this.customer.uniqueCode
+    changeUniqueCode () {
+      this.customer.uniqueCode = `${partnerUniqueCodeHandler()}.${buildingDetailsHandler().uniqueCode}`
+      this.customer.uniqueCode += this.customer.apartmentNumber ? `.${this.customer.apartmentNumber}` : ''
+      this.customerSchema.uniqueCode.value = this.customer.uniqueCode
+      console.log(this.customer.uniqueCode)
+    },
+
+    getBuildingById (buildingDetails) {
+      if (!buildingDetails) this.worker.getBuildingDetailsByAddress(this.customer.address, this.updateBuildingDetails)
+      this.updateBuildingDetails(buildingDetails)
+    },
+
+    // getBuildingByAddress (buildingDetails) {
+    //   console.log('Building was not found by id. Search by address...')
+    //   this.worker.getBuildingDetailsByAddress(this.customer.address, this.updateBuildingDetails)
+    // },
+
+    updateBuildingDetails (buildingDetails) {
+      if (!buildingDetails) {
+        this.customer.buildingId = null
+        customerHandler(Object.assign(customerHandler(), { buildingId: null }))
+        console.log('Building was not found by address.\nSuch building not exist.\nYou shold create new one.\n', customerHandler())
+        return
+      }
+      this.customer.buildingId = buildingDetails._id
+      buildingDetailsHandler(buildingDetails)
+      this.changeUniqueCode(this.customer.apartmentNumber)
     },
 
     update (propName, propValue) {
@@ -192,7 +230,7 @@ export default {
     },
 
     updateBuildingId () {
-      this.__getBuildingByAddress(this.customer.address)
+      this.worker.getBuildingDetailsByAddress(this.customer.address, this.updateBuildingDetails)
     },
 
     rowHeight (item) {
@@ -210,13 +248,9 @@ export default {
         this.errorMessage = 'Building details should be saved first'
         return true
       }
-      // if (!this.customer.apartmentNumber || this.customer.apartmentNumber === '0') {
-      //   this.errorMessage = 'Apartment number is required'
-      //   return true
-      // }
 
-      for (const fieldName in this.customerDetailsSchema) {
-        const field = this.customerDetailsSchema[fieldName]
+      for (const fieldName in this.customerSchema) {
+        const field = this.customerSchema[fieldName]
 
         if (field.required ? !field.value : false) {
           this.errorMessage = `${field.title} is required`
@@ -236,57 +270,63 @@ export default {
     createSchema () {
       if (this.customer.commercial && Object.keys(this.customer.commercial).length > 0) {
         this.customerType = true
-        this.commercialSchema.companyName.value = this.customer.commercial.companyName
-        this.commercialSchema.companyAbn.value = this.customer.commercial.companyAbn
+        this.commercialSchema.companyName.value = this.customer.commercial.companyName || ''
+        this.commercialSchema.companyAbn.value = this.customer.commercial.companyAbn || ''
       }
-      this.customerDetailsSchema = customerSchema.customerDetails
-      for (const prop in this.customerDetailsSchema) {
-        this.customerDetailsSchema[prop].value = this.customer[prop]
+      this.customerSchema = customerSchema.customerDetails
+      for (const prop in this.customerSchema) {
+        this.customerSchema[prop].value = this.customer[prop]
       }
-    },
-
-    getCustomerData (data) {
-      this.customer = data.result
-      this.createSchema()
-
-      const { buildingId } = data.result
-      buildingId && this.__getBuildingById(buildingId)
     },
 
     getBuildings (data) {
-      this.buildings.push(...data)
+      this.buildings.push(...data, this.customer.address)
     },
 
     saveCustomerDetails () {
-      if (!this.customerType) this.customer.commercial = {}
-      this.customer._id ? this.__putCustomer(this.customer._id, this.customer) : this.__postCustomer(this.customer)
+      if (!this.customerType) this.customer.commercial = null
+      this.customer.postCode = buildingDetailsHandler().addressComponents.postCode
+      this.customer._id
+        ? this.__putCustomer(this.customer._id, this.customer, this.customerUpdated)
+        : this.__postCustomer(this.customer, this.customerCreated)
+    },
+
+    customerUpdated (data) {
+      this.$root.$emit('customer-updated', data)
+    },
+
+    customerCreated (data) {
+      this.$root.$emit('customer-created', data)
     },
 
     close (data) {
-      this.$parent.$emit('update:initialCustomer', Object.assign({}, this.customer, { _id: data }))
+      this.$root.$emit('customer-modified')
       this.$vuetify.goTo(0)
     }
   },
 
-  beforeDestroy () {
-    this.$root.$off('customer-updated', this.close)
-    this.$root.$off('customer-created', this.close)
+  created () {
+    this.worker.getBuildingsList('lit', this.getBuildings)
   },
 
   mounted () {
-    this.customer = this.initialCustomer
-    this.buildings = [this.customer.address]
+    this.customer = customerHandler()
     this.createSchema()
 
-    this.uniqueCode = this.initialCustomer.uniqueCode
-
-    this.$root.$on('customer-updated', this.close)
-    this.$root.$on('customer-created', this.close)
+    // this.$root.$on('customer-updated', this.close)
+    // this.$root.$on('customer-created', this.close)
 
     this.$vuetify.goTo(0)
   }
 }
 </script>
+
+<style>
+.v-input__control {
+  font-size: 14px !important;
+  font-weight: bold;
+}
+</style>
 
 <style scoped>
 table {
@@ -302,6 +342,6 @@ td {
   padding: 4px 12px;
 }
 .theme--light.v-application .text--primary {
-  color: #900!important;
+  color: #900 !important;
 }
 </style>

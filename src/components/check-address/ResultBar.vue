@@ -64,29 +64,22 @@ export default {
       deep: true,
       immediate: true,
       handler (data) {
-        this.__getEstimatedServiceDeliveryTime(data.status)
+        this.__getEstimatedServiceDeliveryTime(data.status, this.getSettings)
       }
     }
   },
 
   methods: {
     getSettings (data) {
+      console.log('=========================', data)
       const { toDisplay, statusToDisplay, value, estimatedServiceDeliveryTime, newCustomerDisabled } = data
 
-      this.statusToDisplay = toDisplay || statusToDisplay
+      this.statusToDisplay = toDisplay || statusToDisplay || this.addressData.event
       this.estimatedServiceDeliveryTime = estimatedServiceDeliveryTime || value
       this.newCustomerDisabled = newCustomerDisabled
 
       !this.addressData.buildingId && this.$emit('update:addressData', Object.assign(this.addressData, { estimatedServiceDeliveryTime: this.estimatedServiceDeliveryTime }))
     }
-  },
-
-  beforeDestroy () {
-    this.$root.$off('settings-data-received', this.getSettings)
-  },
-
-  mounted () {
-    this.$root.$on('settings-data-received', this.getSettings)
   }
 }
 </script>

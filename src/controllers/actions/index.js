@@ -8,9 +8,11 @@ import customers from './customers'
 import tickets from './tickets'
 import map from './map.worker'
 import rsp from './rsp'
+import settings from './settings'
 
 export const actions = Object.assign({ init, credentials, getFreeLotsOfSchedule },
   dashboard,
+  settings,
   services,
   rsp,
   customers,

@@ -9,6 +9,8 @@ export const getListOfServices = async function () {
 
   if (status !== 200) return getServicesListError(status)
 
+  self.postMessage({ status: 300, services: result })
+
   return {
     status,
     route: 'services',

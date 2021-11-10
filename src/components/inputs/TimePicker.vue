@@ -51,7 +51,6 @@ export default {
 .v-time-picker-title {
   justify-content: center;
   color: #900;
-  font-
 }
 
 .theme--light.v-time-picker-clock {

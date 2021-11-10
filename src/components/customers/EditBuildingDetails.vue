@@ -55,14 +55,26 @@
           </v-col>
         </v-row>
       </v-container>
+
+      <v-card-actions class="my-8">
+        <v-spacer />
+        <v-btn dark class="buttons" @click="saveBuildingDetails">
+          Update/save details
+        </v-btn>
+      </v-card-actions>
     </v-card>
 
-    <v-card-actions class="my-8">
+    <v-card flat class="transparent mt-0" v-else>
+      <h5><small> Building was not found in DB </small></h5>
+      <h5><small> Please select the building in customer details section or send a ticket to admin </small></h5>
+    </v-card>
+
+    <!-- <v-card-actions class="my-8">
       <v-spacer />
       <v-btn dark class="buttons" @click="saveBuildingDetails">
         Update/save details
       </v-btn>
-    </v-card-actions>
+    </v-card-actions> -->
   </v-card>
 </template>
 
@@ -70,7 +82,7 @@
 
 import { rules } from '@/configs'
 import { testTextField } from '@/helpers'
-import { buildingDetailsHandler } from '@/helpers/data-handlers'
+import { customerHandler, buildingDetailsHandler } from '@/helpers/data-handlers'
 
 export default {
   name: 'EditBuildingDetails',
@@ -79,52 +91,37 @@ export default {
     GeoscapeAutocomplete: () => import('@/components/inputs/GeoscapeAutocomplete.vue')
   },
 
-  props: {
-    buildingId: String,
-    postCode: String
-  },
+  props: { __buildingId: String },
 
   data: () => ({
+    worker: window[Symbol.for('map.worker')],
     ready: false,
+    buildingId: customerHandler().buildingId,
     schema: {},
-
-    coordinates: null,
-    buildingDetails: {},
     rules: rules,
     buildingType: null,
     sections: ['management', 'owner']
   }),
 
-  computed: {},
-
-  watch: {
-    buildingData: {
-      deep: true,
-      immediate: true,
-      handler (data) {
-        this.getBuildingDetails(data)
-      }
-    }
-  },
-
   methods: {
-    getBuildingDetails (data) {
-      buildingDetailsHandler(data)
-
-      this.schema = buildingDetailsHandler()
-
-      this.ready = true
+    getNewBuildingId (data) {
+      data.status === 200 && this.$emit('update:__buildingId', data.result)
+      console.log('New building created: ', data)
+      this.$root.$emit('new-building-created', data)
     },
 
-    getNewBuildingId (data) {
-      data.status === 200 && this.$emit('update:buildingId', data.result)
+    showError (errorType, errorMessage) {
+      this.$root.$emit('open-error-popup', { errorType, errorMessage })
     },
 
     sendMessage (event) {
+      console.log(event)
       this.$root.$emit('open-message-popup', {
         messageTyle: 'Building details',
-        messageText: 'Data updated'
+        messageText: 'Data saved'
       })
+
+      this.$root.$emit('building-data-updated')
     },
 
     rowHeight (item) {
@@ -143,24 +140,29 @@ export default {
       const result = buildingDetailsHandler('save')
 
       if (this.buildingId) {
-        this.__patchBuildingDetails(this.buildingId, result)
+        // this.__patchBuildingDetails(this.buildingId, result, this.sendMessage)
+        // this.__patchBuildingDetails(this.buildingId, result, () => console.log('Building details updated'))
+        this.worker.patchBuildingDetails(this.buildingId, result, this.sendMessage)
       } else {
-        this.__postBuildingDetails(result)
+        // this.__postBuildingDetails(result, this.getNewBuildingId)
+        this.worker.createNewBuilding(result, this.getNewBuildingId)
       }
     }
   },
 
-  beforeDestroy () {
-    // this.$root.$off('building-data-received', this.getBuildingDetails)
-    this.$root.$off('buildings-data-saved', this.sendMessage)
-    this.$root.$off('new-building-created', this.getNewBuildingId)
+  beforeMount () {
+    console.group('EDIT BUILDING DETAILS: BEFORE MOUNT')
+    console.log('BUILDING ID: ', this.buildingId)
+    console.log('CUSTOMER HANDLER:\n', customerHandler())
+    console.log('BUILDING DETAILS HANDLER:\n', buildingDetailsHandler())
+    console.groupEnd('EDIT BUILDING DETAILS: MOUNTED')
+
+    this.schema = buildingDetailsHandler()
   },
 
   mounted () {
-    this.schema = buildingDetailsHandler()
-
-    this.$root.$on('buildings-data-saved', this.sendMessage)
-    this.$root.$on('new-building-created', this.getNewBuildingId)
+    // this.$root.$on('buildings-data-saved', this.sendMessage)
+    // this.$root.$on('new-building-created', this.getNewBuildingId)
 
     this.$vuetify.goTo(0)
   }

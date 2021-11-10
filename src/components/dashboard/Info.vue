@@ -109,7 +109,6 @@ export default {
 
   methods: {
     showServicesInfo (data) {
-      // console.log('STATISTICS:\n', data)
       this.services = data.services
       this.pendingConnections = 0
       for (const serviceId of Object.keys(data.services)) {
@@ -133,7 +132,6 @@ export default {
           serviceName: this.services[serviceId].serviceName,
           number: this.services[serviceId].active
         }))
-      // console.log(this.connections)
     },
 
     showPendingConnections () {
@@ -143,7 +141,6 @@ export default {
           serviceName: this.services[serviceId].serviceName,
           number: this.services[serviceId].pending
         }))
-      // console.log(this.connections)
     },
 
     showNotActiveConnections () {
@@ -153,17 +150,24 @@ export default {
           serviceName: this.services[serviceId].serviceName,
           number: this.services[serviceId].notConnected
         }))
-      // console.log(this.connections)
+    },
+
+    getCustomersServicesInfo () {
+      this.__getCustomersServicesInfo(this.showServicesInfo)
+    },
+
+    refreshCallback () {
+      this.getCustomersServicesInfo(this.showServicesInfo)
     }
   },
 
-  beforeDestroy () {
-    this.$root.$off('dashboard-services-info', this.showServicesInfo)
+  beforeMount () {
+    this.$refreshed.customers && this.$refreshed.services && this.__getCustomersServicesInfo(this.showServicesInfo)
+    this.$root.$on('refreshing-finished', this.getCustomersServicesInfo)
   },
 
-  beforeMount () {
-    this.$root.$on('dashboard-services-info', this.showServicesInfo)
-    this.__getCustomersServicesInfo()
+  beforeDestroy () {
+    this.$root.$off('refreshing-finished', this.getCustomersServicesInfo)
   }
 }
 

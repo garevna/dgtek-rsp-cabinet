@@ -76,10 +76,6 @@
         <v-btn outlined color="buttons" class="mr-2" @click="selectService">
           Assign new service
         </v-btn>
-        <v-spacer />
-        <v-btn dark class="buttons" @click="updateCustomerServices" v-if="showSubmitButton">
-          Update/save details
-        </v-btn>
       </v-row>
     </v-card>
 
@@ -106,20 +102,14 @@
     </v-row>
 
     <ConfirmActivationRequest />
-
-    <!-- <v-row v-if="" justify="center">
-      <CustomerDetails
-        :dialog.sync="edit"
-        :customerId.sync="selectedCustomerId"
-      />
-    </v-row> -->
   </v-container>
 </template>
 
 <script>
 
-import { serviceHandler, showServiceSelectHandler } from '@/helpers'
+import { customerServicesHandler, showServiceSelectHandler } from '@/helpers/data-handlers'
 import { Services } from '@/components/dashboard'
+const newTicket = require('@/configs/ticketSchema')
 
 const showError = function () {
   this.$root.$emit('open-error-popup', {
@@ -138,11 +128,11 @@ export default {
     LotSelection: () => import(/* webpackChunkName: 'lot-selection' */ '@/components/schedule/LotSelection.vue')
   },
 
-  props: ['services', 'address', 'update', 'customerId'],
+  props: ['address', 'customerId'],
 
   data: () => ({
     schema: [],
-    details: {},
+    // details: {},
     showServices: false,
     showSelect: false,
     selected: null,
@@ -152,17 +142,6 @@ export default {
     ticket: null,
     categories: []
   }),
-
-  computed: {
-    customerServices: {
-      get () {
-        return this.services
-      },
-      set (data) {
-        this.$emit('update:services', data)
-      }
-    }
-  },
 
   watch: {
     selected: {
@@ -188,7 +167,7 @@ export default {
 
     showServices (newVal, oldVal) {
       if (oldVal && !newVal) {
-        if (!serviceHandler()) return
+        if (!customerServicesHandler()) return
         this.assignNewService()
       }
     },
@@ -209,7 +188,7 @@ export default {
     },
 
     makeTicket (subject) {
-      this.ticket = Object.assign({}, require('@/configs/ticketSchema'), {
+      this.ticket = Object.assign({}, JSON.parse(JSON.stringify(newTicket)), {
         created: Date.now(),
         modified: Date.now(),
         category: 'Customer issue',
@@ -226,6 +205,7 @@ export default {
     },
 
     getServiceDetails (data) {
+      console.log('SERVICES:\n', this.services)
       const { serviceName, _id: serviceId } = data
 
       const service = this.services.find(item => item.id === serviceId)
@@ -242,7 +222,7 @@ export default {
     },
 
     assignNewService () {
-      const { serviceId, serviceName, serviceSpeed, servicePlan, serviceTerm } = serviceHandler()
+      const { serviceId, serviceName, serviceSpeed, servicePlan, serviceTerm } = customerServicesHandler()
 
       if (this.services.find(service => service.id === serviceId)) return this.showError()
 
@@ -303,7 +283,7 @@ export default {
     },
 
     sendActivationRequest () {
-      this.__sendServiceActivationRequest(this.customerId, this.selected.serviceId)
+      this.__sendServiceActivationRequest(this.customerId, this.selected.serviceId, this.showActivationSuccess)
     },
 
     showActivationSuccess (data) {
@@ -316,20 +296,29 @@ export default {
     },
 
     updateCustomerServices () {
-      this.__updateCustomerServices(this.customerId, this.customerServices)
+      this.__updateCustomerServices(this.customerId, this.customerServices, response => console.log('Customer services updated', response))
       this.schema.forEach((item) => { item.modified = false })
       this.showSubmitButton = false
     }
+
+    // getCustomerData (data) {
+    //   console.log('CUSTOMER DETAILS FROM SERVICES:\n', data)
+    // }
   },
 
   beforeDestroy () {
-    this.$root.$off('service-activation-request-sent', this.showActivationSuccess)
-    this.$root.$off('service-details-received', this.getServiceDetails)
-    this.$root.$off('customer-created', this.close)
     this.$root.$off('operation-confirmed', this.sendActivationRequest)
   },
 
   mounted () {
+    console.log(this.services)
+    console.log(customerServicesHandler())
+    this.services = customerServicesHandler()
+    // if (this.customerId) {
+    //   this.__getCustomerData(this.customerId, this.getCustomerData)
+    //   this.section = this.sectionName
+    // }
+
     this.customerServices = Array.isArray(this.services)
       ? this.services.map(item => ({
         id: item.id,
@@ -342,14 +331,12 @@ export default {
 
     this.$emit('update:services', this.customerServices)
 
-    this.$root.$on('service-details-received', this.getServiceDetails)
     this.$root.$on('service-selected', this.assignNewService)
     this.$root.$on('operation-confirmed', this.sendActivationRequest)
-    this.$root.$on('service-activation-request-sent', this.showActivationSuccess)
 
     for (const service of this.services) {
       if (service.name) delete service.name
-      this.__getServiceById(service.id)
+      this.__getServiceById(service.id, this.getServiceDetails)
     }
 
     this.$vuetify.goTo(0)

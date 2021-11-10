@@ -1,8 +1,11 @@
-export const postNewTicket = function (data) {
-  window[Symbol.for('vue.instance')].$root.$emit('progress-event', true)
+import { eventsTable } from '@/controllers/events-table'
+import { tickets } from '@/controllers/events'
+
+export const postNewTicket = function (data, callback) {
   window[Symbol.for('vue.prototype')].sendMessageToWorker({
     route: 'tickets',
-    action: 'post',
-    data
+    action: 'post'
   })
+
+  eventsTable[tickets.post] = callback
 }

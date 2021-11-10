@@ -12,7 +12,7 @@ const [route, action] = ['customers', 'refresh']
 export const refreshCustomers = async function () {
   let currentPage = 1
   let done = false
-  servicesInfoHandler('reset')
+  // servicesInfoHandler('reset')
   clearStore('customers')
 
   const { status, result: services } = await self.controller.getListOfServices()
@@ -72,6 +72,6 @@ export const refreshCustomers = async function () {
     })
   }
 
-  self.postMessage({ status: 200, route: 'dashboard', action: 'info', result: servicesInfoHandler() })
+  // self.postMessage({ status: 200, route: 'dashboard', action: 'info', result: servicesInfoHandler() })
   return { status: 200, route, action, result: (await self.controller.getAllCustomers()).result }
 }

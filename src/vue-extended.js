@@ -4,7 +4,7 @@ import {
   createController,
   createMapWorker,
   createRspWorker
-} from './controllers'
+} from '@/controllers'
 
 import configPlugin from '../config'
 Vue.use(configPlugin)
@@ -18,15 +18,32 @@ window[Symbol.for('global.addressData')] = {
   url: null
 }
 
-if (window.performance) console.info('window.performance OK')
+/* eslint-disable no-extend-native */
 
-const sourceOrigin = process.env.NODE_ENV === 'production' ? 'https://portal.dgtek.net' : 'http://192.168.0.100:8081/'
+String.prototype.toKebab = function () {
+  return this.split(' ').join('-').split('')
+    .map((char, index) => char.charCodeAt(0) < 91 && char.charCodeAt(0) > 64 ? `${index ? '-' : ''}${char.toLowerCase()}` : char)
+    .join('').split('--').join('-')
+}
+
+String.prototype.fromKebab = function () {
+  const string = this.split('-').join(' ')
+  return `${string[0].toUpperCase()}${string.slice(1)}`
+}
+
+// if (window.performance) console.info('window.performance OK')
+
+// const sourceOrigin = process.env.NODE_ENV === 'production' ? 'https://portal.dgtek.net' : 'http://192.168.0.101:8081/'
 
 // window.opener.postMessage('ready', sourceOrigin)
 
-if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-  location.href = sourceOrigin
-}
+window[Symbol.for('api.host')] = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_API_HOST_PROD : process.env.VUE_APP_API_HOST_DEV
+
+window[Symbol.for('portal.entry')] = process.env.NODE_ENV === 'production' ? 'https://portal.dgtek.net' : 'http://192.168.0.101:8081/'
+
+// if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+//   location.href = window[Symbol.for('portal.entry')]
+// }
 
 window[Symbol.for('vue.prototype')] = Vue.prototype
 
@@ -40,6 +57,9 @@ window[Symbol.for('vue.prototype')].$refreshed = {
 }
 
 createMapWorker()
+
+window[Symbol.for('vue.prototype')].mapWorker = window[Symbol.for('map.worker')]
+
 createRspWorker()
 
 createController()

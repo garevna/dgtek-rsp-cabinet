@@ -1,8 +1,12 @@
-export const getServiceById = function (id) {
-  window[Symbol.for('vue.instance')].$root.$emit('progress-event', true)
+import { eventsTable } from '@/controllers/events-table'
+import { services } from '@/controllers/events'
+
+export const getServiceById = function (serviceId, callback) {
   window[Symbol.for('vue.prototype')].sendMessageToWorker({
     route: 'services',
     action: 'get',
-    key: id
+    key: serviceId
   })
+
+  eventsTable[services.get] = callback
 }

@@ -6,12 +6,11 @@ import ErrorMessage from '@/components/popups/error.vue'
 import Message from '@/components/popups/message.vue'
 import Confirmation from '@/components/popups/Confirmation.vue'
 
-// import { credentials } from '@/controllers/actions'
-import { actions } from '@/controllers/actions'
+import { auth } from './helpers'
 
-import { setBuildingHandlers } from '@/helpers/map.worker'
+// import { setBuildingHandlers } from '@/helpers/map.worker'
 
-// import { createController } from './controllers'
+// import { createController } from '@/controllers'
 
 import {
   getWeekNumber,
@@ -31,21 +30,6 @@ Object.assign(Vue.prototype, {
   getWeekDatesByWeekNumber
 })
 
-const { credentials } = actions
-
-/* eslint-disable no-extend-native */
-
-String.prototype.toKebab = function () {
-  return this.split(' ').join('-').split('')
-    .map((char, index) => char.charCodeAt(0) < 91 && char.charCodeAt(0) > 64 ? `${index ? '-' : ''}${char.toLowerCase()}` : char)
-    .join('').split('--').join('-')
-}
-
-String.prototype.fromKebab = function () {
-  const string = this.split('-').join(' ')
-  return `${string[0].toUpperCase()}${string.slice(1)}`
-}
-
 Vue.config.productionTip = false
 
 Vue.component('error-message', ErrorMessage)
@@ -57,9 +41,9 @@ const instance = new Vue({
   render: h => h(App)
 }).$mount('#app')
 
-instance.showMainMenu = true
-
 window[Symbol.for('vue.instance')] = instance
+
+instance.showMainMenu = true
 
 instance.dispatchProgressEvent = function (value) {
   instance.$root.$emit('progress-event', { progress: value })
@@ -77,16 +61,11 @@ Object.assign(Vue.prototype, {
   $sendMessageToWorker: instance.sendMessageToWorker
 })
 
-window.onload = (event) => {
-  if (location.hash.slice(1)) {
-    credentials(location.hash.slice(1))
-    location.hash = ''
-  }
-}
+window.onload = auth
 
-window[Symbol.for('api.host')] = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_API_HOST_PROD : process.env.VUE_APP_API_HOST_DEV
+// createController()
 
-console.log(window[Symbol.for('api.host')])
+// console.log(window[Symbol.for('portal.entry')])
 
 // window.addEventListener('new-address-data', function (event) {
 //   const { address, addressComponents, status, url, coordinates } = event.detail
@@ -95,4 +74,4 @@ console.log(window[Symbol.for('api.host')])
 
 /* ===================== MAP WORKER ========================= */
 
-setBuildingHandlers()
+// setBuildingHandlers()

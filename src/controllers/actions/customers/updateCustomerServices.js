@@ -1,9 +1,13 @@
-export const updateCustomerServices = function (customerId, services) {
-  window[Symbol.for('vue.instance')].$root.$emit('progress-event', true)
-  window[Symbol.for('vue.prototype')].sendMessageToWorker({
+import { eventsTable } from '@/controllers/events-table'
+import { customers } from '@/controllers/events'
+
+export const updateCustomerServices = function (customerId, services, callback) {
+  window[Symbol.for('vue.prototype')].$sendMessageToWorker({
     route: 'customers',
     action: 'services',
     customerId,
     services
   })
+
+  eventsTable[customers.services] = callback
 }

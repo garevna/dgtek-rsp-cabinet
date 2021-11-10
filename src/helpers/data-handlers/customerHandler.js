@@ -1,11 +1,11 @@
 export const customerHandler = (function () {
-  let customerId = null
+  let customer = null
   return function (value) {
-    if (!value) return customerId
+    if (!value) return customer
     if (value === 'reset') {
-      customerId = null
+      customer = null
     } else {
-      customerId = value
+      customer = JSON.parse(JSON.stringify(value))
     }
   }
 })()

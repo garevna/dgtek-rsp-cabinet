@@ -41,7 +41,7 @@ export default {
   methods: {
     getMessages (data) {
       messagesHandler(data)
-      this.messages = data
+      this.messages = messagesHandler()
     },
     showItem (item) {
       this.$root.$emit('go-to-company-details')
@@ -49,11 +49,11 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('messages-from-dgtek-refreshed', this.getMessages)
+    this.$root.$off('refreshing-finished', this.getMessages)
   },
 
   beforeMount () {
-    this.$root.$on('messages-from-dgtek-refreshed', this.getMessages)
+    this.$root.$on('refreshing-finished', this.getMessages)
   },
 
   mounted () {

@@ -4,6 +4,8 @@ import { buildingIdHandler } from './buildingIdHandler'
 import { buildingDetailsHandler } from './buildingDetailsHandler'
 
 import { serviceHandler } from './serviceHandler'
+import { customerServicesHandler } from './customerServicesHandler'
+
 import { showServiceSelectHandler } from './showServiceSelectHandler'
 // import { showMainMenuHandler } from './showMainMenuHandler'
 import { estimatesHandler } from './estimatesHandler'
@@ -20,6 +22,7 @@ export {
   buildingIdHandler,
   buildingDetailsHandler,
   serviceHandler,
+  customerServicesHandler,
   showServiceSelectHandler,
   // showMainMenuHandler,
   estimatesHandler,
