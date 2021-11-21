@@ -6,7 +6,6 @@
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon @click="$emit('update:dialog', false)">
-      <!-- <v-btn icon @click="$emit('update:dialog', false)" v-if="!disableClose"> -->
         <v-icon large> $close </v-icon>
       </v-btn>
     </v-toolbar>
@@ -22,13 +21,13 @@
 
       <v-row align="center" justify="center">
         <v-card-text class="text-center">
-          <p><small>Service: </small><b>{{ serviceData.serviceName }}</b></p>
+          <p><small>Service: </small><b>{{ service.serviceName }}</b></p>
         </v-card-text>
       </v-row>
 
       <v-row align="center" justify="center">
         <v-card-text class="text-center">
-          <p><small>Current delivery status: </small><b>{{ serviceData.serviceStatus }}</b></p>
+          <p><small>Current delivery status: </small><b>{{ service.status }}</b></p>
         </v-card-text>
       </v-row>
 
@@ -45,34 +44,22 @@
           <v-btn outlined color="primary" @click="reset">No</v-btn>
         </v-card-text>
       </v-row>
-
-      <!-- <v-row align="center" justify="center" v-if="submited">
-        <v-card-text class="text-center">
-          <p>
-            <small>
-              You service delivery update request has been sent.
-            </small>
-            <v-card-text class="text-center">
-              <v-btn outlined @click="$emit('update:dialog', false)">OK</v-btn>
-            </v-card-text>
-          </p>
-        </v-card-text>
-      </v-row> -->
     </v-card>
   </v-dialog>
 </template>
 
 <script>
 
+import { serviceController } from '@/controllers'
+
 export default {
   name: 'ServiceDeliveryUpdate',
 
-  props: ['dialog', 'address', 'serviceData', 'customerId'],
+  props: ['dialog'],
 
   data: () => ({
-    status
-    // disableClose: false,
-    // submited: false
+    service: null,
+    address: ''
   }),
 
   computed: {
@@ -88,33 +75,21 @@ export default {
 
   methods: {
     sendRequest () {
-      // this.disableClose = true
-      // this.submited = true
-      this.__sendServiceActivationRequest(this.customerId, this.serviceData.serviceId)
+      this.__sendServiceActivationRequest(serviceController.getCustomerId(), this.service.id, this.getResponse)
     },
 
-    getResponse (updatedCustomerServices) {
-      const service = updatedCustomerServices.find(item => item.id === this.serviceData.serviceId)
-      this.$emit('update:serviceData', Object.assign({}, this.serviceData, {
-        serviceStatus: service.status,
-        serviceStatusModified: new Date(service.modified).toISOString().slice(0, 10)
-      }))
-      // this.submited = true
-      // this.disableClose = false
+    getResponse (response) {
+      console.log(response)
       this.$emit('update:dialog', false)
     },
     reset () {
-      // this.opened = false
       this.$emit('update:dialog', false)
     }
   },
 
-  beforeDestroy () {
-    this.$root.$off('service-activation-request-sent', this.getResponse)
-  },
-
   mounted () {
-    this.$root.$on('service-activation-request-sent', this.getResponse)
+    this.address = serviceController.getCustomerAddress
+    this.service = serviceController.getCurrentService()
   }
 }
 </script>

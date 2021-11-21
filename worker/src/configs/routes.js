@@ -5,7 +5,8 @@ const {
   customersController,
   servicesController,
   ticketsController,
-  rspController
+  rspController,
+  statisticsController
 } = require('../controllers')
 
 export const routes = {
@@ -30,12 +31,16 @@ export const routes = {
     short: customersController.getCustomersListForTicket,
     'awaiting-for-connection': customersController.getAwaitingForConnection,
     'filtered-short-list': customersController.getFilteredShortListOfCustomers,
-    services: customersController.updateCustomerServices,
     get: customersController.getCustomer,
     post: customersController.createCustomer,
     delete: customersController.deleteCustomer,
     put: customersController.updateCustomer,
-    activate: customersController.activateServiceRequest,
+
+    assign: customersController.assignNewService,
+    activate: customersController.activateService,
+    status: customersController.updateServiceStatus,
+    services: customersController.updateCustomerServices,
+
     scheduling: customersController.scheduling
     // info: customersController.getActiveServicesInfo
   },
@@ -82,5 +87,9 @@ export const routes = {
     get: settingsController.get,
     esdt: settingsController.getEstimatedServiceDeliveryTime,
     tc: settingsController.getTicketCategories
+  },
+
+  statistics: {
+    get: statisticsController.getStatistics
   }
 }

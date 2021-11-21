@@ -2,6 +2,16 @@ import { getRecordByKey } from '../db'
 
 const { getCustomerDataError } = require('../error-handlers').default
 
+const [route, action] = ['customers', 'get']
+
+const serviceError = {
+  status: 100,
+  route,
+  action,
+  error: true,
+  errorType: 'Customer services'
+}
+
 export const getCustomer = async function (id) {
   const { status, result: customer } = await getRecordByKey('customers', id)
 
@@ -14,13 +24,17 @@ export const getCustomer = async function (id) {
   const tested = []
 
   for (const service of services) {
+    if (!service.id) {
+      self.postMessage(Object.assign({}, serviceError, { errorMessage: 'Service id is not defined' }))
+      continue
+    }
     const { status, result } = await getRecordByKey('services', service.id)
-    if (status !== 200) self.postDebugMessage({ error: 'Error: service is not available', serviceId: service.id, response: { status, result } })
+    if (status !== 200) self.postMessage(Object.assign({}, serviceError, { errorMessage: `Service ${service.id} is not available` }))
     else tested.push(Object.assign(customer.services[index], { serviceName: result.serviceName }))
     index++
   }
 
   Object.assign(customer, { services: tested })
 
-  return { status, route: 'customers', action: 'get', key: id, result: customer }
+  return { status, route, action, key: id, result: customer }
 }

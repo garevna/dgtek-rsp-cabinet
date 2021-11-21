@@ -143,7 +143,7 @@
     <v-row class="mt-12">
       <v-btn outlined color="primary" @click="$emit('update:edit', false)">Back to tickets list</v-btn>
       <v-spacer />
-      <v-btn dark class="primary mr-2" @click="closeTheTicket" v-if="!newTicket">
+      <v-btn dark class="primary mr-2" @click="closeTheTicket" v-if="!ticket._id">
         Archive the ticket
       </v-btn>
       <v-btn dark class="primary" @click="save">Update/save details</v-btn>
@@ -160,7 +160,7 @@ export default {
     Selector: () => import('@/components/tickets/Selector.vue')
   },
 
-  props: ['ticket', 'categories', 'newTicket', 'edit'],
+  props: ['ticket', 'categories', 'edit'],
 
   data: () => ({
     customersList: [],
@@ -239,7 +239,8 @@ export default {
 
   methods: {
     closeTheTicket () {
-      this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }), () => console.log('Ticket closed'))
+      console.log(this.ticket)
+      this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }), response => console.log(response))
       this.$emit('update:edit', false)
     },
 
@@ -301,7 +302,7 @@ export default {
     },
 
     save () {
-      this.newTicket ? this.postNewTicket() : this.updateTicket()
+      this.ticket._id ? this.updateTicket() : this.postNewTicket()
       this.$emit('update:edit', false)
     },
 

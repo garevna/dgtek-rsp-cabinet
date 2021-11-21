@@ -4,7 +4,7 @@ import { CustomersList } from './CustomersList.vue'
 import { EditBuildingDetails } from './EditBuildingDetails.vue'
 import { EditCustomerDetails } from './EditCustomerDetails.vue'
 import { Selectors } from './Selectors.vue'
-import { ServiceDeliveryUpdate } from './ServiceDeliveryUpdate.vue'
+// import { ServiceDeliveryUpdate } from './ServiceDeliveryUpdate.vue'
 
 export {
   CustomerDetails,
@@ -12,6 +12,6 @@ export {
   CustomersList,
   EditBuildingDetails,
   EditCustomerDetails,
-  Selectors,
-  ServiceDeliveryUpdate
+  Selectors
+  // ServiceDeliveryUpdate
 }

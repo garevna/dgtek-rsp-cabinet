@@ -8,5 +8,5 @@ export const getServiceById = function (serviceId, callback) {
     key: serviceId
   })
 
-  eventsTable[services.get] = callback
+  eventsTable[`${serviceId}-${services.get}`] = callback
 }

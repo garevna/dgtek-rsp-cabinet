@@ -100,9 +100,10 @@ import { newCustomer } from '@/configs'
 
 import {
   buildingDetailsHandler,
-  customerHandler,
-  customerServicesHandler
+  customerHandler
 } from '@/helpers/data-handlers'
+
+import { serviceController } from '@/controllers'
 
 import Fieldset from '@/components/Fieldset.vue'
 
@@ -138,16 +139,16 @@ export default {
   computed: {
     serviceDetailsDisabled () {
       return !this.customerId
-    },
-
-    selectedCustomerServices: {
-      get () {
-        return this.customer ? this.customer.services : []
-      },
-      set (val) {
-        console.warn('CUSTOMER SERVICES CHANGED\n', val)
-      }
     }
+
+    // selectedCustomerServices: {
+    //   get () {
+    //     return this.customer ? this.customer.services : []
+    //   },
+    //   set (val) {
+    //     console.warn('CUSTOMER SERVICES CHANGED\n', val)
+    //   }
+    // }
   },
 
   methods: {
@@ -160,10 +161,15 @@ export default {
     },
 
     getCustomerDetails (data) {
+      if (!data) return
       const { services, ...customerDetails } = data
+
       customerHandler(customerDetails)
-      customerServicesHandler(services)
+
       this.customerAddress = `${customerHandler().apartmentNumber}/${customerHandler().address}`
+
+      serviceController.setCustomer(customerDetails._id, this.customerAddress, services)
+
       if (!customerDetails.buildingId) this.section = 'Building details'
       else this.worker.getBuildingDetailsById(customerDetails.buildingId, this.updateBuildingDetails)
 
@@ -245,8 +251,6 @@ export default {
     this.$root.$emit('hide-snackbar')
 
     this.$root.$on('new-building-created', this.getNewBuildingId)
-
-    console.log('CUSTOMER ID: ', this.customerId)
 
     this.$vuetify.goTo(0)
   }

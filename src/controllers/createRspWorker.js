@@ -13,12 +13,17 @@ import { globalCallback } from './'
 export function createRspWorker () {
   const path = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_PUBLIC_PATH_PRODUCTION : ''
 
-  window[Symbol.for('rsp.worker')] = new Worker(`${path}rsp.worker.js`)
-  window[Symbol.for('rsp.worker')].onerror = (error) => console.error('Client worker Error\n', error)
+  window[Symbol.for('rsp.worker')] = Object.assign(new Worker(`${path}rsp.worker.js`), {
+    onerror: (error) => console.error('Client worker Error\n', error),
+    onmessage: globalCallback
+  })
+
+  // window[Symbol.for('rsp.worker')] = new Worker(`${path}rsp.worker.js`)
+  // window[Symbol.for('rsp.worker')].onerror = (error) => console.error('Client worker Error\n', error)
 
   window[Symbol.for('vue.prototype')].__worker = window[Symbol.for('rsp.worker')]
 
-  window[Symbol.for('rsp.worker')].onmessage = globalCallback
+  // window[Symbol.for('rsp.worker')].onmessage = globalCallback
 
   // window[Symbol.for('rsp.worker')].onmessage = function (event) {
   //   if (!event.data || event.data.status === 300) return debuggerCallback(event.data)

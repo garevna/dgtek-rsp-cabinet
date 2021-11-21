@@ -28,7 +28,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item of schema" :key="item.serviceId">
+          <tr v-for="(item, index) of services" :key="item.serviceId">
             <td>
               <v-btn icon @click="disconnect(item)">
                 <v-icon small color="primary">mdi-delete</v-icon>
@@ -43,16 +43,16 @@
                 text
                 small
                 color="primary"
-                @click="changeStatus(item)"
+                @click="changeStatus(item, index)"
                 :disabled="disable(item)"
               >
-                {{ item.serviceStatus }}
+                {{ item.status }}
               </v-btn>
             </td>
 
             <td>
               <small>
-                {{ item.serviceStatusModified }}
+                {{ new Date(item.modified).toISOString().slice(0, 10) }}
               </small>
             </td>
             <td>
@@ -72,43 +72,61 @@
         </tbody>
       </table>
 
-      <v-row v-if="!showSelect && !createTicket" class="mt-12 mb-4">
+      <v-row v-if="!scheduling && !createTicket" class="mt-12 mb-4">
         <v-btn outlined color="buttons" class="mr-2" @click="selectService">
           Assign new service
         </v-btn>
       </v-row>
     </v-card>
 
-    <Services v-else :opened.sync="showServices" />
+    <v-dialog v-else v-model="showServices">
+      <v-card flat class="homefone">
+        <v-toolbar flat class="transparent">
+          <v-toolbar-title>
+            <h5>Select the service which should be assigned to the customer</h5>
+          </v-toolbar-title>
+          <v-spacer />
+          <v-btn icon @click="showServices = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card flat class="transparent">
+          <Services
+            :opened.sync="showServices"
+            :customerId="customerId"
+            :selectedService.sync="newService"
+          />
+        </v-card>
+      </v-card>
+    </v-dialog>
 
-    <v-row v-if="showSelect" class="mt-12 mb-4">
-      <LotSelection
-        :dialog.sync="showSelect"
-        :serviceData.sync="selected"
-        :address="address"
-        :customerId="customerId"
-      />
+    <v-row v-if="scheduling" class="mt-12 mb-4">
+      <LotSelection :dialog.sync="scheduling" />
     </v-row>
 
     <v-row v-if="createTicket" class="mt-12 mb-4">
       <TicketDetails
+        v-if="createTicket"
         :edit.sync="createTicket"
         :ticket="ticket"
         :categories.sync="categories"
-        :newTicket="true"
         :customerId="customerId"
         style="margin-top: -48px !important;"
       />
     </v-row>
 
-    <ConfirmActivationRequest />
+    <ConfirmActivationRequest :open.sync="confirmationDialogOpened" />
   </v-container>
 </template>
 
 <script>
 
-import { customerServicesHandler, showServiceSelectHandler } from '@/helpers/data-handlers'
+import { showServiceSelectHandler } from '@/helpers/data-handlers'
+
+import { serviceController } from '@/controllers'
+
 import { Services } from '@/components/dashboard'
+
 const newTicket = require('@/configs/ticketSchema')
 
 const showError = function () {
@@ -131,51 +149,44 @@ export default {
   props: ['address', 'customerId'],
 
   data: () => ({
-    schema: [],
-    // details: {},
+    services: [],
     showServices: false,
-    showSelect: false,
+    newService: null,
+    scheduling: false,
     selected: null,
     submit: false,
     showSubmitButton: false,
     createTicket: false,
     ticket: null,
-    categories: []
+    categories: [],
+
+    confirmationDialogOpened: false
   }),
 
   watch: {
-    selected: {
+    newService: {
       deep: true,
-      handler (service) {
-        const index = this.schema.findIndex(item => item.serviceId === service.serviceId)
-        this.schema.splice(index, 1, Object.assign({}, this.schema[index], {
-          serviceStatus: service.serviceStatus,
-          serviceStatusModified: service.serviceStatusModified,
-          lots: service.lots || [],
-          installation: service.installation || {}
-        }))
-        Object.assign(this.customerServices[index], {
-          status: service.serviceStatus,
-          modified: service.serviceStatusModified,
-          lots: service.lots || [],
-          installation: service.installation || {}
-        })
-        this.showSubmitButton = service.serviceStatus !== 'Awaiting for connection'
-        this.createTicket = service.serviceStatus === 'Awaiting for connection'
+      handler (value) {
+        console.log('NEW SERVICE:\n', value)
+        value && this.assignNewService(value)
       }
     },
 
-    showServices (newVal, oldVal) {
-      if (oldVal && !newVal) {
-        if (!customerServicesHandler()) return
-        this.assignNewService()
+    scheduling (newValue, oldValue) {
+      if (!newValue && oldValue) {
+        this.services = serviceController.getDataForServiceList()
       }
     },
 
     createTicket (newVal, oldVal) {
       if (!oldVal && newVal) {
         this.makeTicket('Awaiting for connection')
-        this.newTicket = true
+      }
+    },
+
+    confirmationDialogOpened (newValue, oldValue) {
+      if (!newValue && oldValue) {
+        this.services = serviceController.getDataForServiceList()
       }
     }
   },
@@ -201,57 +212,22 @@ export default {
 
     disable (item) {
       const available = ['Awaiting for scheduling', 'Not connected', 'Awaiting for connection']
-      return this.createTicket || item.modified || !available.includes(item.serviceStatus)
+      return !available.includes(item.status)
     },
 
-    getServiceDetails (data) {
-      console.log('SERVICES:\n', this.services)
-      const { serviceName, _id: serviceId } = data
-
-      const service = this.services.find(item => item.id === serviceId)
-
-      if (!service) return
-      this.schema.push({
-        serviceId,
-        serviceName,
-        serviceStatus: service.status,
-        serviceStatusModified: new Date(service.modified).toISOString().slice(0, 10),
-        lots: service.lots,
-        installation: service.installation
-      })
+    getServiceDetails (details) {
+      serviceController.setServiceDetails(details)
+      this.services = serviceController.getDataForServiceList()
+      console.log(this.services)
     },
 
-    assignNewService () {
-      const { serviceId, serviceName, serviceSpeed, servicePlan, serviceTerm } = customerServicesHandler()
+    assignNewService (service) {
+      this.__assignNewServiceToCustomer(this.customerId, service._id, this.newServiceAdded)
+    },
 
-      if (this.services.find(service => service.id === serviceId)) return this.showError()
-
-      this.customerServices.push({
-        id: serviceId,
-        modified: Date.now(),
-        status: 'Not connected',
-        log: {
-          [Date.now()]: 'Not connected'
-        },
-        lots: [],
-        installation: {}
-      })
-
-      this.schema.push({
-        serviceId,
-        serviceStatusModified: (new Date()).toISOString().slice(0, 10),
-        serviceName,
-        serviceSpeed,
-        serviceStatus: 'Not connected',
-        servicePlan,
-        serviceTerm,
-        modified: true,
-        lots: [],
-        installation: {}
-      })
-
-      // this.showSubmitButton = true
-      this.updateCustomerServices()
+    newServiceAdded (service) {
+      console.log('NEW SERVICE ASSINED TO CUSTOMER. WORKER RESPONSE:\n', service)
+      // serviceController.addNewService()
     },
 
     selectService () {
@@ -271,22 +247,17 @@ export default {
       this.newTicket = true
     },
 
-    changeStatus (item) {
-      this.selectedService = this.customerServices.find(service => service.id === item.serviceId)
+    changeStatus (item, index) {
+      serviceController.setCurrentService(item.id)
+
       this.selected = item
 
-      this.newTicket = item.serviceStatus === 'Awaiting for connection'
-
-      this.showSelect = item.serviceStatus === 'Awaiting for scheduling'
-
-      if (item.serviceStatus === 'Not connected') this.$root.$emit('open-terms-and-conditions')
+      this.createTicket = item.status === 'Awaiting for connection'
+      this.scheduling = item.status === 'Awaiting for scheduling'
+      this.confirmationDialogOpened = item.status === 'Not connected'
     },
 
-    sendActivationRequest () {
-      this.__sendServiceActivationRequest(this.customerId, this.selected.serviceId, this.showActivationSuccess)
-    },
-
-    showActivationSuccess (data) {
+    refreshServicesDetails (data) {
       data.forEach((service, index) => {
         this.schema[index].serviceStatus = service.status
         this.schema[index].serviceStatusModified = new Date(service.modified).toISOString().slice(0, 10)
@@ -295,46 +266,19 @@ export default {
       this.$emit('update:services', this.customerServices)
     },
 
-    updateCustomerServices () {
-      this.__updateCustomerServices(this.customerId, this.customerServices, response => console.log('Customer services updated', response))
-      this.schema.forEach((item) => { item.modified = false })
-      this.showSubmitButton = false
+    showActivationSuccess (data) {
+      console.log('SHOW ACTIVATION RESULT:\n', data)
     }
-
-    // getCustomerData (data) {
-    //   console.log('CUSTOMER DETAILS FROM SERVICES:\n', data)
-    // }
-  },
-
-  beforeDestroy () {
-    this.$root.$off('operation-confirmed', this.sendActivationRequest)
   },
 
   mounted () {
-    console.log(this.services)
-    console.log(customerServicesHandler())
-    this.services = customerServicesHandler()
-    // if (this.customerId) {
-    //   this.__getCustomerData(this.customerId, this.getCustomerData)
-    //   this.section = this.sectionName
-    // }
+    console.log(serviceController.getCustomerId(), serviceController.getCustomerAddress())
+    const services = serviceController.getCustomerServices()
+    console.log('CUSTOMER SERVICES:\n', services)
+    // const services = serviceController.getDataForServiceList()
+    // console.log('CUSTOMER SERVICES:\n', this.services)
 
-    this.customerServices = Array.isArray(this.services)
-      ? this.services.map(item => ({
-        id: item.id,
-        status: item.status,
-        modified: item.modified,
-        log: item.log,
-        lots: item.lots,
-        installation: item.installation
-      })) : []
-
-    this.$emit('update:services', this.customerServices)
-
-    this.$root.$on('service-selected', this.assignNewService)
-    this.$root.$on('operation-confirmed', this.sendActivationRequest)
-
-    for (const service of this.services) {
+    for (const service of services) {
       if (service.name) delete service.name
       this.__getServiceById(service.id, this.getServiceDetails)
     }

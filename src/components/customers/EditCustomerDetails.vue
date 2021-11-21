@@ -188,7 +188,6 @@ export default {
     },
     'customer.buildingId': {
       handler (val) {
-        console.log('BUILDING ID CHANGED!!!!!!!!!!!!!', val)
         this.customer.buildingId = val
         this.worker.getBuildingDetailsById(val, this.getBuildingById)
       }
@@ -200,20 +199,16 @@ export default {
       this.customer.uniqueCode = `${partnerUniqueCodeHandler()}.${buildingDetailsHandler().uniqueCode}`
       this.customer.uniqueCode += this.customer.apartmentNumber ? `.${this.customer.apartmentNumber}` : ''
       this.customerSchema.uniqueCode.value = this.customer.uniqueCode
-      console.log(this.customer.uniqueCode)
     },
 
     getBuildingById (buildingDetails) {
+      console.log(buildingDetails)
       if (!buildingDetails) this.worker.getBuildingDetailsByAddress(this.customer.address, this.updateBuildingDetails)
       this.updateBuildingDetails(buildingDetails)
     },
 
-    // getBuildingByAddress (buildingDetails) {
-    //   console.log('Building was not found by id. Search by address...')
-    //   this.worker.getBuildingDetailsByAddress(this.customer.address, this.updateBuildingDetails)
-    // },
-
     updateBuildingDetails (buildingDetails) {
+      console.log('SEARCH BY ADDRESS:\n', buildingDetails)
       if (!buildingDetails) {
         this.customer.buildingId = null
         customerHandler(Object.assign(customerHandler(), { buildingId: null }))

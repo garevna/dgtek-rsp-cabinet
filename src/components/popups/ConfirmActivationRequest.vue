@@ -27,26 +27,39 @@
 
 <script>
 
+import { serviceController } from '@/controllers'
+
 export default {
   name: 'ConfirmActivationRequest',
-  data: () => ({
-    dialog: false
-  }),
-  methods: {
-    confirm () {
-      this.$root.$emit('operation-confirmed', this.source)
-      this.dialog = false
-    },
-    open (data) {
-      this.dialog = true
+
+  props: ['open'],
+
+  computed: {
+    dialog: {
+      get () {
+        return this.open
+      },
+      set (val) {
+        this.$emit('update:open', val)
+      }
     }
   },
-  beforeDestroy () {
-    this.$root.$off('open-terms-and-conditions', this.open)
-  },
 
-  mounted () {
-    this.$root.$on('open-terms-and-conditions', this.open)
+  methods: {
+    confirm () {
+      this.__sendServiceActivationRequest(serviceController.getCustomerId(), serviceController.getCurrentService().id, this.activationSuccess)
+    },
+
+    activationSuccess (data) {
+      console.log('ACTIVATION REQUEST RESPONSE:\n', data)
+      if (!data) return
+
+      const { status, log, modified } = data[0]
+
+      serviceController.updateCurrentService({ status, log, modified })
+
+      this.dialog = false
+    }
   }
 }
 </script>

@@ -1,7 +1,7 @@
 import { get } from '../AJAX'
 import { clearStore, putRecordByKey } from '../db'
 
-import { servicesInfoHandler } from '../../data-handlers'
+// import { servicesInfoHandler } from '../../data-handlers'
 
 import { idHandler } from '../env'
 
@@ -21,8 +21,8 @@ export const refreshListOfServices = async function () {
 
   const res = await Promise.all(promises)
 
-  res.map(response => response.result)
-    .forEach(service => servicesInfoHandler('set-service-data', service._id, { serviceName: service.serviceName, subscriptionFee: service.subscriptionFee }))
+  // res.map(response => response.result)
+  //   .forEach(service => servicesInfoHandler('set-service-data', service._id, { serviceName: service.serviceName, subscriptionFee: service.subscriptionFee }))
 
   return {
     status: 200,

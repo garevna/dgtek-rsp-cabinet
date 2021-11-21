@@ -1,12 +1,12 @@
 import {
-  servicesInfoHandler,
+  // servicesInfoHandler,
   messagesHandler
 } from '../data-handlers'
 
 class DashboardController {
-  getCustomersServicesInfo () {
-    self.postMessage({ status: 200, route: 'dashboard', action: 'info', result: servicesInfoHandler() })
-  }
+  // getCustomersServicesInfo () {
+  //   self.postMessage({ status: 200, route: 'dashboard', action: 'info', result: servicesInfoHandler() })
+  // }
 
   async refreshMessages () {
     self.postMessage(await self.controller.refreshMessages())

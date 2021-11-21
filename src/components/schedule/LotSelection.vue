@@ -8,6 +8,7 @@
         <v-date-picker
           v-model="dates"
           landscape
+          no-title
           :title-date-format="titleDateFormat"
           color="#999"
           :allowed-dates="allowedDates"
@@ -102,10 +103,14 @@
 
 <script>
 
+import { serviceController } from '@/controllers'
+
 export default {
   name: 'LotSelection',
 
-  props: ['address', 'service', 'customerId', 'serviceData', 'dialog'],
+  // props: ['address', 'service', 'customerId', 'serviceData', 'dialog'],
+
+  props: ['dialog'],
 
   data: () => ({
     ready: false,
@@ -152,19 +157,30 @@ export default {
         this.result[index].weekDay = this.getWeekDay(new Date(lot.date))
       })
 
-      this.$emit('update:serviceData', Object.assign({}, this.serviceData, {
-        modified: Date.now(),
+      const service = serviceController.getCurrentService()
+      console.log(service)
+
+      const modified = Date.now()
+
+      serviceController.updateCurrentService({
+        modified,
         lots: this.result,
-        serviceStatus: 'Awaiting for confirmation'
-      }))
-      this.__sendSchedulingRequest({
-        customerId: this.customerId,
-        serviceId: this.serviceData.serviceId,
+        status: 'Awaiting for confirmation',
+        log: Object.assign(service.log, { [modified]: 'Awaiting for confirmation' })
+      })
+
+      console.log('CURRENT SERVICE UPDATED:\n', serviceController.getCurrentService())
+
+      const requestDetails = {
+        customerId: serviceController.getCustomerId(),
+        serviceId: serviceController.getCurrentService().id,
         status: 'Awaiting for confirmation', /* rudiments */
         weekNumber: this.getWeekNumber(new Date()), /* rudiments */
         request: 'scheduling', /* rudiments */
         lots: this.result /* rudiments */
-      })
+      }
+
+      this.__sendSchedulingRequest(requestDetails, this.showResponse)
 
       this.popup = false
       this.$emit('update:dialog', false)
@@ -280,15 +296,8 @@ export default {
     }
   },
 
-  beforeDestroy () {
-    // this.$root.$off('schedule-lots-received', this.getLots)
-    this.$root.$off('scheduling-request-sent', this.showResponse)
-    // this.$root.$off('settings-data-received', this.getScheduleCalendarSettings)
-  },
   mounted () {
-    this.$root.$on('scheduling-request-sent', this.showResponse)
-    // this.$root.$on('schedule-lots-received', this.getLots)
-    // this.$root.$on('settings-data-received', this.getScheduleCalendarSettings)
+    console.log(serviceController.getCustomerId(), serviceController.getCurrentService().id)
 
     this.__getScheduleCalendarSettings(this.getScheduleCalendarSettings)
     this.__getFreeLotsOfSchedule(this.getLots)

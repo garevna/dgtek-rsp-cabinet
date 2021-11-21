@@ -1,11 +1,15 @@
+import { statisticsController } from '../../controllers'
+
 const { invalidServiceDeliveryStatusRequest } = require('../error-handlers').default
 
-export const activateServiceRequest = async function (customerId, serviceId) {
-  const [route, action] = ['customers', 'activate']
+const [route, action] = ['customers', 'activate']
 
+export const activateService = async function (customerId, serviceId) {
   if (!customerId || !serviceId) return invalidServiceDeliveryStatusRequest(customerId, serviceId)
 
   const { status, result } = await self.controller.updateServiceStatus(customerId, serviceId, 'Awaiting for connection')
+
+  statisticsController.patch(serviceId, customerId, 'Awaiting for connection', Date.now())
 
   return {
     status,

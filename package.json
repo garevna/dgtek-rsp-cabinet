@@ -13,7 +13,7 @@
     "core-js": "^3.17.3",
     "crypto-js": "^4.0.0",
     "dgtek-google-autocomplete": "^1.1.91",
-    "dgtek-portal-map-package": "^1.1.1",
+    "dgtek-portal-map-package": "^1.1.4",
     "dgtek-styles": "^0.0.8",
     "garevna-date-functions": "^1.1.5",
     "vue": "2.6.11",

@@ -3,7 +3,7 @@
     <v-card v-if="!showCustomer" flat class="transparent">
       <v-row justify="center" align="start" style="height: max-content !important">
         <v-col cols="12" md="6" lg="6" xl="4">
-          <Info :dashboard="true" />
+          <Statistics :dashboard="true" />
         </v-col>
         <v-col cols="12" md="6" lg="4" xl="3">
           <Fieldset legend="Messages from DGtek">
@@ -56,13 +56,16 @@
 
 import Fieldset from '@/components/Fieldset.vue'
 
+import { statisticsController } from '@/controllers'
+console.log(statisticsController)
+
 export default {
   name: 'Dashboard',
 
   components: {
     Fieldset,
-    Info: () => import('@/components/dashboard/Info.vue'),
-    CustomerDetails: () => import('@/components/customers/CustomerDetails.vue'),
+    Statistics: () => import('@/components/dashboard/Statistics.vue'),
+    CustomerDetails: () => import(/* webpackChunkName: 'customer-details' */ '@/components/customers/CustomerDetails.vue'),
     Messages: () => import('@/components/dashboard/Messages.vue')
   },
 

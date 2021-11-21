@@ -7,9 +7,13 @@ export const customers = {
   get: 'customer-data-received',
   post: 'customer-created',
   put: 'customer-updated',
+
+  assign: 'new-service-assigned-to-customer',
   activate: 'service-activation-request-sent',
   scheduling: 'scheduling-request-sent',
+  status: 'service-status-updated',
   services: 'customer-services-updated',
+
   info: 'services-info-received',
   short: 'customers-list-for-ticket-received'
 }

@@ -11,6 +11,7 @@
 
     <v-card-text text-center v-if="addressData.address">
       <v-btn
+        v-if="addressData.buildingId"
         outlined
         color="buttons"
         class="mx-2"
@@ -18,6 +19,17 @@
         :disabled="newCustomerDisabled"
       >
         Add new customer
+      </v-btn>
+
+      <v-btn
+        v-else
+        outlined
+        color="buttons"
+        class="mx-2"
+        @click="createNewBuilding"
+        :disabled="newCustomerDisabled"
+      >
+        Add new building
       </v-btn>
 
       <v-btn
@@ -43,17 +55,15 @@
 
 <script>
 
+import { buildingDetailsHandler, customerHandler } from '@/helpers/data-handlers'
+
 export default {
   name: 'ResultBar',
 
-  props: [
-    'addressData',
-    'newCustomer',
-    'selectCustomer',
-    'services'
-  ],
+  props: ['addressData', 'newCustomer', 'selectCustomer', 'services'],
 
   data: () => ({
+    worker: window[Symbol.for('map.worker')],
     statusToDisplay: '',
     estimatedServiceDeliveryTime: '',
     newCustomerDisabled: false
@@ -64,14 +74,24 @@ export default {
       deep: true,
       immediate: true,
       handler (data) {
+        console.log('ADDRESS DATA:\n', data)
         this.__getEstimatedServiceDeliveryTime(data.status, this.getSettings)
       }
     }
   },
 
   methods: {
+    createNewBuilding () {
+      this.worker.createNewBuilding(buildingDetailsHandler('to-save'), this.getNewBuildingId)
+    },
+
+    getNewBuildingId (buildingId) {
+      console.log('NEW BUILDING ID: ', buildingId)
+      customerHandler(Object.assing(customerHandler(), { buildingId }))
+      console.log(customerHandler())
+    },
+
     getSettings (data) {
-      console.log('=========================', data)
       const { toDisplay, statusToDisplay, value, estimatedServiceDeliveryTime, newCustomerDisabled } = data
 
       this.statusToDisplay = toDisplay || statusToDisplay || this.addressData.event

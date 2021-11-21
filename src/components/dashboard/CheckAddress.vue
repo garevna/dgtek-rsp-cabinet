@@ -61,7 +61,7 @@ export default {
     DgtekGoogleAutocomplete,
     ListOfBuildings,
     ResultBar: () => import('@/components/check-address/ResultBar.vue'),
-    CustomerDetails: () => import('@/components/customers/CustomerDetails.vue')
+    CustomerDetails: () => import(/* webpackChunkName: 'customer-details' */ '@/components/customers/CustomerDetails.vue')
   },
 
   data: () => ({
@@ -128,11 +128,13 @@ export default {
 
     catchMapEvent (data) {
       const { address, addressComponents, status, buildingId, coordinates, uniqueCode, estimatedServiceDeliveryTime } = data
-      this.storeSearchResults(address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime)
+      this.storeSearchResults({ address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime })
     },
 
     catchGoogleAutocompleteEvent (event) {
       let { address, addressComponents, status, buildingId, coordinates, estimatedServiceDeliveryTime } = event.detail
+
+      const { lat, lng } = coordinates
 
       const uniqueCode = getBuildingUniqueCode(addressComponents)
 
@@ -142,15 +144,16 @@ export default {
         })
       }
 
-      this.storeSearchResults(address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime)
+      this.storeSearchResults({ address, addressComponents, status, buildingId, uniqueCode, coordinates: [lng, lat], estimatedServiceDeliveryTime })
     },
 
-    storeSearchResults (address, addressComponents, status, buildingId, coordinates, uniqueCode, estimatedServiceDeliveryTime) {
+    storeSearchResults (data) {
+      const { address, addressComponents, status, buildingId = null, coordinates, uniqueCode, estimatedServiceDeliveryTime } = data
       createNewBuilding({ address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime })
       createNewCustomer(address, buildingId, estimatedServiceDeliveryTime)
       this.selectedBuilding = { address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime }
-      this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
       if (!buildingId) this.showWarning(address)
+      this.$vuetify.goTo('#searchAddressResults', this.scrollOptions)
     },
 
     showWarning (address) {
@@ -163,8 +166,6 @@ export default {
   },
 
   beforeDestroy () {
-    const container = document.getElementById('container-for-map')
-    if (!container) return
     window.removeEventListener('new-address-data', this.catchGoogleAutocompleteEvent)
   },
 

@@ -6,6 +6,8 @@ import { servicesController } from './servicesController'
 import { ticketsController } from './ticketsController'
 import { rspController } from './rspController'
 
+import { statisticsController } from './statisticsController'
+
 export {
   settingsController,
   dashboardController,
@@ -13,5 +15,7 @@ export {
   customersController,
   servicesController,
   ticketsController,
-  rspController
+  rspController,
+
+  statisticsController
 }

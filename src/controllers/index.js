@@ -8,6 +8,9 @@ import * as events from './events'
 import { eventsTable } from './events-table'
 import { globalCallback } from './globalCallback'
 
+import { statisticsController } from './statisticsController'
+import { serviceController } from './serviceController'
+
 export {
   createMapWorker,
   createRspWorker,
@@ -16,5 +19,8 @@ export {
   errors,
 
   eventsTable,
-  globalCallback
+  globalCallback,
+
+  statisticsController,
+  serviceController
 }

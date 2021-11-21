@@ -151,19 +151,17 @@ export default {
   },
 
   beforeMount () {
-    console.group('EDIT BUILDING DETAILS: BEFORE MOUNT')
-    console.log('BUILDING ID: ', this.buildingId)
-    console.log('CUSTOMER HANDLER:\n', customerHandler())
+    // console.group('EDIT BUILDING DETAILS: BEFORE MOUNT')
+    // console.log('BUILDING ID: ', this.buildingId)
+    // console.log('CUSTOMER HANDLER:\n', customerHandler())
     console.log('BUILDING DETAILS HANDLER:\n', buildingDetailsHandler())
-    console.groupEnd('EDIT BUILDING DETAILS: MOUNTED')
+    // console.log('BUILDING DETAILS HANDLER:\n', buildingDetailsHandler('to-save'))
+    // console.groupEnd('EDIT BUILDING DETAILS: MOUNTED')
 
     this.schema = buildingDetailsHandler()
   },
 
   mounted () {
-    // this.$root.$on('buildings-data-saved', this.sendMessage)
-    // this.$root.$on('new-building-created', this.getNewBuildingId)
-
     this.$vuetify.goTo(0)
   }
 }

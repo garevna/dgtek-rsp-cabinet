@@ -51,7 +51,7 @@
           <v-row justify="center">
             <v-col cols="8">
               <Fieldset legend="Statistics">
-                <Info :dashboard="false" />
+                <Statistics :dashboard="false" />
               </Fieldset>
             </v-col>
           </v-row>
@@ -88,8 +88,8 @@ export default {
   components: {
     Fieldset: () => import('@/components/Fieldset.vue'),
     Selectors: () => import('@/components/customers/Selectors.vue'),
-    Info: () => import('@/components/dashboard/Info.vue'),
-    CustomerDetails: () => import('@/components/customers/CustomerDetails.vue')
+    Statistics: () => import('@/components/dashboard/Statistics.vue'),
+    CustomerDetails: () => import(/* webpackChunkName: 'customer-details' */ '@/components/customers/CustomerDetails.vue')
   },
 
   data: () => ({

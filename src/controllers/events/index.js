@@ -7,6 +7,7 @@ import { mapWorkerEvents } from './map-worker-events'
 import { settings } from './settings'
 
 import { dashboard } from './dashboard'
+import { statistics } from './statistics'
 
 export {
   customers,
@@ -16,24 +17,7 @@ export {
   rsp,
   dashboard,
   settings,
+  statistics,
 
   mapWorkerEvents
 }
-
-// const rspWorkerEvents = {
-//   customers,
-//   tickets,
-//   services,
-//   lots,
-//   rsp,
-//   dashboard: {
-//     info: 'dashboard-services-info',
-//     'refresh-messages': 'messages-from-dgtek-refreshed'
-//   },
-//   settings
-// }
-
-// export {
-//   rspWorkerEvents
-//   // mapWorkerEvents
-// }

@@ -3,7 +3,7 @@
     <v-row v-if="!openCustomerDetails">
       <v-card flat class="transparent pb-12 px-12 mx-auto" max-width="1440" v-if="ready">
         <v-card v-if="!showServiceDetails" flat class="transparent">
-          <v-card-title v-if="showSelect">
+          <!-- <v-card-title v-if="showSelect">
             <p v-if="!selected[0]" class="primary--text">
               <b>Select the service which should be assigned to the customer</b>
             </p>
@@ -17,10 +17,9 @@
               class="ml-4"
               @click="$emit('update:opened', false)"
             >
-              <!-- <v-icon class="mr-4">mdi-arrow-left-bold-circle</v-icon> -->
               Assign the service
             </v-btn>
-          </v-card-title>
+          </v-card-title> -->
 
           <v-card-title>
             <SelectorsForServices
@@ -38,15 +37,19 @@
             :headers="headers"
             :items="filteredItems"
             :search="search"
-            single-select
             single-expand
             :expanded.sync="expanded"
             show-expand
             item-key="serviceName"
-            :show-select="showSelect"
             v-model="selected"
             @click:row="openServiceDetails"
           >
+            <template v-slot:item.actions="{ item }">
+              <v-btn v-if="showSelect" color="primary" small outlined @click.stop="selectService(item)">
+                assign
+              </v-btn>
+            </template>
+
             <template v-slot:item.active="{ item }">
               <v-chip color="#777" outlined v-if="item.active" @click.stop="getActiveConnections(item)">
                 {{ item.active }}
@@ -79,7 +82,7 @@
 
         <ServiceConnectionInfo
           :openCustomerDetails.sync="openCustomerDetails"
-          :customerId.sync="customerId"
+          :customerId="customerId"
         />
       </v-card>
     </v-row>
@@ -96,19 +99,21 @@
 
 <script>
 
-import { serviceHandler, showServiceSelectHandler } from '@/helpers'
+import { showServiceSelectHandler } from '@/helpers'
+
+import { statisticsController, serviceController } from '@/controllers'
 
 export default {
   name: 'Services',
 
   components: {
-    ServiceDetails: () => import('@/components/services/ServiceDetails.vue'),
-    SelectorsForServices: () => import('@/components/services/SelectorsForServices.vue'),
-    ServiceConnectionInfo: () => import('@/components/popups/ServiceConnectionInfo.vue'),
-    CustomerDetails: () => import('@/components/customers/CustomerDetails.vue')
+    ServiceDetails: () => import(/* webpackChunkName: 'service-details' */ '@/components/services/ServiceDetails.vue'),
+    SelectorsForServices: () => import(/* webpackChunkName: 'selectors-for-services' */ '@/components/services/SelectorsForServices.vue'),
+    ServiceConnectionInfo: () => import(/* webpackChunkName: 'service-connection-info' */ '@/components/popups/ServiceConnectionInfo.vue'),
+    CustomerDetails: () => import(/* webpackChunkName: 'customer-details' */ '@/components/customers/CustomerDetails.vue')
   },
 
-  props: ['opened'],
+  props: ['opened', 'customerId', 'selectedService'],
 
   data: () => ({
     ready: false,
@@ -124,27 +129,9 @@ export default {
     selected: [],
     expanded: [],
     showSelect: showServiceSelectHandler(),
-    headers: [
-      {
-        text: 'Plan name',
-        align: 'start',
-        value: 'serviceName'
-      },
-      { text: 'Active', value: 'active' },
-      { text: 'Pending', value: 'pending' },
-      { text: 'Speed (Mbps)', value: 'speed' },
-      { text: 'Data (MB)', value: 'dataLimit' },
-      { text: 'Term (months)', value: 'contractTerm' },
-      { text: 'Connection fee', value: 'connectionFee' },
-      { text: 'Router fee', value: 'routerFee' },
-      { text: 'Service fee', value: 'subscriptionFee' },
-      { text: 'PROMO', value: 'data-table-expand' }
-      // { text: 'PROMO', value: 'promo' }
-    ],
+    headers: [],
     showServiceDetails: false,
     serviceDetails: null,
-
-    customerId: null,
     openCustomerDetails: false
   }),
 
@@ -169,24 +156,28 @@ export default {
     }
   },
 
-  watch: {
-    selected: {
-      deep: true,
-      handler (data) {
-        const { _id: serviceId, serviceName, status: serviceStatus, subscriptionFee: servicePlan, contractTerm: serviceTerm } = data[0]
-        serviceHandler({
-          serviceId,
-          serviceName,
-          serviceSpeed: this.speedToString(data[0]),
-          serviceStatus,
-          servicePlan,
-          serviceTerm
-        })
-      }
-    }
-  },
+  // watch: {
+  //   selected: {
+  //     deep: true,
+  //     handler (data) {
+  //       console.log('SERVISES: SELECTED SERVICE\n', data)
+  //     }
+  //   }
+  // },
 
   methods: {
+    selectService (serviceDetails) {
+      console.log('SELECTED SERVICE DETAILS:\n', serviceDetails)
+      serviceController.addNewService(serviceDetails)
+      console.log(serviceController)
+
+      console.log(serviceController.getServiceDetailsForCustomersList())
+      console.log(serviceController.getDataForServiceList())
+
+      this.$emit('update:selectedService', serviceDetails)
+      this.$emit('update:opened', false)
+    },
+
     getActiveConnections (service) {
       this.serviceName = service.serviceName
       this.__getServiceActiveConnections(service._id, this.showActiveConnections)
@@ -218,11 +209,15 @@ export default {
     },
 
     getData (data) {
+      console.log(data)
+      console.log(statisticsController)
       this.items = data
       this.items.forEach(item => {
-        item.speed = this.speedToString(item)
-        item.active = this.$root.servicesInfo.services[item._id].active
-        item.pending = this.$root.servicesInfo.services[item._id].pending
+        console.log(item)
+        const { active, pending } = statisticsController.getServiceInfo(item.serviceName)
+        Object.assign(item, { active, pending, speed: this.speedToString(item) })
+        // item.active = this.$root.servicesInfo.services[item._id].active
+        // item.pending = this.$root.servicesInfo.services[item._id].pending
       })
 
       this.ready = true
@@ -242,6 +237,26 @@ export default {
   },
 
   mounted () {
+    const actions = [{ text: 'Assign service', value: 'actions', sortable: false }]
+    const headers = [
+      {
+        text: 'Plan name',
+        align: 'start',
+        value: 'serviceName'
+      },
+      { text: 'Active', value: 'active' },
+      { text: 'Pending', value: 'pending' },
+      { text: 'Speed (Mbps)', value: 'speed' },
+      { text: 'Data (MB)', value: 'dataLimit' },
+      { text: 'Term (months)', value: 'contractTerm' },
+      { text: 'Connection fee', value: 'connectionFee' },
+      { text: 'Router fee', value: 'routerFee' },
+      { text: 'Service fee', value: 'subscriptionFee' },
+      { text: 'PROMO', value: 'data-table-expand' }
+    ]
+
+    this.headers = this.showSelect ? actions.concat(headers) : headers
+    this.$emit('update:selectedService', null)
     this.__getServices(this.getData)
     this.$vuetify.goTo(0)
   }
