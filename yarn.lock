@@ -2912,11 +2912,6 @@ crypto-browserify@^3.11.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
-crypto-js@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.0.0.tgz#2904ab2677a9d042856a2ea2ef80de92e4a36dcc"
-  integrity sha512-bzHZN8Pn+gS7DQA6n+iUmBfl0hO5DJq++QP3U6uTucDtk/0iGpXd/Gg7CGR0p8tJhofJyaKoWBuJI4eAO00BBg==
-
 css-color-names@0.0.4, css-color-names@^0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
@@ -3266,10 +3261,20 @@ detect-node@^2.0.4:
   resolved "https://registry.yarnpkg.com/detect-node/-/detect-node-2.0.4.tgz#014ee8f8f669c5c58023da64b8179c083a28c46c"
   integrity sha512-ZIzRpLJrOj7jjP2miAtgqIfmzbxa4ZOr5jJc601zklsfEx9oTzmmj2nVpIPRpNlRTIh8lc1kyViIY7BWSGNmKw==
 
-dgtek-google-autocomplete@^1.1.91:
-  version "1.1.91"
-  resolved "https://registry.yarnpkg.com/dgtek-google-autocomplete/-/dgtek-google-autocomplete-1.1.91.tgz#4e4cb8f7049d732d8d646208c394efd3a2b86e32"
-  integrity sha512-PbYJRoXZ0i2CDbdxSRZbaueuQfWClbQBJHI05C/2CSOsPATyKlIX6hyzstdrJAqqlNA2uLs1piL3JU4IqoE6Fw==
+dgtek-google-autocomplete@^1.1.94:
+  version "1.1.94"
+  resolved "https://registry.yarnpkg.com/dgtek-google-autocomplete/-/dgtek-google-autocomplete-1.1.94.tgz#92157bb16ffa63c0474e6f224152a71c43bff2de"
+  integrity sha512-E8raCR/MEHWYDr9F7M7/VQx3o5pFDXTRuSz1srpJN3PFAMzc3K0QjWoyyqiG3an9c4AZoe9rjkSLZ3AkJGt5nA==
+  dependencies:
+    core-js "^3.6.5"
+    dgtek-styles "^0.0.8"
+    vue "^2.6.11"
+    vuetify "^2.2.11"
+
+dgtek-portal-calculator@^1.2.82:
+  version "1.2.82"
+  resolved "https://registry.yarnpkg.com/dgtek-portal-calculator/-/dgtek-portal-calculator-1.2.82.tgz#9aef75ff3e62fb86b92928ea6b6570dea0f26bde"
+  integrity sha512-x+trbeINupjvBvlDWlHXUw4rJEgAkSd3k7RFH7jnw/ShWrwKEiwUDKcRLjE218ECumnc/lPMWTp/Q9JmLd/Peg==
   dependencies:
     core-js "^3.6.5"
     dgtek-styles "^0.0.8"

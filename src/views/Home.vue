@@ -86,6 +86,7 @@
           </p>
         </v-row>
     </v-bottom-navigation>
+    <Calculator :drawer.sync="calculator" role="rsp" />
   </v-container>
 </template>
 
@@ -104,12 +105,19 @@ import CustomersList from '@/components/customers/CustomersList.vue'
 import CustomerDetails from '@/components/customers/CustomerDetails.vue'
 import TicketDetails from '@/components/tickets/TicketDetails.vue'
 
+import Calculator from '@/views/Calculator.vue'
+
 import { stepsNames } from '@/configs'
 
 export default {
   name: 'Home',
 
+  components: {
+    Calculator
+  },
+
   data: () => ({
+    calculator: false,
     step: 1,
     stepsNames: stepsNames,
 

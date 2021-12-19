@@ -96,16 +96,7 @@ export default {
   props: ['status', 'speed', 'plan', 'postCode', 'postalCodes', 'plans', 'refresh', 'search'],
 
   data: () => ({
-    statuses: [
-      'Active',
-      'Awaiting for connection',
-      'Awaiting for scheduling',
-      'Awaiting for confirmation',
-      'In job queue',
-      'Unable to connect',
-      'Not connected',
-      'Service not assigned'
-    ],
+    statuses: [],
     speeds: ['50/50', '150/150', '250/250', '500/500', '1000/1000']
   }),
 
@@ -164,7 +155,15 @@ export default {
 
     gotoCheckAddressPage () {
       this.$root.$emit('go-to-check-address')
+    },
+
+    setAvailableServiceStatus (data) {
+      this.statuses = data
     }
+  },
+
+  beforeMount () {
+    this.__getAvailableServiceStatus(this.setAvailableServiceStatus)
   }
 }
 </script>

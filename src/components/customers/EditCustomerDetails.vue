@@ -27,7 +27,7 @@
             <td class="d-none d-md-flex">Company name</td>
             <td colspan="2">
               <v-text-field
-                v-model="customer.commercial.companyName"
+                v-model="commercialSchema.companyName.value"
                 label="Company name"
                 :rules="[rules.required]"
                 outlined
@@ -40,7 +40,7 @@
             <td class="d-none d-md-flex">Company ABN</td>
             <td colspan="2">
               <v-text-field
-                v-model="customer.commercial.companyAbn"
+                v-model="commercialSchema.companyAbn.value"
                 label="Company ABN"
                 :rules="[rules.required, rules.abn]"
                 outlined
@@ -202,13 +202,11 @@ export default {
     },
 
     getBuildingById (buildingDetails) {
-      console.log(buildingDetails)
       if (!buildingDetails) this.worker.getBuildingDetailsByAddress(this.customer.address, this.updateBuildingDetails)
       this.updateBuildingDetails(buildingDetails)
     },
 
     updateBuildingDetails (buildingDetails) {
-      console.log('SEARCH BY ADDRESS:\n', buildingDetails)
       if (!buildingDetails) {
         this.customer.buildingId = null
         customerHandler(Object.assign(customerHandler(), { buildingId: null }))
@@ -279,8 +277,10 @@ export default {
     },
 
     saveCustomerDetails () {
-      if (!this.customerType) this.customer.commercial = null
+      this.customer.commercial = !this.customerType ? null
+        : ({ companyName: this.commercialSchema.companyName.value, companyAbn: this.commercialSchema.companyAbn.value })
       this.customer.postCode = buildingDetailsHandler().addressComponents.postCode
+
       this.customer._id
         ? this.__putCustomer(this.customer._id, this.customer, this.customerUpdated)
         : this.__postCustomer(this.customer, this.customerCreated)
@@ -290,26 +290,18 @@ export default {
       this.$root.$emit('customer-updated', data)
     },
 
-    customerCreated (data) {
-      this.$root.$emit('customer-created', data)
-    },
-
-    close (data) {
-      this.$root.$emit('customer-modified')
-      this.$vuetify.goTo(0)
+    customerCreated (customerId) {
+      this.$root.$emit('customer-created', customerId)
     }
   },
 
-  created () {
+  beforeMount () {
     this.worker.getBuildingsList('lit', this.getBuildings)
   },
 
   mounted () {
     this.customer = customerHandler()
     this.createSchema()
-
-    // this.$root.$on('customer-updated', this.close)
-    // this.$root.$on('customer-created', this.close)
 
     this.$vuetify.goTo(0)
   }

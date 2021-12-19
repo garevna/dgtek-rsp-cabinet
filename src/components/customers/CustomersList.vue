@@ -24,6 +24,7 @@
             @click:row="editCustomerDetails"
             dense
             calculate-widths
+            @page-count="gotoLastPage"
           >
 
             <template v-slot:item.serviceStatus="{ item }">
@@ -72,13 +73,7 @@
 
 <script>
 
-import {
-  // customerHandler,
-  // buildingDetailsHandler,
-  // estimatesHandler,
-  // serviceHandler,
-  customersListPageNumberHandler
-} from '@/helpers'
+import { customersListPageNumberHandler } from '@/helpers'
 
 import { icons, colors } from '@/configs'
 
@@ -99,7 +94,6 @@ export default {
     edit: false,
     selectedCustomerId: null,
     selectedCustomerBuildingId: null,
-    // data: null,
     customers: null,
     search: '',
     page: customersListPageNumberHandler(),
@@ -123,7 +117,8 @@ export default {
       { text: 'Approx ETA', value: 'approxETA' },
       { text: 'Term', value: 'serviceTerm' }
     ],
-    estimates: null
+    estimates: null,
+    pendingConnectionStatus: []
   }),
 
   computed: {
@@ -144,7 +139,8 @@ export default {
     filteredItems () {
       const output = this.status === 'Service not assigned' ? this.customers.filter(customer => !customer.serviceStatus)
         : this.status === 'pending'
-          ? this.customers.filter(customer => customer.serviceStatus === 'Not connected' || customer.serviceStatus === 'Awaiting for scheduling')
+          // ? this.customers.filter(customer => customer.serviceStatus === 'Not connected' || customer.serviceStatus === 'Awaiting for scheduling')
+          ? this.customers.filter(customer => this.pendingConnectionStatus.includes(customer.serviceStatus))
           : this.customers.filter(customer => !this.status || (customer.serviceStatus === this.status))
 
       this.$vuetify.goTo(0)
@@ -214,6 +210,14 @@ export default {
     customersListRefreshed (data) {
       this.__getCustomersListForTable(this.getData)
       this.$vuetify.goTo(0)
+    },
+
+    setPendingConnectionStatus (data) {
+      this.pendingConnectionStatus = data
+    },
+
+    gotoLastPage (number) {
+      customersListPageNumberHandler(number)
     }
   },
 
@@ -221,8 +225,13 @@ export default {
     this.worker.getBuildingsListForTable('lit', this.getEstimates)
   },
 
+  beforeMount () {
+    this.__getPendingConnectionStatus(this.setPendingConnectionStatus)
+  },
+
   mounted () {
     this.__getCustomersListForTable(this.getData)
+
     this.$vuetify.goTo(0)
   }
 }

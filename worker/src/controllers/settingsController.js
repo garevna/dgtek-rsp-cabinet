@@ -1,3 +1,8 @@
+import {
+  availableServiceStatusHandler,
+  pendingConnectionStatusHandler
+} from '../data-handlers'
+
 class SettingsController {
   async refresh () {
     self.postMessage(await self.controller.refreshSettings())
@@ -13,6 +18,14 @@ class SettingsController {
 
   async getTicketCategories () {
     self.postMessage(await self.controller.getTicketCategories())
+  }
+
+  getAvailableServiceStatus () {
+    self.postMessage(availableServiceStatusHandler())
+  }
+
+  getPendingConnectionStatus () {
+    self.postMessage(pendingConnectionStatusHandler())
   }
 }
 

@@ -106,7 +106,6 @@ export default {
   methods: {
     getNewBuildingId (data) {
       data.status === 200 && this.$emit('update:__buildingId', data.result)
-      console.log('New building created: ', data)
       this.$root.$emit('new-building-created', data)
     },
 
@@ -115,7 +114,6 @@ export default {
     },
 
     sendMessage (event) {
-      console.log(event)
       this.$root.$emit('open-message-popup', {
         messageTyle: 'Building details',
         messageText: 'Data saved'
@@ -139,25 +137,12 @@ export default {
     saveBuildingDetails () {
       const result = buildingDetailsHandler('save')
 
-      if (this.buildingId) {
-        // this.__patchBuildingDetails(this.buildingId, result, this.sendMessage)
-        // this.__patchBuildingDetails(this.buildingId, result, () => console.log('Building details updated'))
-        this.worker.patchBuildingDetails(this.buildingId, result, this.sendMessage)
-      } else {
-        // this.__postBuildingDetails(result, this.getNewBuildingId)
-        this.worker.createNewBuilding(result, this.getNewBuildingId)
-      }
+      this.buildingId ? this.worker.patchBuildingDetails(this.buildingId, result, this.sendMessage)
+        : this.worker.createNewBuilding(result, this.getNewBuildingId)
     }
   },
 
   beforeMount () {
-    // console.group('EDIT BUILDING DETAILS: BEFORE MOUNT')
-    // console.log('BUILDING ID: ', this.buildingId)
-    // console.log('CUSTOMER HANDLER:\n', customerHandler())
-    console.log('BUILDING DETAILS HANDLER:\n', buildingDetailsHandler())
-    // console.log('BUILDING DETAILS HANDLER:\n', buildingDetailsHandler('to-save'))
-    // console.groupEnd('EDIT BUILDING DETAILS: MOUNTED')
-
     this.schema = buildingDetailsHandler()
   },
 

@@ -158,7 +158,6 @@ export default {
       })
 
       const service = serviceController.getCurrentService()
-      console.log(service)
 
       const modified = Date.now()
 
@@ -209,7 +208,6 @@ export default {
     },
 
     available (lot = 'am') {
-      console.log(this.selectedSlot)
       if (!this.selectedSlot) return false
       return this.availableDates[this.selectedSlot][lot]
     },
@@ -241,6 +239,7 @@ export default {
     },
 
     allowedDates (date) {
+      console.log(date, this.availableDates[date])
       return this.availableDates[date]
     },
 
@@ -287,6 +286,7 @@ export default {
     },
 
     getLots (data) {
+      console.log('LOTS:\n', data)
       this.lots = data
       if (this.scheduleCalendarSettings) this.getAvailableDates()
       this.ready = true
@@ -297,8 +297,6 @@ export default {
   },
 
   mounted () {
-    console.log(serviceController.getCustomerId(), serviceController.getCurrentService().id)
-
     this.__getScheduleCalendarSettings(this.getScheduleCalendarSettings)
     this.__getFreeLotsOfSchedule(this.getLots)
   }

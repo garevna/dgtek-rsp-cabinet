@@ -13,7 +13,7 @@ const remoteServerError = Object.assign(updateCustomerDetailsError, {
 })
 
 const localDBError = Object.assign(updateCustomerDetailsError, {
-  errorMessage: 'Customer services updated remotelly, but failed to update local DB'
+  errorMessage: 'Customer services updated remotelly, but failed to update in local DB'
 })
 
 export const updateCustomerServices = async function (customerId, services) {

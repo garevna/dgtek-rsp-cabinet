@@ -1,12 +1,10 @@
 import { eventsTable } from '@/controllers/events-table'
 import { settings } from '@/controllers/events'
 
-export const getTicketCategories = function (callback) {
-  window[Symbol.for('vue.prototype')].sendMessageToWorker({
-    route: 'settings',
-    action: 'get',
-    section: 'ticketCategories'
-  })
+const [route, action, section] = ['settings', 'get', 'ticketCategories']
 
-  eventsTable[settings.get] = callback
+export const getTicketCategories = function (callback) {
+  window[Symbol.for('vue.prototype')].$sendMessageToWorker({ route, action, section })
+
+  eventsTable[settings[action][section]] = callback
 }

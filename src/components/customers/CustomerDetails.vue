@@ -14,7 +14,7 @@
               Customer details
             </b>
           </v-btn>
-          <v-btn v-if="serviceDetailsAvailable" text @click="section = 'Service details'" :disabled="serviceDetailsDisabled">
+          <v-btn v-if="customerServicesAvailable" text @click="section = 'Service details'" :disabled="serviceDetailsDisabled">
             <b :style="{ color: section === 'Service details' ? '#900' : '#999' }">
               Service details
             </b>
@@ -47,9 +47,10 @@
               <EditCustomerDetails :customerId.sync="customerId" :buildingId.sync="buildingId" />
             </Fieldset>
 
-            <Fieldset legend="Service details" v-if="section === 'Service details'">
+            <Fieldset legend="Service details" v-if="section === 'Service details'" style="min-width: 960px">
               <CustomerServices
-                :customerId="customerId"
+                v-if="customerServicesAvailable"
+                :customerId="customer._id || customerId"
                 :address="customerAddress"
               />
             </Fieldset>
@@ -82,7 +83,7 @@
             </v-btn>
           </td>
           <td>
-            <v-btn :disabled="section === 'Service details'" outlined color="primary" @click="goToNext">
+            <v-btn :disabled="section === 'Service details' || !customerServicesAvailable" outlined color="primary" @click="goToNext">
               Next
             </v-btn>
           </td>
@@ -133,22 +134,13 @@ export default {
     customerAddress: '',
     update: false,
     customerDetailsAvailable: true,
-    serviceDetailsAvailable: true
+    customerServicesAvailable: false
   }),
 
   computed: {
     serviceDetailsDisabled () {
       return !this.customerId
     }
-
-    // selectedCustomerServices: {
-    //   get () {
-    //     return this.customer ? this.customer.services : []
-    //   },
-    //   set (val) {
-    //     console.warn('CUSTOMER SERVICES CHANGED\n', val)
-    //   }
-    // }
   },
 
   methods: {
@@ -162,13 +154,14 @@ export default {
 
     getCustomerDetails (data) {
       if (!data) return
-      const { services, ...customerDetails } = data
+      const { services = [], ...customerDetails } = data
 
       customerHandler(customerDetails)
-
       this.customerAddress = `${customerHandler().apartmentNumber}/${customerHandler().address}`
 
       serviceController.setCustomer(customerDetails._id, this.customerAddress, services)
+
+      this.customerServicesAvailable = true
 
       if (!customerDetails.buildingId) this.section = 'Building details'
       else this.worker.getBuildingDetailsById(customerDetails.buildingId, this.updateBuildingDetails)
@@ -177,15 +170,11 @@ export default {
     },
 
     updateBuildingDetails (data) {
-      console.log('UPDATE BUILDING DETAILS:\n', data)
       if (data) {
         buildingDetailsHandler(data)
         this.setCustomerDetailsSection()
       } else {
-        console.log('BUILDING WAS NOT FOUND!!!!!!!!!!!')
         buildingDetailsHandler('reset')
-        console.log(buildingDetailsHandler())
-        console.log(customerHandler().uniqueCode)
         customerHandler(Object.assign(customerHandler(), { buildingId: null }))
       }
     },
@@ -205,15 +194,19 @@ export default {
 
       Object.assign(this.customer, { _id: customerId })
 
-      this.serviceDetailsAvailable = true
+      serviceController.setCustomer(customerId, this.customer.address, this.customer.services)
+
+      this.customerServicesAvailable = true
+
       this.section = 'Service details'
     },
 
-    getNewBuildingId (buildingId) {
-      if (!buildingId) return console.error('Building was not created!!!')
-      customerHandler(Object.assign(customerHandler(), { buildingId }))
-      this.customer = customerHandler()
-    },
+    // getNewBuildingId (buildingId) {
+    //   if (!buildingId) return console.error('Building was not created!!!')
+    //   customerHandler(Object.assign(customerHandler(), { buildingId }))
+    //   this.customer = customerHandler()
+    //   this.customerServicesAvailable = false
+    // },
 
     close () {
       this.$root.$emit('show-main-menu')
@@ -234,11 +227,12 @@ export default {
     ['customer-created', 'customer-updated'].forEach(event => this.$root.$on(event, this.setServicesSection))
 
     if (!this.customerId) {
-      this.serviceDetailsAvailable = false
       this.customer = customerHandler()
       this.customerAddress = `${customerHandler().apartmentNumber}/${customerHandler().address}`
 
       this.section = this.customer.buildingId ? 'Customer details' : 'Building details'
+
+      this.customerServicesAvailable = false
 
       this.ready = true
     } else {
@@ -250,7 +244,7 @@ export default {
     this.$root.$emit('hide-main-menu')
     this.$root.$emit('hide-snackbar')
 
-    this.$root.$on('new-building-created', this.getNewBuildingId)
+    // this.$root.$on('new-building-created', this.getNewBuildingId)
 
     this.$vuetify.goTo(0)
   }

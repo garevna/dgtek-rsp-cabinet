@@ -3,18 +3,14 @@ import { currentMonth } from './currentMonth'
 
 import { initRecord } from './initRecord'
 
-// import { getInfo } from './getInfo'
-// import { getLastMonth } from './getLastMonth'
-// import { getCharge } from './getCharge'
-// import { getConnectionsNumber } from './getConnectionsNumber'
-
-// import { servicesInfoHandler } from './servicesInfoHandler'
-
 import { messagesHandler } from './messagesHandler'
 import { partnerUniqueCodeHandler } from './partnerUniqueCodeHandler'
 
 import { estimatedServiceDeliveryTimeHandler } from './estimatedServiceDeliveryTimeHandler'
 import { ticketCategoriesHandler } from './ticketCategoriesHandler'
+
+import { availableServiceStatusHandler } from './availableServiceStatusHandler'
+import { pendingConnectionStatusHandler } from './pendingConnectionStatusHandler'
 
 import { scheduleCalendarSettingsHandler } from './scheduleCalendarSettingsHandler'
 
@@ -24,12 +20,6 @@ export {
   services,
   currentMonth,
   initRecord,
-  // getInfo,
-  // getLastMonth,
-  // getCharge,
-  // getConnectionsNumber,
-
-  // servicesInfoHandler,
 
   messagesHandler,
   partnerUniqueCodeHandler,
@@ -37,6 +27,8 @@ export {
   estimatedServiceDeliveryTimeHandler,
   ticketCategoriesHandler,
   scheduleCalendarSettingsHandler,
+  availableServiceStatusHandler,
+  pendingConnectionStatusHandler,
 
   customersRefreshErrorsHandler
 }

@@ -12,7 +12,6 @@ class StatisticsController {
   }
 
   catchUpdates (statistics) {
-    console.log('STATISTICS:\n', statistics)
     const { active, pending, notConnected } = statistics.data
     this.active = active.filter(item => item.totalNumber)
     this.pending = pending.filter(item => item.totalNumber)

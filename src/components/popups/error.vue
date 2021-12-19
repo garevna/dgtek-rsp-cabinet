@@ -55,7 +55,6 @@ export default {
   },
   mounted () {
     this.$root.$on('open-error-popup', function (event) {
-      console.log(event)
       this.error = !event.warning
       this.warning = event.warning
       this.errorType = event.errorType || event.messageType

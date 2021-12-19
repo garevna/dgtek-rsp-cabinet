@@ -1,11 +1,10 @@
 import { eventsTable } from '@/controllers/events-table'
 import { customers } from '@/controllers/events'
 
-export const getCustomers = function (callback) {
-  window[Symbol.for('vue.prototype')].$sendMessageToWorker({
-    route: 'customers',
-    action: 'list'
-  })
+const [route, action] = ['customers', 'list']
 
-  eventsTable[customers.list] = callback
+export const getCustomers = function (callback) {
+  window[Symbol.for('vue.prototype')].$sendMessageToWorker({ route, action })
+
+  eventsTable[customers[action]] = callback
 }

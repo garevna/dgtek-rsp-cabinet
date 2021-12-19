@@ -79,7 +79,6 @@ export default {
     },
 
     getResponse (response) {
-      console.log(response)
       this.$emit('update:dialog', false)
     },
     reset () {

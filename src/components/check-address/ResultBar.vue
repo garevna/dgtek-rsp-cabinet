@@ -21,7 +21,7 @@
         Add new customer
       </v-btn>
 
-      <v-btn
+      <!-- <v-btn
         v-else
         outlined
         color="buttons"
@@ -30,7 +30,7 @@
         :disabled="newCustomerDisabled"
       >
         Add new building
-      </v-btn>
+      </v-btn> -->
 
       <v-btn
         outlined
@@ -74,7 +74,6 @@ export default {
       deep: true,
       immediate: true,
       handler (data) {
-        console.log('ADDRESS DATA:\n', data)
         this.__getEstimatedServiceDeliveryTime(data.status, this.getSettings)
       }
     }
@@ -86,9 +85,7 @@ export default {
     },
 
     getNewBuildingId (buildingId) {
-      console.log('NEW BUILDING ID: ', buildingId)
       customerHandler(Object.assing(customerHandler(), { buildingId }))
-      console.log(customerHandler())
     },
 
     getSettings (data) {

@@ -44,13 +44,7 @@ class CustomersController {
   }
 
   async activateService ({ customerId, serviceId }) {
-    const response = (await self.controller.activateService(customerId, serviceId))
-
-    self.postMessage(response)
-
-    const { result: services } = response
-
-    self.postMessage(await self.controller.updateCustomerServices(customerId, services))
+    self.postMessage(await self.controller.activateService(customerId, serviceId))
   }
 
   async updateServiceStatus (request) {

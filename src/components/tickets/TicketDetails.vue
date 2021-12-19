@@ -239,7 +239,6 @@ export default {
 
   methods: {
     closeTheTicket () {
-      console.log(this.ticket)
       this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }), response => console.log(response))
       this.$emit('update:edit', false)
     },

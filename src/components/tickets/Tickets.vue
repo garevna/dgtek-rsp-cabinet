@@ -43,7 +43,7 @@
             }"
           >
             <template v-slot:top>
-              <v-row>
+              <!-- <v-row>
                 <v-select
                   :items="customersList"
                   label="Customer address"
@@ -78,7 +78,7 @@
                   :menu-props="{ bottom: true, offsetY: true }"
                   style="max-width: 160px"
                 ></v-select>
-              </v-row>
+              </v-row> -->
             </template>
 
             <template v-slot:footer.prepend>
@@ -144,7 +144,6 @@ export default {
       { text: 'Category', value: 'category' },
       { text: 'Priority', value: 'priority' },
       { text: 'Severity', value: 'severity' }
-      // { text: 'Actions', value: 'actions', sortable: false }
     ],
     severities: ['High', 'Medium', 'Low'],
     severity: null,
@@ -214,13 +213,17 @@ export default {
     }
   },
 
-  mounted () {
-    this.$root.$on('ticket-created', this.showNewTicketDetails)
-
-    // this.$root.$on('customers-filtered-short-list-received', this.getCustomersList)
-
+  beforeMount () {
     this.__getTicketCategories(this.getCategories)
     this.__getTickets(this.getTickets)
+  },
+
+  beforeDestroy () {
+    this.$root.$off('ticket-created', this.showNewTicketDetails)
+  },
+
+  mounted () {
+    this.$root.$on('ticket-created', this.showNewTicketDetails)
     if (this.create) this.createNewTicket()
   }
 }

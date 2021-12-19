@@ -4,8 +4,8 @@ const [route, action, section] = ['settings', 'get', 'estimatedServiceDeliveryTi
 
 export const getEstimatedServiceDeliveryTime = (key) => {
   const data = estimatedServiceDeliveryTimeHandler()
-  if (!key) return { status: 200, route, action, result: data }
-  if (data[key]) return { status: 200, route, action, key, result: data[key] }
+  if (!key) return { status: 200, route, action, section, result: data }
+  if (data[key]) return { status: 200, route, action, section, key, result: data[key] }
   for (const propName in data) {
     if (data[propName].synonyms.includes(key)) {
       return {

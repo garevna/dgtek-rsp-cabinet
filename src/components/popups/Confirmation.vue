@@ -1,16 +1,18 @@
 <template>
-  <v-dialog v-model="dialog" max-width="480px" class="pa-4">
+  <v-dialog v-model="dialog" max-width="600px" class="pa-4">
     <v-card flat>
-      <v-toolbar dark dense color="#900">
+      <v-toolbar dense color="#900">
         <v-icon class="mr-4"> mdi-account-box </v-icon>
-        <v-toolbar-title> Confirm operation </v-toolbar-title>
+        <v-toolbar-title>
+          <h6>{{ header }}</h6>
+        </v-toolbar-title>
         <v-spacer />
-        <v-btn icon @click="dialog = false">
-          <v-icon large> $close </v-icon>
+        <v-btn icon class="transparent" @click="dialog = false">
+          <v-icon large color="#777"> $close </v-icon>
         </v-btn>
       </v-toolbar>
       <v-card-text class="text-center mt-10">
-        <h5>{{ title }}</h5>
+        <h5><small>{{ title }}</small></h5>
       </v-card-text>
       <v-card-text class="text-center">
         <p>{{ message }}</p>
@@ -27,20 +29,27 @@
 
 export default {
   name: 'Confirmation',
+
   data: () => ({
+    header: '',
     title: '',
     message: '',
+    action: '',
     dialog: false
   }),
+
   methods: {
     confirm () {
-      this.$root.$emit('operation-confirmed', this.source)
+      this.$root.$emit('operation-confirmed', this.action)
       this.dialog = false
     },
+
     open (data) {
-      // this.source = data.source
+      console.log('CONFIRMATION DIALOG OPENED WITH DATA:\n', data)
+      this.header = data.header || 'Confirm operation'
       this.title = data.title || 'By clicking yes, you agree to abide by the terms and conditions stipulated in your MSA and that a $220 charge will be incurred if you cancel the order before activation.'
       this.message = data.message || 'Do you wish to proceed?'
+      this.action = data.action || null
       this.dialog = true
     }
   },

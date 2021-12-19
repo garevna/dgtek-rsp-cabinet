@@ -5,7 +5,9 @@ export const customerHandler = (function () {
     if (value === 'reset') {
       customer = null
     } else {
-      customer = JSON.parse(JSON.stringify(value))
+      customer = Object.assign(JSON.parse(JSON.stringify(value)), {
+        customerCreationDate: value.customerCreationDate || new Date().toISOString().slice(0, 10)
+      })
     }
   }
 })()

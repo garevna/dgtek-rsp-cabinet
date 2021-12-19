@@ -9,8 +9,13 @@
       <table width="100%">
         <thead>
           <tr>
-            <th></th>
-            <th class="text-left" width="360">
+            <th class="text-center">
+              <small><sup>Suspend/Resume</sup></small>
+            </th>
+            <th class="text-center">
+              <small><sup>Cancel</sup></small>
+            </th>
+            <th class="text-center" width="420">
               <small>Service name</small>
             </th>
             <th class="text-center" width="80">
@@ -28,13 +33,21 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) of services" :key="item.serviceId">
+          <tr v-for="item of services" :key="item.serviceId">
             <td>
-              <v-btn icon @click="disconnect(item)">
+              <v-btn v-if="item.status === 'Active'" icon @click="actionsHandler(item, 'suspend')">
+                <v-icon small color="primary">mdi-pause-circle</v-icon>
+              </v-btn>
+              <v-btn v-if="item.status === 'Suspended'" icon @click="actionsHandler(item, 'resume')">
+                <v-icon small color="primary">mdi-backup-restore</v-icon>
+              </v-btn>
+            </td>
+            <td>
+              <v-btn icon @click="actionsHandler(item, 'cancel')">
                 <v-icon small color="primary">mdi-delete</v-icon>
               </v-btn>
             </td>
-            <td style="text-align: left">
+            <td style="text-align: left; padding-left: 24px;">
               <small>{{ item.serviceName }}</small>
             </td>
 
@@ -43,7 +56,7 @@
                 text
                 small
                 color="primary"
-                @click="changeStatus(item, index)"
+                @click="changeStatus(item)"
                 :disabled="disable(item)"
               >
                 {{ item.status }}
@@ -142,7 +155,7 @@ export default {
   components: {
     Services,
     TicketDetails: () => import(/* webpackChunkName: 'ticket-details' */ '@/components/tickets/TicketDetails.vue'),
-    ConfirmActivationRequest: () => import(/* webpackChunkName: 'terms-and-conditions' */ '@/components/popups/ConfirmActivationRequest.vue'),
+    ConfirmActivationRequest: () => import(/* webpackChunkName: 'confirmation-request' */ '@/components/popups/ConfirmActivationRequest.vue'),
     LotSelection: () => import(/* webpackChunkName: 'lot-selection' */ '@/components/schedule/LotSelection.vue')
   },
 
@@ -153,26 +166,32 @@ export default {
     showServices: false,
     newService: null,
     scheduling: false,
-    selected: null,
     submit: false,
     showSubmitButton: false,
     createTicket: false,
     ticket: null,
     categories: [],
 
-    confirmationDialogOpened: false
+    confirmationDialogOpened: false,
+    suspendConfirmation: false,
+    cancelConfirmation: false
   }),
+
+  computed: {
+    dialogOpened () {
+      return this.confirmationDialogOpened || this.scheduling || this.showServices || this.suspendConfirmation || this.cancelConfirmation
+    }
+  },
 
   watch: {
     newService: {
       deep: true,
       handler (value) {
-        console.log('NEW SERVICE:\n', value)
         value && this.assignNewService(value)
       }
     },
 
-    scheduling (newValue, oldValue) {
+    dialogOpened (newValue, oldValue) {
       if (!newValue && oldValue) {
         this.services = serviceController.getDataForServiceList()
       }
@@ -181,12 +200,6 @@ export default {
     createTicket (newVal, oldVal) {
       if (!oldVal && newVal) {
         this.makeTicket('Awaiting for connection')
-      }
-    },
-
-    confirmationDialogOpened (newValue, oldValue) {
-      if (!newValue && oldValue) {
-        this.services = serviceController.getDataForServiceList()
       }
     }
   },
@@ -198,7 +211,7 @@ export default {
       return (new Date(ms || Date.now())).toISOString().slice(0, 10)
     },
 
-    makeTicket (subject) {
+    makeTicket (subject, status = 'Active') {
       this.ticket = Object.assign({}, JSON.parse(JSON.stringify(newTicket)), {
         created: Date.now(),
         modified: Date.now(),
@@ -206,7 +219,18 @@ export default {
         subject,
         customerId: this.customerId,
         details: '...',
-        status: 'Active'
+        status
+      })
+    },
+
+    actionsHandler (item, action) {
+      serviceController.setCurrentService(item.id)
+
+      this.$root.$emit('open-confirmation-popup', {
+        action,
+        header: serviceController.getCustomerAddress(),
+        title: item.serviceName,
+        message: `Are you sure you want to ${action} the service for the customer?`
       })
     },
 
@@ -218,7 +242,6 @@ export default {
     getServiceDetails (details) {
       serviceController.setServiceDetails(details)
       this.services = serviceController.getDataForServiceList()
-      console.log(this.services)
     },
 
     assignNewService (service) {
@@ -226,8 +249,7 @@ export default {
     },
 
     newServiceAdded (service) {
-      console.log('NEW SERVICE ASSINED TO CUSTOMER. WORKER RESPONSE:\n', service)
-      // serviceController.addNewService()
+      // console.log('NEW SERVICE ASSINED TO CUSTOMER. WORKER RESPONSE:\n', service)
     },
 
     selectService () {
@@ -235,48 +257,46 @@ export default {
       this.showServices = true
     },
 
-    disconnect (service) {
-      console.log('disconnect\n', service)
-      console.log('customerServices:\n', this.customerServices)
-      if (service.serviceStatus === 'Not connected') {
-        const index = this.customerServices.findIndex(item => item.id === service.serviceId)
-        this.customerServices.splice(index, 1)
-        return
-      }
-      this.makeTicket('Disconnect service')
-      this.newTicket = true
-    },
-
-    changeStatus (item, index) {
+    changeStatus (item, status) {
       serviceController.setCurrentService(item.id)
-
-      this.selected = item
 
       this.createTicket = item.status === 'Awaiting for connection'
       this.scheduling = item.status === 'Awaiting for scheduling'
       this.confirmationDialogOpened = item.status === 'Not connected'
     },
 
-    refreshServicesDetails (data) {
-      data.forEach((service, index) => {
-        this.schema[index].serviceStatus = service.status
-        this.schema[index].serviceStatusModified = new Date(service.modified).toISOString().slice(0, 10)
-      })
-      this.customerServices = JSON.parse(JSON.stringify(data))
-      this.$emit('update:services', this.customerServices)
+    catchConfirmation (action) {
+      if (!serviceController.getCurrentService()) return
+
+      const actions = {
+        suspend: 'Awaiting to be suspended',
+        cancel: 'Awaiting for cancelation',
+        resume: 'Awaiting to be resumed'
+      }
+
+      if (!actions[action]) return
+
+      const { id: serviceId, status } = serviceController.getCurrentService()
+
+      if (action === 'cancel' && status === 'Not connected') return this.removeService()
+
+      const customerId = serviceController.getCustomerId()
+      this.__updateServiceStatus(customerId, serviceId, actions[action], this.serviceStatusModified.bind(this, actions[action]))
     },
 
-    showActivationSuccess (data) {
-      console.log('SHOW ACTIVATION RESULT:\n', data)
+    removeService () {
+      this.services = serviceController.removeCurrentService()
+    },
+
+    serviceStatusModified (status) {
+      this.services = serviceController.updateCurrentServiceStatus(status)
     }
   },
 
   mounted () {
-    console.log(serviceController.getCustomerId(), serviceController.getCustomerAddress())
     const services = serviceController.getCustomerServices()
-    console.log('CUSTOMER SERVICES:\n', services)
-    // const services = serviceController.getDataForServiceList()
-    // console.log('CUSTOMER SERVICES:\n', this.services)
+
+    this.$root.$on('operation-confirmed', this.catchConfirmation)
 
     for (const service of services) {
       if (service.name) delete service.name

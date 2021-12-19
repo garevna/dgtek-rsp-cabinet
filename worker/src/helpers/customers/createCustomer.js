@@ -8,9 +8,9 @@ const {
   duplicatedCustomerError
 } = require('../error-handlers').default
 
-export const createCustomer = async function (data) {
-  const route = 'customers'
+const [route, action] = ['customers', 'post']
 
+export const createCustomer = async function (data) {
   const duplicated = await searchRecords('customers', 'uniqueCode', data.uniqueCode)
 
   if (duplicated.result.length > 0) return duplicatedCustomerError(409, data.uniqueCode)
@@ -18,10 +18,7 @@ export const createCustomer = async function (data) {
   const { status, result } = await post('customer', data)
 
   if (status === 409) return duplicatedCustomerError(409, data.uniqueCode)
-
   if (status !== 200) return postNewCustomerError(status, data.uniqueCode)
-
-  self.postMessage({ status: 200, route: 'customers', action: 'post', result: result.data })
 
   const customer = await get(`customer/${result.data}`)
 
@@ -31,15 +28,11 @@ export const createCustomer = async function (data) {
 
   if (newCustomer.status !== 200) return putCustomerDataError(newCustomer.status)
 
-  const response = await self.controller.getAllCustomers()
-
-  if (response.status !== 200) return response
-
   return {
     status,
     route,
-    action: 'list',
-    result: response.result,
+    action,
+    result: result.data,
     message: true,
     messageType: 'New customer',
     messageText: `New customer ${data.uniqueCode} has been successfully created. Please don't forget to assign a service.`

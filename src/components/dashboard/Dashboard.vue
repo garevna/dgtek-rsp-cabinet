@@ -56,9 +56,6 @@
 
 import Fieldset from '@/components/Fieldset.vue'
 
-import { statisticsController } from '@/controllers'
-console.log(statisticsController)
-
 export default {
   name: 'Dashboard',
 

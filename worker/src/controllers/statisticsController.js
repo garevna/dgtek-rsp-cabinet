@@ -1,11 +1,19 @@
-import { currentMonth } from '../data-handlers'
+import {
+  currentMonth,
+  // availableServiceStatusHandler,
+  pendingConnectionStatusHandler
+} from '../data-handlers'
 
 const route = 'statistics'
 
 class StatisticsController {
   constructor () {
     this.statistics = {}
-    this.pending = ['Awaiting for connection', 'Awaiting for scheduling', 'Awaiting for confirmation', 'In job queue']
+    this.pending = pendingConnectionStatusHandler() || ['Awaiting for connection', 'Awaiting for confirmation', 'In job queue']
+  }
+
+  setPending () {
+    this.pending = pendingConnectionStatusHandler()
   }
 
   put (serviceId, name, monthlyCharge) {

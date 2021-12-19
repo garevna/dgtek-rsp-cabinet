@@ -7,6 +7,7 @@ class ServiceController {
   }
 
   setCustomer (customerId, customerAddress, customerServices) {
+    if (!customerId) return this.sendErrorMessage(this.customerError)
     this.customerId = customerId
     this.customerAddress = customerAddress
 
@@ -23,8 +24,6 @@ class ServiceController {
   }
 
   setCustomerServices (customerServices) {
-    if (!this.customerId) return this.sendErrorMessage(this.customerError)
-
     this.services = []
 
     for (const service of customerServices) {
@@ -90,6 +89,25 @@ class ServiceController {
 
   updateCurrentService (data) {
     Object.assign(this.services[this.currentServiceIndex], data)
+    return this.getDataForServiceList()
+  }
+
+  updateCurrentServiceStatus (status) {
+    if (!this.services || typeof this.currentServiceIndex !== 'number') return this.sendErrorMessage(this.customerServicesError)
+    Object.assign(this.services[this.currentServiceIndex], {
+      status,
+      log: Object.assign(this.services[this.currentServiceIndex].log || {}, { [Date.now()]: status })
+    })
+
+    return this.getDataForServiceList()
+  }
+
+  removeCurrentService () {
+    if (!this.services || typeof this.currentServiceIndex !== 'number') return this.sendErrorMessage(this.customerServicesError)
+    this.services.splice(this.currentServiceIndex, 1)
+    this.currentServiceIndex = undefined
+
+    return this.getDataForServiceList()
   }
 
   getServiceDetailsForCustomersList () {

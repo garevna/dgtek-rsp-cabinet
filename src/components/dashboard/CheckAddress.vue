@@ -11,7 +11,7 @@
       ></v-card>
 
       <v-row v-if="mapIsReady" justify="center" align="center" class="mb-2">
-        <DgtekGoogleAutocomplete />
+        <DgtekGoogleAutocomplete style="min-width: 900px" />
       </v-row>
 
       <v-card id="searchAddressResults" class="transparent mx-auto mb-12 pb-12 text-center" outlined>
@@ -45,6 +45,7 @@
 <script>
 
 import DgtekMap from 'dgtek-portal-map-package'
+import 'dgtek-google-autocomplete'
 import 'dgtek-google-autocomplete/dist/dgtek-google-autocomplete.css'
 
 import { buildingDetailsHandler } from '@/helpers/data-handlers'
@@ -52,13 +53,10 @@ import { createNewBuilding, createNewCustomer, getBuildingUniqueCode } from '@/h
 
 import ListOfBuildings from '@/components/check-address/ListOfBuildings.vue'
 
-const { DgtekGoogleAutocomplete } = require('dgtek-google-autocomplete').default
-
 export default {
   name: 'CheckAddress',
 
   components: {
-    DgtekGoogleAutocomplete,
     ListOfBuildings,
     ResultBar: () => import('@/components/check-address/ResultBar.vue'),
     CustomerDetails: () => import(/* webpackChunkName: 'customer-details' */ '@/components/customers/CustomerDetails.vue')
@@ -67,9 +65,7 @@ export default {
   data: () => ({
     worker: window[Symbol.for('map.worker')],
     container: null,
-
     eventType: null,
-
     newCustomer: false,
     selectCustomer: false,
     services: false,
@@ -147,6 +143,10 @@ export default {
       this.storeSearchResults({ address, addressComponents, status, buildingId, uniqueCode, coordinates: [lng, lat], estimatedServiceDeliveryTime })
     },
 
+    getSettings (data) {
+
+    },
+
     storeSearchResults (data) {
       const { address, addressComponents, status, buildingId = null, coordinates, uniqueCode, estimatedServiceDeliveryTime } = data
       createNewBuilding({ address, addressComponents, status, buildingId, uniqueCode, coordinates, estimatedServiceDeliveryTime })
@@ -160,7 +160,7 @@ export default {
       this.$root.$emit('open-error-popup', {
         warning: true,
         errorType: address,
-        errorMessage: 'Building was not found in DB. If you want to create new one please do not forget to save building details before saving customer details.'
+        errorMessage: 'This building is not LIT yet, if you want to add a new building please enquire with DGtek Operations team.'
       })
     }
   },

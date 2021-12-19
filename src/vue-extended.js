@@ -39,7 +39,9 @@ String.prototype.fromKebab = function () {
 
 window[Symbol.for('api.host')] = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_API_HOST_PROD : process.env.VUE_APP_API_HOST_DEV
 
-window[Symbol.for('portal.entry')] = process.env.NODE_ENV === 'production' ? 'https://portal.dgtek.net' : 'http://192.168.0.101:8081/'
+// window[Symbol.for('portal.entry')] = process.env.NODE_ENV === 'production' ? 'https://portal.dgtek.net' : 'http://192.168.0.101:8081/'
+
+window[Symbol.for('portal.entry')] = 'https://portal.dgtek.net'
 
 // if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
 //   location.href = window[Symbol.for('portal.entry')]

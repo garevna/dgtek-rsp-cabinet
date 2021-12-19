@@ -156,23 +156,9 @@ export default {
     }
   },
 
-  // watch: {
-  //   selected: {
-  //     deep: true,
-  //     handler (data) {
-  //       console.log('SERVISES: SELECTED SERVICE\n', data)
-  //     }
-  //   }
-  // },
-
   methods: {
     selectService (serviceDetails) {
-      console.log('SELECTED SERVICE DETAILS:\n', serviceDetails)
       serviceController.addNewService(serviceDetails)
-      console.log(serviceController)
-
-      console.log(serviceController.getServiceDetailsForCustomersList())
-      console.log(serviceController.getDataForServiceList())
 
       this.$emit('update:selectedService', serviceDetails)
       this.$emit('update:opened', false)
@@ -209,15 +195,10 @@ export default {
     },
 
     getData (data) {
-      console.log(data)
-      console.log(statisticsController)
       this.items = data
       this.items.forEach(item => {
-        console.log(item)
         const { active, pending } = statisticsController.getServiceInfo(item.serviceName)
         Object.assign(item, { active, pending, speed: this.speedToString(item) })
-        // item.active = this.$root.servicesInfo.services[item._id].active
-        // item.pending = this.$root.servicesInfo.services[item._id].pending
       })
 
       this.ready = true

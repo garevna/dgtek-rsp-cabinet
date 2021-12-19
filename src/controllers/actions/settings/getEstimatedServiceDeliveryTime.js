@@ -1,13 +1,10 @@
 import { eventsTable } from '@/controllers/events-table'
 import { settings } from '@/controllers/events'
 
-export const getEstimatedServiceDeliveryTime = function (key, callback) {
-  window[Symbol.for('vue.prototype')].sendMessageToWorker({
-    route: 'settings',
-    action: 'get',
-    section: 'estimatedServiceDeliveryTime',
-    key
-  })
+const [route, action, section] = ['settings', 'get', 'estimatedServiceDeliveryTime']
 
-  eventsTable[settings.get] = callback
+export const getEstimatedServiceDeliveryTime = function (key, callback) {
+  window[Symbol.for('vue.prototype')].sendMessageToWorker({ route, action, section, key })
+
+  eventsTable[settings[action][section]] = callback
 }

@@ -106,58 +106,12 @@ export default {
     getStatistics () {
       this.ready = false
 
-      console.log(statisticsController)
-
       keys.forEach(key => {
         this[key] = statisticsController[key]
       })
 
       this.ready = true
     }
-
-    // showServicesInfo (data) {
-    //   this.services = data.services
-    //   this.totalNumberOfPendingConnections = 0
-    //   for (const serviceId of Object.keys(data.services)) {
-    //     this.pendingConnections += data.services[serviceId].pending
-    //   }
-    //   this.$root.servicesInfo = data
-    //   this.activeCustomersNumber = data.activeConnectionsNumber
-    //   this.totalCurrentMonthlyCharge = data.charge
-    //   this.totalMonthlyChargeIncludingPendingConnections = data.chargeWithPending
-    //   this.lastMonthConnectedCustomers = data.connectedLastMonth
-    //   // this.pendingConnections = data.pendingConnections
-    //   this.notConnected = data.notConnected
-    //
-    //   this.ready = true
-    // },
-
-    // showActiveConnections () {
-    //   this.connections = Object.keys(this.services)
-    //     .filter(serviceId => this.services[serviceId].active)
-    //     .map(serviceId => ({
-    //       serviceName: this.services[serviceId].serviceName,
-    //       number: this.services[serviceId].active
-    //     }))
-    // },
-
-    // showPendingConnections () {
-    //   this.connections = Object.keys(this.services)
-    //     .filter(serviceId => this.services[serviceId].pending)
-    //     .map(serviceId => ({
-    //       serviceName: this.services[serviceId].serviceName,
-    //       number: this.services[serviceId].pending
-    //     }))
-    // },
-
-    // showNotActiveConnections () {
-    //   this.connections = Object.keys(this.services)
-    //     .filter(serviceId => this.services[serviceId].notConnected)
-    //     .map(serviceId => ({
-    //       serviceName: this.services[serviceId].serviceName,
-    //       number: this.services[serviceId].notConnected
-    //     }))
-    // }
   },
 
   beforeMount () {

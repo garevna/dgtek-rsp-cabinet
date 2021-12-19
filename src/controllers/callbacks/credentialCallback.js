@@ -20,11 +20,13 @@ export function credentialCallback (event) {
   window[Symbol.for('vue.prototype')].$refreshed.rsp = true
   window[Symbol.for('vue.instance')].$root.$emit('data-refreshed', { route: 'rsp' })
 
-  if (status === 200) {
-    refreshSettings()
-    refreshCustomers()
+  const settingsCallback = data => {
     refreshServices()
+    refreshCustomers()
     refreshTickets()
     refreshMessages()
-  } else credentialsError()
+  }
+
+  if (status === 200) refreshSettings(settingsCallback)
+  else credentialsError()
 }

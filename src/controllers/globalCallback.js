@@ -9,10 +9,10 @@ import {
 import * as globalEvents from '@/controllers/events'
 
 export const globalCallback = function (event) {
-  console.log(event.data)
-  const { route, action, status, result, error, message } = event.data
+  const { route, action, section, status, result, error, message } = event.data
 
   if (status === 300) return debuggerCallback(event)
+  if (status === 100) return event.stopPropagation()
 
   if (action === 'credentials') return credentialCallback(event)
 
@@ -26,13 +26,12 @@ export const globalCallback = function (event) {
     window[Symbol.for('vue.instance')].$root.$emit('open-message-popup', { messageType, messageText })
   }
 
-  if (status === 100) return event.stopPropagation()
-
   if (route === 'statistics') return statisticsController.catchUpdates(event.data)
 
-  const eventName = route === 'services' && action === 'get'
-    ? `${result._id}-${globalEvents[route][action]}`
-    : globalEvents[route][action]
+  const eventName = route === 'settings' && action === 'get' ? globalEvents[route][action][section]
+    : route === 'services' && action === 'get' ? `${result._id}-${globalEvents[route][action]}` : globalEvents[route][action]
+
+  // console.log('EVENT NAME: ', eventName)
 
   if (event.data?.action.indexOf('refresh') !== -1) {
     if (!eventsTable[eventName]) refreshCallback(event)
@@ -45,9 +44,9 @@ export const globalCallback = function (event) {
 
   if (!eventsTable[eventName]) {
     console.log('EVENTS TABLE:\n', eventsTable)
-    console.log('ROUTE AND ACTION:\n', route, action)
-    console.log('EVENT NAME: ', eventName)
-    return console.warn('Unknown event', route, action, event.data)
+    // console.log('ROUTE AND ACTION:\n', route, action)
+    // console.log('Not expected event', eventName)
+    return console.warn('Not expected event', eventName, route, action, event.data)
   }
   if (typeof eventsTable[eventName] !== 'function') return console.warn('Error: callback is not a function', eventName, event.data)
 

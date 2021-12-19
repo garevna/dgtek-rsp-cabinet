@@ -54,8 +54,7 @@ export default {
 
   methods: {
     getListOfBuildings (data) {
-      console.log('LIST OF BUILDINGS\n', data)
-      const { buildingStatus, /* polygonStatus, */ event } = data
+      const { buildingStatus, event } = data
       if (buildingStatus.toLowerCase() !== this.type) return
       this.buildings = data
       this.eventType = event
@@ -71,7 +70,6 @@ export default {
 
   beforeMount () {
     this.worker.getBuildingsListForTable(this.type, this.getListOfBuildings)
-    // this.worker.getBuildingsList(this.type, this.getListOfBuildings)
   }
 }
 </script>
