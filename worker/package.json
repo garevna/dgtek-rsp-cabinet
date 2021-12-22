@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "core-js": "^3.10.1",
-    "crypto-js": "^4.1.1",
     "garevna-date-functions": "^1.1.5"
   },
   "devDependencies": {

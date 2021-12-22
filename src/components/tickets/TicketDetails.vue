@@ -41,7 +41,7 @@
       </v-col>
     </v-row>
 
-    <v-row v-if="category === 'Customer issue' || category === 'Service issue'" class="mb-8">
+    <v-row v-if="showCustomerDetails" class="mb-8">
       <table width="600" class="mx-auto">
         <tr>
           <td width="100"> Customer </td>
@@ -140,10 +140,10 @@
       </v-col>
     </v-row>
 
-    <v-row class="mt-12">
+    <v-row class="mt-12" v-if="ticket.status.toLowerCase() !== 'archived'">
       <v-btn outlined color="primary" @click="$emit('update:edit', false)">Back to tickets list</v-btn>
       <v-spacer />
-      <v-btn dark class="primary mr-2" @click="closeTheTicket" v-if="!ticket._id">
+      <v-btn dark class="primary mr-2" @click="closeTheTicket" v-if="ticket._id">
         Archive the ticket
       </v-btn>
       <v-btn dark class="primary" @click="save">Update/save details</v-btn>
@@ -160,7 +160,7 @@ export default {
     Selector: () => import('@/components/tickets/Selector.vue')
   },
 
-  props: ['ticket', 'categories', 'edit'],
+  props: ['ticket', 'categories', 'edit', 'archived'],
 
   data: () => ({
     customersList: [],
@@ -179,6 +179,9 @@ export default {
   }),
 
   computed: {
+    showCustomerDetails () {
+      return this.category === 'Customer issue' || this.category === 'Service issue'
+    },
     category: {
       get () {
         return this.ticket.category
@@ -239,8 +242,12 @@ export default {
 
   methods: {
     closeTheTicket () {
-      this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }), response => console.log(response))
+      this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }), this.closed)
       this.$emit('update:edit', false)
+    },
+
+    closed (data) {
+      this.$emit('update:archived', true)
     },
 
     getCategories (data) {

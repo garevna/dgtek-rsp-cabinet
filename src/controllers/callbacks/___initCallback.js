@@ -7,8 +7,6 @@ import {
   refreshMessages
 } from '@/controllers/actions'
 
-console.log('REFRESH MESSAGES: ', refreshMessages)
-
 export function initCallback (event) {
   const { status } = event.data
 

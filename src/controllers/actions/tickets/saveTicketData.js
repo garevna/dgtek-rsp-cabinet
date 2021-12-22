@@ -1,13 +1,10 @@
 import { eventsTable } from '@/controllers/events-table'
 import { tickets } from '@/controllers/events'
 
-export const saveTicketData = function (id, data, callback) {
-  window[Symbol.for('vue.prototype')].sendMessageToWorker({
-    route: 'tickets',
-    action: 'put',
-    key: id,
-    data
-  })
+const [route, action] = ['tickets', 'put']
 
-  eventsTable[tickets.put] = callback
+export const saveTicketData = function (id, data, callback) {
+  window[Symbol.for('vue.prototype')].sendMessageToWorker({ route, action, key: id, data })
+
+  eventsTable[tickets[action]] = callback
 }

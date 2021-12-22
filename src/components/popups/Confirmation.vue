@@ -45,7 +45,6 @@ export default {
     },
 
     open (data) {
-      console.log('CONFIRMATION DIALOG OPENED WITH DATA:\n', data)
       this.header = data.header || 'Confirm operation'
       this.title = data.title || 'By clicking yes, you agree to abide by the terms and conditions stipulated in your MSA and that a $220 charge will be incurred if you cancel the order before activation.'
       this.message = data.message || 'Do you wish to proceed?'

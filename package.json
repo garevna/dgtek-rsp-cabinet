@@ -1,6 +1,6 @@
 {
   "name": "dgtek-portal-partner-cabinet",
-  "version": "7.0.5",
+  "version": "7.0.7",
   "scripts": {
     "worker-dev": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode development -w && yarn remove crypto-js",
     "worker": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode production && yarn remove crypto-js",

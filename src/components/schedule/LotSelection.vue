@@ -10,18 +10,18 @@
           landscape
           no-title
           :title-date-format="titleDateFormat"
-          color="#999"
+          color="#900"
           :allowed-dates="allowedDates"
           :events="functionEvents"
           class="mx-4"
           multiple
           @click:date="selectDate($event)"
         >
-          <v-card flat class="transparent" v-if="dates.length > 0">
+          <v-card flat class="transparent" v-if="result.length > 0">
             <v-card-text>
               <span style="margin-right: 16px">Selected lots:</span>
-              <span class="selected-lot"><b>{{ dates[0] }}</b></span>
-              <span class="selected-lot" v-if="dates.length === 2"><b>{{ dates[1] }}</b></span>
+              <span class="selected-lot"><b>{{ result[0].date }} ({{ result[0].period.toUpperCase() }})</b></span>
+              <span class="selected-lot" v-if="result.length === 2"><b>{{ result[1].date }} ({{ result[1].period.toUpperCase() }})</b></span>
             </v-card-text>
           </v-card>
         </v-date-picker>
@@ -168,8 +168,6 @@ export default {
         log: Object.assign(service.log, { [modified]: 'Awaiting for confirmation' })
       })
 
-      console.log('CURRENT SERVICE UPDATED:\n', serviceController.getCurrentService())
-
       const requestDetails = {
         customerId: serviceController.getCustomerId(),
         serviceId: serviceController.getCurrentService().id,
@@ -192,6 +190,7 @@ export default {
         period: this.period,
         message: this.message
       })
+
       this.message = ''
       this.close()
     },
@@ -239,44 +238,49 @@ export default {
     },
 
     allowedDates (date) {
-      console.log(date, this.availableDates[date])
-      return this.availableDates[date]
+      return this.availableDates[date]?.am || this.availableDates[date]?.pm
     },
 
     functionEvents (date) {
-      const current = new Date().toISOString().slice(0, 10)
+      if (!this.allowedDates(date)) return ['#aaa', '#aaa']
 
-      const test = current < date && Object.keys(this.lots).includes(date)
-
-      return [
-        !test ? '#ddd' : this.availableDates[date].am ? '#900' : '#aaa',
-        !test ? '#ddd' : this.availableDates[date].pm ? '#900' : '#aaa'
+      const colors = [
+        this.availableDates[date]?.am ? '#7a7' : '#aaa',
+        this.availableDates[date]?.pm ? '#7a7' : '#aaa'
       ]
+
+      if (this.result[0]?.date === date && this.result[0]?.period === 'am') colors[0] = '#900'
+      if (this.result[0]?.date === date && this.result[0]?.period === 'pm') colors[1] = '#900'
+
+      if (this.result[1]?.date === date && this.result[1]?.period === 'am') colors[0] = '#900'
+      if (this.result[1]?.date === date && this.result[1]?.period === 'pm') colors[1] = '#900'
+
+      return colors
     },
 
     getAvailableDates () {
       this.availableDates = {}
 
-      const date = new Date()
-      const current = date.toISOString().slice(0, 10)
-
-      const weekNumber = this.getWeekNumber(date)
+      const [lower, upper, weekNumber] = [
+        new Date().toISOString().slice(0, 10),
+        new Date(Date.now() + 1000 * 60 * 60 * 24 * 7 * 5).toISOString().slice(0, 10),
+        this.getWeekNumber(new Date())
+      ]
 
       for (const week of [weekNumber, weekNumber + 1, weekNumber + 2, weekNumber + 3]) {
         const weekdates = this.getWeekDatesByWeekNumber(week)
-        weekdates.forEach((d, index) => {
-          if (d > current) {
-            if (this.lots[d]) {
-              console.log(this.lots[d].am.length, this.lots[d].pm.length)
-              const am = this.lots[d].am.length < this.scheduleCalendarSettings[index]
-              const pm = this.lots[d].pm.length < this.scheduleCalendarSettings[index]
-              if (am || pm) this.availableDates[d] = { am, pm }
-            } else this.availableDates[d] = { am: true, pm: true }
+
+        weekdates.forEach((date, index) => {
+          if (date > lower && date <= upper) {
+            if (this.lots[date]) {
+              this.availableDates[date] = {
+                am: this.lots[date].am.length < this.scheduleCalendarSettings[index],
+                pm: this.lots[date].pm.length < this.scheduleCalendarSettings[index]
+              }
+            } else this.availableDates[date] = { am: true, pm: true }
           }
         })
       }
-
-      console.log(this.availableDates)
     },
 
     getScheduleCalendarSettings (data) {
@@ -286,7 +290,6 @@ export default {
     },
 
     getLots (data) {
-      console.log('LOTS:\n', data)
       this.lots = data
       if (this.scheduleCalendarSettings) this.getAvailableDates()
       this.ready = true

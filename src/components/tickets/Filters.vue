@@ -1,20 +1,46 @@
 <template>
-  <v-select
-    :items="available"
-    v-model="localValue"
-    :label="label"
-    outlined
-    dense
-    hide-details
-    color="#900"
-    style="width: 270px"
-  ></v-select>
+  <v-row>
+    <v-select
+      :items="customersList"
+      label="Customer address"
+      v-model="customer"
+      item-text="address"
+      item-value="customerId"
+      outlined
+      dense
+      clearable
+      :menu-props="{ bottom: true, offsetY: true }"
+      style="width: 480px"
+    ></v-select>
+
+    <v-select
+      :items="priorities"
+      label="Priority"
+      v-model="priority"
+      outlined
+      clearable
+      dense
+      :menu-props="{ bottom: true, offsetY: true }"
+      style="max-width: 160px"
+    ></v-select>
+
+    <v-select
+      :items="severities"
+      label="Severity"
+      v-model="severity"
+      outlined
+      dense
+      clearable
+      :menu-props="{ bottom: true, offsetY: true }"
+      style="max-width: 160px"
+    ></v-select>
+  </v-row>
 </template>
 
 <script>
 
 export default {
-  name: 'Selector',
+  name: 'Filters',
 
   props: ['label', 'value', 'available'],
 

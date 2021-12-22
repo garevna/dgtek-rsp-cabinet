@@ -1,15 +1,10 @@
 import { eventsTable } from '@/controllers/events-table'
 import { settings } from '@/controllers/events'
 
-const section = 'serviceStatusIcons'
+const [route, action, section] = ['settings', 'get', 'serviceStatusIcons']
 
 export const getServiceStatusIcons = function (callback) {
-  window[Symbol.for('vue.prototype')].sendMessageToWorker({
-    route: 'settings',
-    action: 'get',
-    section
-  })
+  window[Symbol.for('vue.prototype')].sendMessageToWorker({ route, action, section })
 
-  // eventsTable[`${section}-${settings.get}`] = callback
-  eventsTable[settings.get[section]] = callback
+  eventsTable[settings[action][section]] = callback
 }

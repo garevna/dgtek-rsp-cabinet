@@ -105,6 +105,7 @@
         :ticket.sync="selectedTicket"
         :categories="categories"
         :edit.sync="edit"
+        :archived.sync="archived"
         :newTicket="newTicket"
       />
     </v-row>
@@ -125,6 +126,7 @@ export default {
   data: () => ({
     ready: false,
     edit: false,
+    archived: false,
     newTicket: false,
     items: null,
     selectedTicket: null,
@@ -159,6 +161,15 @@ export default {
         .filter(ticket => !this.customer || (ticket.customerId === this.customer))
         .filter(ticket => !this.severity || (ticket.severity === this.severity))
         .filter(ticket => !this.priority || (ticket.priority === this.priority))
+    }
+  },
+
+  watch: {
+    archived (val) {
+      if (val) {
+        this.archived = false
+        this.__getTickets(this.getTickets)
+      }
     }
   },
 
