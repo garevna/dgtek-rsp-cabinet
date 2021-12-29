@@ -3,15 +3,15 @@ import { dashboard } from '@/controllers/events'
 
 import { messagesHandler } from '@/helpers'
 
-const callback = function (messages) {
+const defaultCallback = function (messages) {
   messagesHandler(messages)
 }
 
-export const refreshMessages = function () {
-  window[Symbol.for('vue.prototype')].$sendMessageToWorker({
-    route: 'dashboard',
-    action: 'refresh-messages'
-  })
+const [route, action] = ['dashboard', 'refresh-messages']
 
-  eventsTable[dashboard['refresh-messages']] = callback
+export const refreshMessages = function (callback) {
+  window[Symbol.for('vue.instance')].__worker.postMessage({ route, action })
+  // window[Symbol.for('vue.prototype')].$sendMessageToWorker({ route, action })
+
+  eventsTable[dashboard[action]] = callback || defaultCallback
 }

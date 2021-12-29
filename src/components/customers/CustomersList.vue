@@ -218,6 +218,11 @@ export default {
 
     gotoLastPage (number) {
       customersListPageNumberHandler(number)
+    },
+
+    remoteUpdates () {
+      console.log('CUSTOMERS UPDATED REMOTELY')
+      this.__getCustomersListForTable(this.getData)
     }
   },
 
@@ -229,8 +234,14 @@ export default {
     this.__getPendingConnectionStatus(this.setPendingConnectionStatus)
   },
 
+  beforeDestroy () {
+    this.$root.$off('customers-updated-remotely', this.remoteUpdates)
+  },
+
   mounted () {
     this.__getCustomersListForTable(this.getData)
+
+    this.$root.$on('customers-updated-remotely', this.remoteUpdates)
 
     this.$vuetify.goTo(0)
   }

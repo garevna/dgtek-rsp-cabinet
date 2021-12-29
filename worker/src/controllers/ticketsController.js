@@ -1,3 +1,10 @@
+const requestError = {
+  status: 422,
+  route: 'tickets',
+  error: true,
+  errorType: 'Invalid request'
+}
+
 class TicketsController {
   async refresh (request) {
     self.postMessage(await self.controller.refreshTickets(request))
@@ -16,10 +23,32 @@ class TicketsController {
   }
 
   async put (request) {
+    if (!request.key) {
+      return self.postMessage(Object.assign(requestError, {
+        action: 'put',
+        errorMessage: 'Ticket id is not defined'
+      }))
+    }
     self.postMessage(await self.controller.putTicketData(request.key, request.data))
   }
 
   async patch (request) {
+    if (!request.key) {
+      return self.postMessage(Object.assign(requestError, {
+        action: 'patch',
+        errorMessage: 'Ticket id is not defined'
+      }))
+    }
+    self.postMessage(await self.controller.patchTicket(request.key, request.data))
+  }
+
+  async updateHistory (request) {
+    if (!request.key) {
+      return self.postMessage(Object.assign(requestError, {
+        action: 'history',
+        errorMessage: 'Ticket id is not defined'
+      }))
+    }
     self.postMessage(await self.controller.patchTicketHistory(request.key, request.history))
   }
 

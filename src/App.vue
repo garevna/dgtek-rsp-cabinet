@@ -22,7 +22,7 @@
       </v-main>
     </v-row>
 
-    <v-snackbar v-model="snackbar" right class="mr-2" :timeout="-1" color="#9009" top>
+    <v-snackbar v-model="snackbar" right class="mr-2" :timeout="-1" color="#9009" top style="position: fixed !important">
       {{ message }}
       <template v-slot:action="{ attrs }">
         <v-btn

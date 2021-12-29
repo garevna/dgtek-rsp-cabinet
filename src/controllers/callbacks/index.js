@@ -5,6 +5,7 @@ import { messageCallback } from './messageCallback'
 
 import { credentialCallback } from './credentialCallback'
 import { refreshCallback } from './refreshCallback'
+import { updatesCallback } from './updatesCallback'
 
 // import { initError } from './initError'
 // import { authError } from './authError'
@@ -18,6 +19,7 @@ export {
   messageCallback,
   credentialCallback,
   refreshCallback,
+  updatesCallback,
   // initError,
   // authError,
   credentialsError,

@@ -71,6 +71,7 @@ export const routes = {
     post: ticketsController.post,
     put: ticketsController.put,
     patch: ticketsController.patch,
+    history: ticketsController.updateHistory,
     number: ticketsController.getNumber
   },
 

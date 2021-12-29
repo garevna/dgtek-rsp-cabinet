@@ -3,8 +3,8 @@ import { initError } from './'
 import {
   refreshCustomers,
   refreshServices,
-  refreshTickets,
-  refreshMessages
+  refreshTickets
+  // refreshMessages
 } from '@/controllers/actions'
 
 export function initCallback (event) {
@@ -16,6 +16,6 @@ export function initCallback (event) {
     refreshCustomers()
     refreshServices()
     refreshTickets()
-    refreshMessages()
+    // refreshMessages()
   } else initError()
 }

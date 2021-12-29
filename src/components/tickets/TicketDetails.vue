@@ -242,7 +242,8 @@ export default {
 
   methods: {
     closeTheTicket () {
-      this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }), this.closed)
+      // this.__saveTicketData(this.ticket._id, Object.assign({}, this.ticket, { status: 'Archived' }), this.closed)
+      this.__patchTicket(this.ticket._id, { status: 'Archived' }, this.closed)
       this.$emit('update:edit', false)
     },
 
@@ -304,7 +305,7 @@ export default {
     updateTicket () {
       this.update('modified', Date.now())
       this.updateTicketHistory()
-      this.__saveTicketData(this.ticket._id, this.ticket, () => console.log('Ticket updated'))
+      this.__saveTicketData(this.ticket._id, this.ticket, this.showResult)
     },
 
     save () {
@@ -320,6 +321,10 @@ export default {
 
     update (prop, value) {
       this.$emit('update:ticket', Object.assign({}, this.ticket, { [prop]: value }))
+    },
+
+    showResult (data) {
+      console.log(data)
     }
   },
 
@@ -329,6 +334,14 @@ export default {
 
     if (!this.categories || !this.categories.length) {
       this.__getTicketCategories(this.getCategories)
+    }
+
+    if (this.ticket.history?.length) {
+      const lastMessage = this.ticket.history.slice(-1)[0]
+      if (lastMessage.source === 'admin' && !lastMessage.read) {
+        this.ticket.history.push(Object.assign(this.ticket.history.pop(), { read: true }))
+        this.__updateTicketHistory(this.ticket._id, this.ticket.history, this.showResult)
+      }
     }
   }
 }

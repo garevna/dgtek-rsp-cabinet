@@ -1,27 +1,36 @@
 <template>
   <v-card flat class="transparent" height="240" v-if="messages" style="overflow-y: auto">
     <div v-for="message of messages" :key="message._id">
+      <div>
+        <sup>
+          <small>
+            {{ new Date(message.modified).toISOString().slice(0, 10) }}
+          </small>
+        </sup>
+      </div>
       <h5>
         <sup>
           <small>
-            {{ new Date(message.modified).toISOString().slice(0, 10) }} | {{ message.subject }}
+            {{ message.subject }}
           </small>
         </sup>
       </h5>
 
-      <div v-if="message.type === 'update-company-details'">
+      <div v-if="message.fields && message.fields.length">
         <li
           v-for="item of message.fields"
           :key="item.field"
-          @click.stop="showItem(item)"
+          @click.stop="showItem(message, item)"
         >
           <small>{{ item.title }}</small>
         </li>
       </div>
 
-      <p v-if="message.type !== 'update-company-details'">
-        <small v-html="message.content.split('\n').join('<br>')"></small>
-      </p>
+      <div v-if="message.type !== 'update-company-details'">
+        <sub>
+          <small v-html="message.content.split('\n').join('<br>')"></small>
+        </sub>
+      </div>
       <v-divider class="my-4" />
     </div>
   </v-card>
@@ -29,7 +38,7 @@
 
 <script>
 
-import { messagesHandler } from '@/helpers/data-handlers'
+import { messagesHandler, partnerUniqueCodeHandler } from '@/helpers/data-handlers'
 
 export default {
   name: 'Messages',
@@ -43,8 +52,17 @@ export default {
       messagesHandler(data)
       this.messages = messagesHandler()
     },
-    showItem (item) {
-      this.$root.$emit('go-to-company-details')
+
+    showItem (message, item) {
+      if (message.type === 'update-company-details') this.$root.$emit('go-to-company-details')
+      if (message.type === 'update-customer-details') {
+        this.$root.$emit('show-snackbar', message.content)
+        this.$root.$emit('go-to-customer-details', message.customerId)
+      }
+    },
+
+    refreshMessages () {
+      this.__refreshMessages(this.getMessages)
     }
   },
 
@@ -57,7 +75,7 @@ export default {
   },
 
   mounted () {
-    this.messages = this.messages.length ? this.messages : messagesHandler()
+    if (partnerUniqueCodeHandler()) this.__refreshMessages(this.getMessages)
   }
 }
 </script>

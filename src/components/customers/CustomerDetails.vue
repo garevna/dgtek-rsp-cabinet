@@ -119,7 +119,6 @@ export default {
   },
 
   props: {
-    mode: { type: String, required: false },
     dialog: { type: Boolean, required: true },
     sectionName: { type: String, default: 'Customer details', required: false },
     customerId: { type: String, default: null, required: false }, /* new customer has no id */
@@ -242,7 +241,7 @@ export default {
 
   mounted () {
     this.$root.$emit('hide-main-menu')
-    this.$root.$emit('hide-snackbar')
+    // this.$root.$emit('hide-snackbar')
 
     // this.$root.$on('new-building-created', this.getNewBuildingId)
 

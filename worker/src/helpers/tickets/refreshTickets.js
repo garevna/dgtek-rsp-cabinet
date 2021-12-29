@@ -10,9 +10,9 @@ const [route, action] = ['tickets', 'refresh']
 
 export const refreshTickets = async function () {
   let currentPage = 1
-  const perPage = 30
+  const perPage = 100
 
-  let categories = false
+  // let categories = false
 
   const shortList = []
 
@@ -21,15 +21,15 @@ export const refreshTickets = async function () {
   do {
     var { status, result } = await get(`ticket?page=${currentPage++}&per_page=${perPage}`)
 
-    var { ticketCategories, tickets, page, pages } = result
+    var { /* ticketCategories, */ tickets, page, pages } = result
 
     if (status !== 200) return refreshTicketsListError(status)
 
-    if (!categories) {
-      const { status } = await putRecordByKey('categories', 'ticketsCategories', ticketCategories)
-      if (status !== 200) self.postMessage(refreshTicketsListError(status))
-      else categories = true
-    }
+    // if (!categories) {
+    //   const { status } = await putRecordByKey('categories', 'ticketsCategories', ticketCategories)
+    //   if (status !== 200) self.postMessage(refreshTicketsListError(status))
+    //   else categories = true
+    // }
 
     shortList.concat(tickets.map(ticket => getShortTicketInfo(ticket)))
 

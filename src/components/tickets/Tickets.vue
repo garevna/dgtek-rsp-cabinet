@@ -29,56 +29,37 @@
       </v-col>
 
       <v-col style="min-width: calc(100% - 240px)" class="text-center mt-12">
-          <v-data-table
-            :headers="headers"
-            :items="filteredItems"
-            :search="search"
-            class="transparent"
-            @click:row="editItem"
-            width="700"
-            @pagination="pagination"
-            :options="{
-              page: tablePage,
-              itemsPerPage: rowsPerPage
-            }"
-          >
-            <template v-slot:top>
-              <!-- <v-row>
-                <v-select
-                  :items="customersList"
-                  label="Customer address"
-                  v-model="customer"
-                  item-text="address"
-                  item-value="customerId"
-                  outlined
-                  dense
-                  clearable
-                  :menu-props="{ bottom: true, offsetY: true }"
-                  style="width: 480px"
-                ></v-select>
+        <v-data-table
+          :headers="headers"
+          :items="filteredItems"
+          :search="search"
+          class="transparent"
+          @click:row="editItem"
+          width="700"
+          @pagination="pagination"
+          :options="{
+            page: tablePage,
+            itemsPerPage: rowsPerPage
+          }"
+        >
+          <template v-slot:top>
+            <Filters
+              :severity.sync="severity"
+              :priority.sync="priority"
+              :customer.sync="customer"
+              :customers="customers"
+            />
+          </template>
 
-                <v-select
-                  :items="priorities"
-                  label="Priority"
-                  v-model="priority"
-                  outlined
-                  clearable
-                  dense
-                  :menu-props="{ bottom: true, offsetY: true }"
-                  style="max-width: 160px"
-                ></v-select>
-
-                <v-select
-                  :items="severities"
-                  label="Severity"
-                  v-model="severity"
-                  outlined
-                  dense
-                  clearable
-                  :menu-props="{ bottom: true, offsetY: true }"
-                  style="max-width: 160px"
-                ></v-select>
-              </v-row> -->
+            <template v-slot:item.actions="{ item }">
+              <v-icon
+                v-if="unread(item)"
+                small
+                color="primary"
+                class="mr-2"
+              >
+                mdi-email-mark-as-unread
+              </v-icon>
             </template>
 
             <template v-slot:footer.prepend>
@@ -118,6 +99,7 @@ export default {
   name: 'Tickets',
 
   components: {
+    Filters: () => import('@/components/tickets/Filters.vue'),
     TicketDetails: () => import('@/components/tickets/TicketDetails.vue')
   },
 
@@ -133,12 +115,11 @@ export default {
     search: null,
     category: null,
     categories: null,
-    customersList: [],
-    customer: null,
     tablePage: 1,
     tablePages: null,
     rowsPerPage: 8,
     headers: [
+      { text: '', value: 'actions' },
       { text: 'Ticket number', value: 'number' },
       { text: 'Subject', align: 'start', value: 'subject' },
       { text: 'Date (created)', value: 'created' },
@@ -147,9 +128,9 @@ export default {
       { text: 'Priority', value: 'priority' },
       { text: 'Severity', value: 'severity' }
     ],
-    severities: ['High', 'Medium', 'Low'],
+    customer: null,
+    customers: [],
     severity: null,
-    priorities: ['High', 'Medium', 'Low'],
     priority: null
   }),
 
@@ -178,13 +159,13 @@ export default {
       this.categories = data
     },
 
+    sendRequest () {
+      this.__getTickets(this.getTickets)
+    },
+
     getTickets (data) {
       this.items = data || []
-
-      const list = Array.from(new Set(this.items.map(ticket => ticket.customerId)))
-
-      this.__getFilteredShortListOfCustomers(list, this.getCustomersList)
-
+      this.customers = Array.from(new Set(this.items.map(ticket => ticket.customerId)))
       this.ready = true
     },
 
@@ -205,10 +186,6 @@ export default {
       this.newTicket = false
     },
 
-    getCustomersList (data) {
-      this.customersList = data
-    },
-
     showNewTicketDetails (data) {
       this.items.push(data)
       this.goToEnd()
@@ -221,20 +198,42 @@ export default {
 
     goToEnd () {
       this.tablePage = this.tablePages
+    },
+
+    unread (ticket) {
+      if (!ticket.history?.length) {
+        console.log(ticket)
+        return false
+      }
+      const { source, read = false } = ticket.history.slice(-1)[0]
+      return source === 'admin' && !read
+    },
+
+    refreshSettings () {
+      this.__refreshSettings(this.refreshCategories)
+      setTimeout(this.refreshSettings, 10000)
+    },
+
+    refreshCategories () {
+      this.__getTicketCategories(this.getCategories)
+      // setTimeout(this.refreshCategories, 10000)
     }
   },
 
   beforeMount () {
-    this.__getTicketCategories(this.getCategories)
+    this.refreshSettings(this.refreshCategories)
+    this.refreshCategories(this.getCategories)
     this.__getTickets(this.getTickets)
   },
 
   beforeDestroy () {
     this.$root.$off('ticket-created', this.showNewTicketDetails)
+    this.$root.$off('tickets-updated-remotely', this.sendRequest)
   },
 
   mounted () {
     this.$root.$on('ticket-created', this.showNewTicketDetails)
+    this.$root.$on('tickets-updated-remotely', this.sendRequest)
     if (this.create) this.createNewTicket()
   }
 }

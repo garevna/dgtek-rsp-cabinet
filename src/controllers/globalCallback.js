@@ -3,7 +3,8 @@ import { eventsTable, statisticsController } from '@/controllers'
 import {
   credentialCallback,
   refreshCallback,
-  debuggerCallback
+  debuggerCallback,
+  updatesCallback
 } from '@/controllers/callbacks'
 
 import * as globalEvents from '@/controllers/events'
@@ -15,6 +16,8 @@ export const globalCallback = function (event) {
   if (status === 100) return event.stopPropagation()
 
   if (action === 'credentials') return credentialCallback(event)
+
+  if (route === 'updates') return updatesCallback(event)
 
   if (error) {
     const { errorType, errorMessage } = event.data

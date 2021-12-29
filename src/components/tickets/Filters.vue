@@ -1,22 +1,22 @@
 <template>
-  <v-row>
+  <v-row v-if="customersListReady">
     <v-select
       :items="customersList"
       label="Customer address"
-      v-model="customer"
+      @change="selectCustomer"
       item-text="address"
       item-value="customerId"
       outlined
       dense
       clearable
       :menu-props="{ bottom: true, offsetY: true }"
-      style="width: 480px"
+      style="width: 420px"
     ></v-select>
 
     <v-select
       :items="priorities"
       label="Priority"
-      v-model="priority"
+      @change="selectPriority"
       outlined
       clearable
       dense
@@ -27,7 +27,7 @@
     <v-select
       :items="severities"
       label="Severity"
-      v-model="severity"
+      @change="selectSeverity"
       outlined
       dense
       clearable
@@ -42,7 +42,14 @@
 export default {
   name: 'Filters',
 
-  props: ['label', 'value', 'available'],
+  props: ['customer', 'severity', 'priority', 'customers'],
+
+  data: () => ({
+    severities: ['High', 'Medium', 'Low'],
+    priorities: ['High', 'Medium', 'Low'],
+    customersList: [],
+    customersListReady: false
+  }),
 
   computed: {
     localValue: {
@@ -53,6 +60,29 @@ export default {
         this.$emit('update:value', val)
       }
     }
+  },
+
+  methods: {
+    getCustomersList (data) {
+      this.customersList = data
+      this.customersListReady = true
+    },
+
+    selectCustomer (customerId) {
+      this.$emit('update:customer', customerId)
+    },
+
+    selectPriority (priority) {
+      this.$emit('update:priority', priority)
+    },
+
+    selectSeverity (severity) {
+      this.$emit('update:severity', severity)
+    }
+  },
+
+  mounted () {
+    this.__getFilteredShortListOfCustomers(this.customers, this.getCustomersList)
   }
 }
 </script>

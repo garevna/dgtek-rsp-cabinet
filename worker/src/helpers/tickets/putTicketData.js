@@ -1,35 +1,29 @@
 import { put } from '../AJAX'
 
-const {
-  putTicketDataError,
-  refreshTicketsListError,
-  getTicketsListError
-} = require('../error-handlers').default
+const { putTicketDataError } = require('../error-handlers').default
+
+const [route, action] = ['tickets', 'put']
 
 export const putTicketData = async function (key, data) {
-  const route = 'tickets'
-  const { _id } = data
+  self.postDebugMessage({ key, data })
 
   data.created = Date.parse(data.created).toString()
   data.modified = Date.now().toString()
 
-  const { status } = await put(`ticket/${_id}`, data)
+  const { status, result } = await put(`ticket/${key}`, data)
 
   if (status !== 200) return putTicketDataError(status)
 
-  const { status: refreshStatus } = await self.controller.refreshTickets()
-
-  if (refreshStatus !== 200) return refreshTicketsListError(refreshStatus)
-
-  const { status: getStatus, result: getResult } = await self.controller.getListOfTickets()
-
-  if (getStatus !== 200) return getTicketsListError(getStatus)
+  // const { status: refreshStatus } = await self.controller.refreshTickets()
+  // if (refreshStatus !== 200) return refreshTicketsListError(refreshStatus)
+  // const { status: getStatus, result: getResult } = await self.controller.getListOfTickets()
+  // if (getStatus !== 200) return getTicketsListError(getStatus)
 
   return {
     status,
     route,
-    action: 'list',
-    result: getResult,
+    action,
+    result,
     message: true,
     messageType: 'Ticket details',
     messageText: 'Ticket details updated'

@@ -3,6 +3,8 @@ import { messagesHandler } from '../../data-handlers'
 
 const { refreshMessagesError } = require('../error-handlers').default
 
+const [route, action] = ['dashboard', 'refresh-messages']
+
 export const refreshMessages = async function () {
   const { status, result } = await get('messages')
 
@@ -10,5 +12,5 @@ export const refreshMessages = async function () {
 
   messagesHandler(result.messages)
 
-  return { status: 200, route: 'dashboard', action: 'refresh-messages', result: messagesHandler() }
+  return { status: 200, route, action, result: messagesHandler() }
 }

@@ -13,9 +13,9 @@ const {
 } = actions
 
 export function credentialCallback (event) {
-  const { status } = event.data
+  const { status, result } = event.data
 
-  partnerUniqueCodeHandler(event.data.result.uniqueCode)
+  partnerUniqueCodeHandler(result.uniqueCode)
 
   window[Symbol.for('vue.prototype')].$refreshed.rsp = true
   window[Symbol.for('vue.instance')].$root.$emit('data-refreshed', { route: 'rsp' })

@@ -3,7 +3,7 @@
     <v-stepper v-model="step" class="homefone" style="box-shadow: none;">
       <v-stepper-items flat class="page-content transparent mt-6 mb-12">
         <transition name="current-component">
-          <component :is="currentComponent" />
+          <component :is="currentComponent" v-bind="currentProperties" />
         </transition>
       </v-stepper-items>
     </v-stepper>
@@ -109,6 +109,8 @@ import Calculator from '@/views/Calculator.vue'
 
 import { stepsNames } from '@/configs'
 
+const { refreshSettings } = require('@/controllers/actions').actions
+
 export default {
   name: 'Home',
 
@@ -120,6 +122,8 @@ export default {
     calculator: false,
     step: 1,
     stepsNames: stepsNames,
+
+    customerId: null,
 
     showMainMenu: true,
 
@@ -138,7 +142,8 @@ export default {
       CustomersList,
       Services,
       Tickets,
-      Documents
+      Documents,
+      CustomerDetails
     ],
 
     currentComponent: Dashboard,
@@ -166,6 +171,13 @@ export default {
     },
     seven () {
       return this.step === 7
+    },
+    eight () {
+      return this.step === 8
+    },
+
+    currentProperties () {
+      return this.currentComponent.name === 'CustomerDetails' ? { dialog: true, sectionName: 'Customer details', customerId: this.customerId } : null
     }
   },
 
@@ -179,21 +191,22 @@ export default {
     refreshCallback (event) {
       this.refreshed[event.route] = true
     },
-    goToServices () {
-      this.step = 5
-      this.currentComponent = Services
+
+    goToCompanyDetails () {
+      this.step = 2
+      this.currentComponent = CompanyDetails
     },
     goToCheckAddress () {
       this.step = 3
       this.currentComponent = CheckAddress
     },
-    goToCustomer () {
-      this.step = 4
-      this.currentComponent = CustomerDetails
-    },
     goToCustomersList () {
       this.step = 4
       this.currentComponent = CustomersList
+    },
+    goToServices () {
+      this.step = 5
+      this.currentComponent = Services
     },
     createNewTicket (data) {
       this.step = 6
@@ -203,9 +216,11 @@ export default {
       this.step = 7
       this.currentComponent = Documents
     },
-    goToCompanyDetails () {
-      this.step = 2
-      this.currentComponent = CompanyDetails
+
+    goToCustomer (customerId) {
+      this.customerId = customerId
+      this.step = 8
+      this.currentComponent = CustomerDetails
     },
 
     hideMainMenu () {
@@ -214,6 +229,11 @@ export default {
 
     displayMainMenu () {
       this.showMainMenu = true
+    },
+
+    refreshSettings () {
+      refreshSettings()
+      setTimeout(this.refreshSettings, 10000)
     }
   },
 
