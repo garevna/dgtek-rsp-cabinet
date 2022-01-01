@@ -4,27 +4,38 @@ import { post } from '../AJAX'
 
 const { putClientCredentialsError } = require('../error-handlers').default
 
+const [route, action] = ['rsp', 'password']
+
 export const passwordChange = async function (request) {
-  const { login, newPass, userPhone } = request.data
+  const { login, password, phoneNumber } = request.data
 
-  if (!login || !newPass || !userPhone) return putClientCredentialsError(422)
+  if (!login || !password || !phoneNumber) return putClientCredentialsError(422)
 
-  const { result: newPasswordHash } = hash(newPass)
+  const { result: passwordHash } = hash(password)
 
-  const { status: encryptStatus, result: cryptoPassword } = await encrypt(JSON.stringify({ password: newPasswordHash }))
+  const { status: encryptStatus, result: cryptoPassword } = await encrypt(JSON.stringify({ password: passwordHash }))
 
   if (encryptStatus !== 200) return putClientCredentialsError(encryptStatus)
 
-  const { status } = post('pass/change', {
+  const { status, result } = await post('pass/change', {
     newPass: cryptoPassword,
     login,
-    userPhone
+    phoneNumber
   })
 
-  if (status !== 200) return putClientCredentialsError(status)
+  if (status !== 200) {
+    return {
+      status,
+      route,
+      action,
+      error: true,
+      errorType: 'Partner\' credentials conflict',
+      errorMessage: result.error
+    }
+  }
 
   loginHandler(login)
-  passwordHandler(newPasswordHash)
+  passwordHandler(passwordHash)
 
   const { status: cryptoStatus, result: credentials } = encrypt(JSON.stringify({
     login,
@@ -37,11 +48,11 @@ export const passwordChange = async function (request) {
 
   return {
     status,
-    route: 'rsp',
-    action: 'change-password',
-    result: 'Password changed',
+    route,
+    action,
+    result: credentials,
     message: true,
-    messageType: 'Company credentials',
-    messageText: 'Password changed'
+    messageType: 'Partner\' details',
+    messageText: 'Partner\'s credentials updated. You should sign in again.'
   }
 }

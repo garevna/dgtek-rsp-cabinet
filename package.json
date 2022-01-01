@@ -4,12 +4,13 @@
   "scripts": {
     "worker-dev": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode development -w && yarn remove crypto-js",
     "worker": "yarn add crypto-js && webpack --config ./worker/webpack.config.worker.js --mode production && yarn remove crypto-js",
-    "serve": "yarn calculator && yarn google-autocomplete && yarn clear && set PORT=8082 && vue-cli-service serve",
-    "build": "yarn calculator && yarn google-autocomplete && yarn clear && vue-cli-service build",
+    "serve": "yarn calculator && yarn google-autocomplete && yarn simple-autocomplete && yarn clear && set PORT=8082 && vue-cli-service serve",
+    "build": "yarn calculator && yarn google-autocomplete && yarn simple-autocomplete && yarn clear && vue-cli-service build",
     "lint": "vue-cli-service lint",
     "map-package": "yarn add dgtek-portal-map-package && mv node_modules/dgtek-portal-map-package/dist/map.worker.js public",
     "calculator": "yarn add dgtek-portal-calculator",
     "google-autocomplete": "yarn add dgtek-google-autocomplete",
+    "simple-autocomplete": "yarn add simple-google-autocomplete & rm -r node_modules/simple-google-autocomplete/node_modules",
     "clear": "rm -r node_modules/dgtek-google-autocomplete/node_modules && rm -r node_modules/dgtek-portal-calculator/node_modules"
   },
   "dependencies": {
@@ -19,6 +20,7 @@
     "dgtek-portal-map-package": "^1.1.4",
     "dgtek-styles": "^0.0.8",
     "garevna-date-functions": "^1.1.5",
+    "simple-google-autocomplete": "^1.0.1",
     "vue": "2.6.11",
     "vuetify": "^2.5.7"
   },

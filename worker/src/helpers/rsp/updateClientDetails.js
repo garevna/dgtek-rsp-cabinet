@@ -4,8 +4,12 @@ import { getRecordByKey, putRecordByKey } from '../db'
 
 const { putClientDataError } = require('../error-handlers').default
 
+const [route, action] = ['rsp', 'put']
+
 export const updateClientDetails = async function (data) {
-  const [route, action, key] = ['rsp', 'put', idHandler()]
+  const key = idHandler()
+
+  self.postDebugMessage({ updateClientDetails: data })
 
   const { status: getStatus, result: getResult } = await getRecordByKey('rsp', key, data)
 
@@ -30,6 +34,6 @@ export const updateClientDetails = async function (data) {
     result,
     message: true,
     messageType: 'Company details',
-    messageText: 'Details saved'
+    messageText: 'Details updated'
   }
 }

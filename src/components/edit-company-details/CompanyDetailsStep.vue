@@ -1,68 +1,50 @@
 <template>
-  <v-card flat class="transparent mx-auto" max-width="700" v-if="ready">
+  <v-card flat class="transparent mx-auto" max-width="960" v-if="details">
     <v-row
       justify="center"
-      v-for="(item, propName) in schema"
+      v-for="(item, propName) in details"
       :key="propName"
-      class="my-0"
+      class="my-4"
       :style="{ height: rowHeight(item) + 'px' }"
     >
       <v-col cols="0" md="4" class="d-none d-md-inline-block">
         <h6 class="text-right">{{ item.title }}</h6>
       </v-col>
 
-      <v-col cols="11" md="7">
+      <v-col style="width: 480px!important">
         <v-text-field
           v-if="textField(item)"
           v-model="item.value"
-          @input="update(propName, item.value)"
+          @input="update(propName)"
           :label="item.title"
           :rules="[required(item), rule(item)]"
           outlined
           dense
-          :type="type(item)"
+          :prefix="item.prefix"
+          :hint="item.hint"
+          :error="item.error"
+          type="text"
+          class="mx-auto"
+          style="width: 460px!important;"
         />
 
-        <v-text-field
-          v-if="propName === 'password'"
-          v-model="password"
-          @input="update(propName, item.value)"
-          :label="item.title"
-          :rules="[required(item), rule(item)]"
-          outlined
-          dense
-          :append-icon="appendIcon(item)"
-          :type="type(item)"
-          @click:append="showPassword = !showPassword"
-          class="password"
-        />
-        <v-text-field
-          v-if="propName === 'passwordConfirm'"
-          v-model="passwordConfirm"
-          @input="update(propName, item.value)"
-          :label="item.title"
-          :rules="[rules.required, rule(item)]"
-          outlined
-          dense
-          :append-icon="appendIcon(item)"
-          :type="type(item)"
-          @click:append="showPassword = !showPassword"
-          class="password"
-        />
-
-        <GeoscapeAutocomplete
-          v-if="item.type === 'address'"
-          :value.sync="item.value"
-          style="margin-top: -4px!important; margin-bottom: 8px!important;"
-        />
+        <div v-if="item.type === 'address'">
+          <SimpleAutocomplete
+            :value.sync="address"
+            style="margin-top: -12px!important; margin-bottom: 16px!important; margin-left: -8px!important"
+          />
+        </div>
 
         <v-textarea
           v-if="item.type === 'textarea'"
           v-model="item.value"
+          @input="update(propName, item.value)"
           :label="item.title"
           hide-details
           outlined
           dense
+          class="mx-auto"
+          style="width: 470px!important;"
         />
       </v-col>
 
@@ -78,37 +60,46 @@
 <script>
 
 import { testTextField } from '@/helpers'
-import { rules } from '@/configs'
+import { schema, rules } from '@/configs'
 import { messagesHandler } from '@/helpers/data-handlers'
+
+import SimpleAutocomplete from '@/components/inputs/SimpleAutocomplete.vue'
 
 export default {
   name: 'CompanyDetailsStep',
   components: {
-    GeoscapeAutocomplete: () => import('@/components/inputs/GeoscapeAutocomplete.vue')
+    SimpleAutocomplete
   },
   props: {
     data: Object,
-    step: String
+    step: String,
+    errors: Number
   },
 
   data: () => ({
     ready: false,
     checkFields: [],
-    schema: {},
-    showPassword: false,
-    rules,
-    password: '',
-    passwordConfirm: ''
+    editAddress: false
   }),
 
-  watch: {
-    data: {
-      deep: true,
-      immediate: true,
-      handler (value) {
-        if (!value) return
-        this.schema = value[this.step]
-        this.ready = true
+  computed: {
+    address: {
+      get () {
+        return this.details.address ? this.details.address.value : ''
+      },
+      set (value) {
+        this.details.address.value = value
+        this.update('address')
+      }
+    },
+    details: {
+      get () {
+        if (!this.data) return null
+
+        Object.keys(schema[this.step])
+          .forEach(key => Object.assign(schema[this.step][key], { value: this.data[key] }))
+
+        return schema[this.step]
       }
     }
   },
@@ -117,31 +108,32 @@ export default {
     markField (propName) {
       return this.checkFields.includes(propName)
     },
-    appendIcon (item) {
-      return item.type !== 'password' ? '' : this.showPassword ? 'mdi-eye' : 'mdi-eye-off'
+
+    update (propName) {
+      const { required, type, value } = this.details[propName]
+
+      this.details[propName].error = (required && !value) || (rules[type] ? typeof rules[type](value) === 'string' : false)
+
+      const details = Object.keys(this.details)
+        .map(key => ({ [key]: this.details[key].value }))
+        .reduce((res, item) => Object.assign(res, item), {})
+
+      this.$emit('update:data', details)
+      this.$emit('update:errors', Object.keys(this.details).filter(key => this.details[key].error).length)
     },
-    type (item) {
-      return item.type !== 'password' || this.showPassword ? 'text' : 'password'
-    },
-    update (prop, value) {
-      this.schema[prop].value = this.schema[prop].type === 'password' ? '' : value
-      const result = Object.assign({}, this.rspData, { [this.step]: JSON.parse(JSON.stringify(this.schema)) })
-      this.$emit('update:rspData', JSON.parse(JSON.stringify(result)))
-    },
+
     rowHeight (item) {
       return item.type === 'textarea' ? 160 : 60
     },
+
     textField (item) {
       return testTextField(item.type)
     },
-    passwordField (item) {
-      return item.type === 'password'
-    },
     rule (item) {
-      return item.value ? this.rules[item.type] : value => true
+      return item.value ? rules[item.type](item.value) : value => true
     },
     required (item) {
-      return item.required ? this.rules.required : value => true
+      return item.required ? rules.required(item.value) : value => true
     }
   },
 
@@ -156,10 +148,18 @@ export default {
 
 <style>
 
+.bordered-item {
+  width: 400px;
+  padding: 4px 8px;
+  border: solid 1px #ccc;
+  border-radius: 4px;
+}
+
 input:-webkit-autofill {
   -webkit-background-clip: text;
 }
 .password {
   -webkit-text-fill-color: #fff;
+  color: #fff;
 }
 </style>

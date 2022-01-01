@@ -2,7 +2,7 @@ import Vue from './vue-extended'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
 
-import { auth } from './helpers'
+import { auth, loadGoogleMapsScript, unloadGoogleMapsScript } from './helpers'
 
 import ErrorMessage from '@/components/popups/error.vue'
 import Message from '@/components/popups/message.vue'
@@ -53,7 +53,9 @@ instance.sendMessageToWorker = function (message) {
 
 Object.assign(Vue.prototype, {
   sendMessageToWorker: instance.sendMessageToWorker,
-  $sendMessageToWorker: instance.sendMessageToWorker
+  $sendMessageToWorker: instance.sendMessageToWorker,
+  $loadGoogleMapsScript: loadGoogleMapsScript,
+  $unloadGoogleMapsScripts: unloadGoogleMapsScript
 })
 
 window.onload = auth

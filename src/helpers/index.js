@@ -10,6 +10,9 @@ import {
 
 import { auth } from './auth'
 
+import { loadGoogleMapsScript } from './loadGoogleMapsScript'
+import { unloadGoogleMapsScript } from './unloadGoogleMapsScript'
+
 import { normalizeAddress } from './normalizeAddress'
 import { testTextField } from './testTextField'
 import { validateAddress } from './validateAddress'
@@ -23,6 +26,9 @@ import { setAPIHost } from './setAPIHost'
 
 export {
   auth,
+
+  loadGoogleMapsScript,
+  unloadGoogleMapsScript,
 
   setAPIHost,
   customerHandler,

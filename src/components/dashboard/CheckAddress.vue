@@ -167,6 +167,7 @@ export default {
 
   beforeDestroy () {
     window.removeEventListener('new-address-data', this.catchGoogleAutocompleteEvent)
+    this.$unloadGoogleMapsScripts()
   },
 
   mounted () {
