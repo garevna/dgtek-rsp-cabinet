@@ -3,32 +3,37 @@
     <v-card flat class="transparent pa-5 mx-auto" max-width="1440" outlined style="border: solid 1px #900">
       <v-row>
         <v-col cols="10">
-          <CompanyDetailsStep step="company" :data.sync="company" :errors.sync="companyErrors" />
-          <CompanyDetailsStep step="general" :data.sync="general" :errors.sync="generalErrors" />
-          <CompanyDetailsStep step="technic" :data.sync="technic" :errors.sync="technicErrors" />
+          <CompanyDetailsStep
+            step="company"
+            :data.sync="company"
+            :checkFields.sync="checkFields"
+            :errors.sync="companyErrors"
+          />
+          <CompanyDetailsStep
+            step="general"
+            :data.sync="general"
+            :checkFields.sync="checkFields"
+            :errors.sync="generalErrors"
+          />
+          <CompanyDetailsStep
+            step="technic"
+            :data.sync="technic"
+            :checkFields.sync="checkFields"
+            :errors.sync="technicErrors"
+          />
         </v-col>
       </v-row>
       <v-row justify="center">
         <v-btn dark class="buttons" @click="saveData" :disabled="Boolean(companyErrors || generalErrors || technicErrors)">
           Update/save details
         </v-btn>
-        <!-- <v-card-text class="text-center text--buttons" v-if="companyErrors || generalErrors || technicErrors" style="color: #900">
-          <v-icon color="primary">mdi-alert</v-icon>
-          {{ errorMessage }}
-        </v-card-text> -->
       </v-row>
     </v-card>
 
     <v-card dark class="primary px-5 py-12 my-12 mx-auto" max-width="960">
       <v-row>
-        <!-- <CompanyDetailsStep :data.sync="userInfo" step="userInfo" :errors="userInfoErrors" /> -->
         <CompanyCredentials :data.sync="userInfo" />
       </v-row>
-      <!-- <v-row justify="center">
-        <v-btn text outlined class="mt-12" @click="saveCredentials">
-          SAVE
-        </v-btn>
-      </v-row> -->
     </v-card>
 
   </v-container>
@@ -36,7 +41,7 @@
 
 <script>
 
-// import { rules } from '@/configs'
+import { messagesHandler } from '@/helpers/data-handlers'
 
 export default {
   name: 'CompanyDetails',
@@ -57,8 +62,19 @@ export default {
     technicErrors: 0,
     userInfoErrors: 0,
     steps: ['company', 'general', 'technic', 'userInfo'],
-    errorMessage: ''
+    errorMessage: '',
+    messageIndex: null,
+    checkFields: null
   }),
+
+  watch: {
+    checkFields: {
+      deep: true,
+      handler (data) {
+        // console.log('CHECK FIELDS UPDATED:\n', data)
+      }
+    }
+  },
 
   methods: {
     getData (details) {
@@ -70,27 +86,35 @@ export default {
     },
 
     saveData () {
-      console.group('RESULT TO BE SAVED:')
-
-      console.log('COMPANY:\n', this.company)
-      console.log('GENERAL:\n', this.general)
-      console.log('TECHNIC:\n', this.technic)
-
       const result = Object.assign({}, {
         company: this.company,
         general: this.general,
         technic: this.technic
       })
+      this.__putClientData(result, response => console.log('Partner\' details saved:\n', response))
 
-      console.log('RESULT:\n', result)
+      if (this.checkFields.length) {
+        const message = messagesHandler()[this.messageIndex]
+        messagesHandler(Object.assign(message, { fields: this.checkFields }))
+        this.__updateMessage(message._id, this.checkFields, response => console.log('Message updated:\n', response))
+      }
+    },
 
-      console.groupEnd('RESULT TO BE SAVED')
-      this.__putClientData(result, response => console.log('Partner\' details saved'))
+    getCheckFields () {
+      this.messageIndex = messagesHandler().findIndex(message => message.type === 'update-company-details')
+      this.checkFields = this.messageIndex !== -1 ? messagesHandler()[this.messageIndex].fields : []
+    },
+
+    getMessages () {
+      const updated = messagesHandler().find(message => message.type === 'update-company-details')
+      if (!updated) this.getCheckFields()
     }
   },
 
   mounted () {
     this.__getClientData(this.getData)
+    this.getCheckFields()
+    this.$root.$on('messages-updates-received', this.getMessages)
   }
 }
 </script>

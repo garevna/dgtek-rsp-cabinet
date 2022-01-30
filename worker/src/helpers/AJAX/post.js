@@ -19,8 +19,6 @@ export const post = async (path, data) => {
 
   const result = await response.json()
 
-  self.postDebugMessage({ RESPONSE_JSON: result })
-
   if (response.status !== 200) {
     self.postDebugMessage({ response: { url: `${hostHandler()}/${path}`, status: response.status, result: null, error: result.error } })
   }

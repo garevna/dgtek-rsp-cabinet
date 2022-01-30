@@ -17,13 +17,14 @@ const showError = errorMessage => window[Symbol.for('vue.instance')].$root.$emit
 
 const prepareToSave = buildingDetails => buildingDetails
   ? Object.assign({}, buildingDetails, {
-    management: Object.assign({}, ...Object.keys(buildingDetails.management).map(key => ({ [key]: buildingDetails.management[key].value }))),
-    owner: Object.assign({}, ...Object.keys(buildingDetails.owner).map(key => ({ [key]: buildingDetails.owner[key].value })))
+    management: Object.assign({}, management, ...Object.keys(buildingDetails.management).map(key => ({ [key]: buildingDetails.management[key].value }))),
+    owner: Object.assign({}, owner, ...Object.keys(buildingDetails.owner).map(key => ({ [key]: buildingDetails.owner[key].value })))
   })
   : null
 
 export const buildingDetailsHandler = (function () {
   let buildingDetails = null
+
   return function (value) {
     if (!value) return buildingDetails
 

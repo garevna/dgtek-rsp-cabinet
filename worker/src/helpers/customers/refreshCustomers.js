@@ -19,7 +19,6 @@ export const refreshCustomers = async function () {
   let currentPage = 1
   let done = false
   // servicesInfoHandler('reset')
-  clearStore('customers')
 
   const { status, result: services } = await self.controller.getListOfServices()
 
@@ -30,6 +29,8 @@ export const refreshCustomers = async function () {
   }
 
   // let errorMessages = 'Errors:'
+
+  clearStore('customers')
 
   while (!done) {
     const { status, result, pages } = await get(`customer?page=${currentPage}&per_page=100`)

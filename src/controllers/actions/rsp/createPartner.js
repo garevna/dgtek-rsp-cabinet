@@ -1,9 +1,9 @@
 import { eventsTable } from '@/controllers/events-table'
 import { rsp } from '@/controllers/events'
 
-const [route, action] = ['rsp', 'get']
+const [route, action] = ['rsp', 'create']
 
-export const getClientData = function (callback) {
+export const createPartner = function (callback) {
   window[Symbol.for('vue.prototype')].$sendMessageToWorker({ route, action })
 
   eventsTable[rsp[action]] = callback

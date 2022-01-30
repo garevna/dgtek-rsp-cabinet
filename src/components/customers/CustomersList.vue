@@ -220,8 +220,7 @@ export default {
       customersListPageNumberHandler(number)
     },
 
-    remoteUpdates () {
-      console.log('CUSTOMERS UPDATED REMOTELY')
+    getCustomersListForTable () {
       this.__getCustomersListForTable(this.getData)
     }
   },
@@ -235,13 +234,13 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('customers-updated-remotely', this.remoteUpdates)
+    this.$root.$off('customers-updates-received', this.getCustomersListForTable)
   },
 
   mounted () {
-    this.__getCustomersListForTable(this.getData)
+    this.getCustomersListForTable()
 
-    this.$root.$on('customers-updated-remotely', this.remoteUpdates)
+    this.$root.$on('customers-updates-received', this.getCustomersListForTable)
 
     this.$vuetify.goTo(0)
   }

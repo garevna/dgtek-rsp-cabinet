@@ -9,8 +9,6 @@ const [route, action] = ['rsp', 'put']
 export const updateClientDetails = async function (data) {
   const key = idHandler()
 
-  self.postDebugMessage({ updateClientDetails: data })
-
   const { status: getStatus, result: getResult } = await getRecordByKey('rsp', key, data)
 
   if (getStatus !== 200) return { status: getStatus, route, action, result: getResult, message: 'Worker DB error: read from local DB failed' }
@@ -24,6 +22,8 @@ export const updateClientDetails = async function (data) {
   if (putStatus !== 200) return putClientDataError(putStatus)
 
   const { status, result } = await put(`user/${key}`, requestData)
+
+  await self.controller.sendNotification('partner', key)
 
   if (status !== 200) return putClientDataError(status)
 

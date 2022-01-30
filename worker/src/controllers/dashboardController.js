@@ -15,6 +15,10 @@ class DashboardController {
   getMessages () {
     self.postMessage({ status: 200, route: 'dashboard', action: 'get-messages', result: messagesHandler() })
   }
+
+  async patchMessage (request) {
+    self.postMessage(await self.controller.patchMessage(request.messageId, request.fields))
+  }
 }
 
 export const dashboardController = new DashboardController()

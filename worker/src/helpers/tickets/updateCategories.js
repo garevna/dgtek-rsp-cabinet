@@ -3,9 +3,9 @@ import { putRecordByKey } from '../db'
 
 const { updateCategoriesError } = require('../error-handlers').default
 
-export const updateCategories = async function (array) {
-  const [route, action] = ['ticket-categories', 'update']
+const [route, action] = ['ticket-categories', 'update']
 
+export const updateCategories = async function (array) {
   const response = await put('dictionary/ticket-categories', array)
   if (response.status !== 200) return updateCategoriesError(response.status)
 

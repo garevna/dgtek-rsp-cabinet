@@ -20,6 +20,8 @@ export const createCustomer = async function (data) {
   if (status === 409) return duplicatedCustomerError(409, data.uniqueCode)
   if (status !== 200) return postNewCustomerError(status, data.uniqueCode)
 
+  await self.controller.sendNotification('customer', result.data)
+
   const customer = await get(`customer/${result.data}`)
 
   if (customer.status !== 200) return getCustomerDataError(customer.status, customer.uniqueCode)

@@ -9,38 +9,31 @@ import {
 import { statisticsController } from '../../controllers'
 
 const updateCode = code => `${partnerUniqueCodeHandler()}${code.slice(2)}`
-const { refreshCustomersListError } = require('../error-handlers').default
+// const { refreshCustomersListError } = require('../error-handlers').default
 
 const [route, action] = ['updates', 'customers']
 
-export const getCustomerUpdates = async function () {
-  let currentPage = 1
-  let updatedCustomersNumber = 0
+export const getCustomerUpdates = async function (notifications) {
+  if (!notifications || !Array.isArray(notifications)) return { status: 204, route, action, result: [] }
 
-  // self.postDebugMessage({ statisticsBefore: JSON.parse(JSON.stringify(statisticsController)) })
+  let promises = notifications
+    .filter(item => item.target === 'customer')
+    .map(note => note.id)
+    .map(id => get(`customer/${id}`))
 
-  do {
-    const { status, result, pages } = await get(`customer?changed=true&page=${currentPage++}&per_page=100`)
-    if (status !== 200) return refreshCustomersListError(status)
+  const responses = await Promise.all(promises)
 
-    if (!result.length) break
+  const customers = responses.map(response => response.result)
 
-    updatedCustomersNumber += result.length
+  promises = customers
+    .map((customer) => {
+      if (!customer.services) Object.assign(customer, { services: [] })
+      customer.services.forEach(service => statisticsController.patch(service.id, customer._id, service.status, service.modified))
 
-    const promises = result.map(customer => putRecordByKey('customers', customer._id, Object.assign(customer, { uniqueCode: updateCode(customer.uniqueCode) })))
-    await Promise.all(promises)
+      return putRecordByKey('customers', customer._id, Object.assign(customer, { uniqueCode: updateCode(customer.uniqueCode) }))
+    })
 
-    for (const customer of result) {
-      if (!customer.services) customer.services = []
-      for (const service of customer.services) {
-        statisticsController.patch(service.id, customer._id, service.status, service.modified)
-      }
-    }
+  await Promise.all(promises)
 
-    // self.postDebugMessage({ statisticsAfter: JSON.parse(JSON.stringify(statisticsController)) })
-
-    var done = currentPage > pages
-  } while (!done)
-
-  return { status: 200, route, action, result: updatedCustomersNumber }
+  return { status: 200, route, action, result: customers }
 }

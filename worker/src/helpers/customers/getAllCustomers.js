@@ -1,10 +1,10 @@
-import { getAllRecords, getRecordByKey /*, putRecordByKey */ } from '../db'
+import { getAllRecords, getRecordByKey } from '../db'
 
 const { getCustomersListError, getServiceDetailsError } = require('../error-handlers').default
 
-export const getAllCustomers = async function () {
-  const [route, action] = ['customers', 'list']
+const [route, action] = ['customers', 'list']
 
+export const getAllCustomers = async function () {
   const { status, result } = await getAllRecords('customers')
 
   if (status !== 200) return getCustomersListError(status)

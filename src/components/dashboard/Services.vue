@@ -3,24 +3,6 @@
     <v-row v-if="!openCustomerDetails">
       <v-card flat class="transparent pb-12 px-12 mx-auto" max-width="1440" v-if="ready">
         <v-card v-if="!showServiceDetails" flat class="transparent">
-          <!-- <v-card-title v-if="showSelect">
-            <p v-if="!selected[0]" class="primary--text">
-              <b>Select the service which should be assigned to the customer</b>
-            </p>
-            <p v-if="selected[0]" style="margin-bottom: 0 !important">
-              <b>{{ selected[0].serviceName }}</b>
-            </p>
-            <v-btn
-              v-if="selected[0]"
-              outlined
-              color="primary"
-              class="ml-4"
-              @click="$emit('update:opened', false)"
-            >
-              Assign the service
-            </v-btn>
-          </v-card-title> -->
-
           <v-card-title>
             <SelectorsForServices
               :type.sync="serviceType"
@@ -210,11 +192,16 @@ export default {
     openServiceDetails ($event) {
       this.serviceDetails = $event
       this.showServiceDetails = true
+    },
+
+    getUpdates (data) {
+      this.__getServices(this.getData)
     }
   },
 
   beforeDestroy () {
     showServiceSelectHandler('reset')
+    this.$root.$off('services-updates-received', this.getUpdates)
   },
 
   mounted () {
@@ -239,6 +226,9 @@ export default {
     this.headers = this.showSelect ? actions.concat(headers) : headers
     this.$emit('update:selectedService', null)
     this.__getServices(this.getData)
+
+    this.$root.$on('services-updates-received', this.getUpdates)
+
     this.$vuetify.goTo(0)
   }
 }

@@ -16,7 +16,7 @@
         </sup>
       </h5>
 
-      <div v-if="message.fields && message.fields.length">
+      <div v-if="message.type === 'update-customer-details'">
         <li
           v-for="item of message.fields"
           :key="item.field"
@@ -26,10 +26,14 @@
         </li>
       </div>
 
-      <div v-if="message.type !== 'update-company-details'">
-        <sub>
-          <small v-html="message.content.split('\n').join('<br>')"></small>
-        </sub>
+      <div v-if="message.type === 'update-company-details'">
+        <li
+          v-for="item of message.fields"
+          :key="`${item.section}-${item.field}`"
+          @click.stop="showItem(message, item)"
+        >
+          <small>{{ item.sectionTitle }}: {{ item.title }}</small>
+        </li>
       </div>
       <v-divider class="my-4" />
     </div>
@@ -63,6 +67,7 @@ export default {
 
     refreshMessages () {
       this.__refreshMessages(this.getMessages)
+      setTimeout(this.refreshMessages, 30000)
     }
   },
 
@@ -75,7 +80,7 @@ export default {
   },
 
   mounted () {
-    if (partnerUniqueCodeHandler()) this.__refreshMessages(this.getMessages)
+    if (partnerUniqueCodeHandler()) this.refreshMessages()
   }
 }
 </script>

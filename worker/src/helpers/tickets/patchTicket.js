@@ -5,13 +5,11 @@ const { patchTicketDataError } = require('../error-handlers').default
 const [route, action] = ['tickets', 'patch']
 
 export const patchTicket = async function (key, data) {
-  self.postDebugMessage({ key, data })
-
-  // const { _id } = data
-
   const { status, result } = await patch(`ticket/${key}`, data)
 
   if (status !== 200) return patchTicketDataError(status)
+
+  await self.controller.sendNotification('ticket', key)
 
   return {
     status,

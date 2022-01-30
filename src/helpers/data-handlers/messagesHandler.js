@@ -1,7 +1,6 @@
-export const messagesHandler = (function () {
-  let messages = []
-  return function (data) {
-    if (!data) return messages
-    messages = data
-  }
-})()
+let messages = []
+
+export const messagesHandler = function (data) {
+  if (!data) return messages
+  messages = JSON.parse(JSON.stringify(data))
+}

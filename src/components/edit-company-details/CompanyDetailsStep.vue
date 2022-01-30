@@ -7,8 +7,15 @@
       class="my-4"
       :style="{ height: rowHeight(item) + 'px' }"
     >
-      <v-col cols="0" md="4" class="d-none d-md-inline-block">
-        <h6 class="text-right">{{ item.title }}</h6>
+      <v-col style="width: 320px !important" class="text-right pt-5">
+        <v-badge dark v-if="markField(propName)" :color="badgeColors[propName]" icon="mdi-alert-circle-outline">
+          <h6 class="text-right">
+            {{ item.title }}
+          </h6>
+        </v-badge>
+        <h6 v-else class="text-right">
+          {{ item.title }}
+        </h6>
       </v-col>
 
       <v-col style="width: 480px!important">
@@ -47,12 +54,6 @@
           style="width: 470px!important;"
         />
       </v-col>
-
-      <v-col cols="1">
-        <v-icon v-if="checkFields.includes(propName)" large color="primary">
-          mdi-alert-outline
-        </v-icon>
-      </v-col>
     </v-row>
   </v-card>
 </template>
@@ -61,9 +62,11 @@
 
 import { testTextField } from '@/helpers'
 import { schema, rules } from '@/configs'
-import { messagesHandler } from '@/helpers/data-handlers'
+// import { messagesHandler } from '@/helpers/data-handlers'
 
 import SimpleAutocomplete from '@/components/inputs/SimpleAutocomplete.vue'
+
+const [notUpdatedBageColor, updatedBageColor] = ['#f00', '#09b']
 
 export default {
   name: 'CompanyDetailsStep',
@@ -73,16 +76,21 @@ export default {
   props: {
     data: Object,
     step: String,
-    errors: Number
+    errors: Number,
+    checkFields: Array
   },
 
   data: () => ({
     ready: false,
-    checkFields: [],
     editAddress: false
   }),
 
   computed: {
+    badgeColors () {
+      const colors = this.localCheckFields.map(item => ({ [item.field]: item.updated ? updatedBageColor : notUpdatedBageColor }))
+      return Object.assign({}, ...colors)
+    },
+
     address: {
       get () {
         return this.details.address ? this.details.address.value : ''
@@ -92,6 +100,7 @@ export default {
         this.update('address')
       }
     },
+
     details: {
       get () {
         if (!this.data) return null
@@ -101,15 +110,43 @@ export default {
 
         return schema[this.step]
       }
+    },
+
+    localCheckFields: {
+      get () {
+        return this.checkFields.filter(field => field.section === this.step)
+      },
+      set (fields) {
+        const checkFields = JSON.parse(JSON.stringify(this.checkFields))
+        for (const item of fields) {
+          const index = checkFields.findIndex(elem => item.section === elem.section && item.field === elem.field)
+          checkFields.splice(index, 1, item)
+        }
+        this.$emit('update:checkFields', checkFields)
+      }
     }
   },
 
   methods: {
     markField (propName) {
-      return this.checkFields.includes(propName)
+      return this.localCheckFields.map(item => item.field).includes(propName)
+    },
+
+    updateMessageFields (propName, index) {
+      if (!this.localCheckFields[index].updated) {
+        const fields = JSON.parse(JSON.stringify(this.localCheckFields))
+        Object.assign(fields[index], { updated: new Date().toISOString().slice(0, 10) })
+        this.localCheckFields = fields
+      }
+      console.log('LOCAL CHECK FIELD:\n', this.localCheckFields[index])
     },
 
     update (propName) {
+      this.badgeColors[propName] = updatedBageColor
+      const index = this.localCheckFields.findIndex(item => item.field === propName)
+
+      if (index !== -1) this.updateMessageFields(propName, index)
+
       const { required, type, value } = this.details[propName]
 
       this.details[propName].error = (required && !value) || (rules[type] ? typeof rules[type](value) === 'string' : false)
@@ -135,13 +172,6 @@ export default {
     required (item) {
       return item.required ? rules.required(item.value) : value => true
     }
-  },
-
-  mounted () {
-    this.checkFields = messagesHandler().filter(message => message.type === 'update-company-details')
-      .flatMap(message => message.fields)
-      .filter(field => field.section === this.step)
-      .map(item => item.field)
   }
 }
 </script>

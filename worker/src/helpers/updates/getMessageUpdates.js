@@ -1,8 +1,21 @@
-// import { refreshMessages } from '../dashboard'
+// import { get } from '../AJAX'
+import { messagesHandler } from '../../data-handlers'
 
 const [route, action] = ['updates', 'messages']
 
-export const getMessageUpdates = async function () {
-  const { result } = await self.controller.refreshMessages()
-  return { status: 200, route, action, result }
+export const getMessageUpdates = async (notifications) => {
+  if (!notifications || !Array.isArray(notifications)) return { status: 204, route, action, result: [] }
+
+  const updates = notifications.filter(item => item.target === 'message')
+
+  self.postDebugMessage({ updates, refresh: Array.isArray(updates) && !!updates.length })
+
+  if (Array.isArray(updates) && updates.length) await self.controller.refreshMessages()
+
+  return {
+    status: 200,
+    route,
+    action,
+    result: messagesHandler()
+  }
 }

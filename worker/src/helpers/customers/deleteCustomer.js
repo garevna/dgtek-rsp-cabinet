@@ -12,6 +12,8 @@ export const deleteCustomer = async function (id) {
 
   const { status } = await remove(`customer/${id}`)
 
+  await self.controller.sendNotification('customer', id, 'removed')
+
   if (status !== 200) return deleteCustomerError(status)
 
   return {

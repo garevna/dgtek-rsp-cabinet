@@ -324,7 +324,7 @@ export default {
     },
 
     showResult (data) {
-      console.log(data)
+      console.log('SHOW RESPONSE:\n', data)
     }
   },
 

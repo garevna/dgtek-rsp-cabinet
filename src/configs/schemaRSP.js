@@ -192,7 +192,7 @@ export const schema = {
     login: {
       title: 'login',
       required: true,
-      type: 'simple-text',
+      type: 'email',
       value: '',
       hint: 'Required',
       prefix: '',
@@ -210,7 +210,7 @@ export const schema = {
     phoneNumber: {
       title: 'Password reset phone number',
       required: true,
-      type: 'phone',
+      type: 'mobile',
       value: '',
       hint: 'Required',
       prefix: '',

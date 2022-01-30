@@ -21,7 +21,7 @@
         Add new customer
       </v-btn>
 
-      <!-- <v-btn
+      <v-btn
         v-else
         outlined
         color="buttons"
@@ -30,7 +30,7 @@
         :disabled="newCustomerDisabled"
       >
         Add new building
-      </v-btn> -->
+      </v-btn>
 
       <v-btn
         outlined

@@ -12,5 +12,7 @@ export const refreshMessages = async function () {
 
   messagesHandler(result.messages)
 
+  self.postDebugMessage({ messages: result.messages })
+
   return { status: 200, route, action, result: messagesHandler() }
 }

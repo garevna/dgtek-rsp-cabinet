@@ -1,5 +1,5 @@
 <template>
-  <v-card flat class="transparent mt-8 pb-12 px-12 mx-auto" max-with="960" v-if="ready">
+  <v-card flat class="transparent mt-8 pb-12 px-12 mx-auto" max-with="960">
     <v-row align="start" justify="center" v-if="!edit" class="mx-auto" style="max-width: 1100px">
       <v-col style="max-width: 240px" class="text-center mt-4">
         <fieldset class="field-set">
@@ -28,7 +28,7 @@
         </fieldset>
       </v-col>
 
-      <v-col style="min-width: calc(100% - 240px)" class="text-center mt-12">
+      <v-col style="min-width: calc(100% - 240px)" class="text-center mt-12" v-if="ready">
         <v-data-table
           :headers="headers"
           :items="filteredItems"
@@ -201,22 +201,23 @@ export default {
     },
 
     unread (ticket) {
-      if (!ticket.history?.length) {
-        console.log(ticket)
-        return false
-      }
+      if (!ticket.history?.length) return false
+
       const { source, read = false } = ticket.history.slice(-1)[0]
       return source === 'admin' && !read
     },
 
     refreshSettings () {
       this.__refreshSettings(this.refreshCategories)
-      setTimeout(this.refreshSettings, 10000)
+      setTimeout(this.refreshSettings, 60000)
     },
 
     refreshCategories () {
       this.__getTicketCategories(this.getCategories)
-      // setTimeout(this.refreshCategories, 10000)
+    },
+
+    getUpdates (updates) {
+      this.__getTickets(this.getTickets)
     }
   },
 
@@ -228,12 +229,12 @@ export default {
 
   beforeDestroy () {
     this.$root.$off('ticket-created', this.showNewTicketDetails)
-    this.$root.$off('tickets-updated-remotely', this.sendRequest)
+    this.$root.$off('tickets-updates-received', this.getUpdates)
   },
 
   mounted () {
     this.$root.$on('ticket-created', this.showNewTicketDetails)
-    this.$root.$on('tickets-updated-remotely', this.sendRequest)
+    this.$root.$on('tickets-updates-received', this.getUpdates)
     if (this.create) this.createNewTicket()
   }
 }

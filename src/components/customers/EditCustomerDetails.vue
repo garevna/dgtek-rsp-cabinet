@@ -1,5 +1,5 @@
 <template>
-    <v-card flat class="transparent mx-auto">
+    <v-card flat class="transparent mx-auto" v-if="ready">
       <table>
         <tbody>
           <tr>
@@ -24,10 +24,23 @@
       <table>
         <tbody>
           <tr v-if="customerType">
-            <td class="d-none d-md-flex">Company name</td>
+            <td class="d-none d-md-flex pt-4">
+              <v-badge
+                v-if="fieldsToUpdate.map(item => item.field).includes('companyName')"
+                dark
+                :color="badgeColors.companyName"
+                icon="mdi-alert-circle-outline"
+              >
+                Company name {{ fieldsToUpdate.map(item => item.field).includes('companyName') }}
+              </v-badge>
+              <span v-else>
+                Company name
+              </span>
+            </td>
             <td colspan="2">
               <v-text-field
-                v-model="commercialSchema.companyName.value"
+                v-model="commercial.companyName.value"
+                @input="updateCompanyName($event)"
                 label="Company name"
                 :rules="[rules.required]"
                 outlined
@@ -37,10 +50,23 @@
             </td>
           </tr>
           <tr v-if="customerType">
-            <td class="d-none d-md-flex">Company ABN</td>
+            <td class="d-none d-md-flex pt-4">
+              <v-badge
+                v-if="fieldsToUpdate.map(item => item.field).includes('companyAbn')"
+                dark
+                :color="badgeColors.companyAbn"
+                icon="mdi-alert-circle-outline"
+              >
+                Company ABN
+              </v-badge>
+              <span v-else>
+                Company ABN
+              </span>
+            </td>
             <td colspan="2">
               <v-text-field
-                v-model="commercialSchema.companyAbn.value"
+                v-model="commercial.companyAbn.value"
+                @input="updateCompanyABN($event)"
                 label="Company ABN"
                 :rules="[rules.required, rules.abn]"
                 outlined
@@ -50,15 +76,26 @@
           </tr>
           <tr>
             <td class="d-none d-md-flex"></td>
-            <td>Apartment number</td>
-            <td>Building address</td>
+            <td><span>Apartment number</span></td>
+            <td><span>Building address</span></td>
           </tr>
 
           <tr v-if="customer">
-            <td class="d-none d-md-flex">Address</td>
+            <td class="d-none d-md-flex pt-4">
+              <v-badge
+                v-if="fieldsToUpdate.map(item => item.field).includes('address')"
+                dark
+                :color="badgeColors.address"
+                icon="mdi-alert-circle-outline"
+              >
+                Address
+              </v-badge>
+              <span v-else> Address </span>
+            </td>
             <td width="160">
               <v-text-field
                 v-model="customer.apartmentNumber"
+                @input="updateAddress"
                 :rules="[rules.required]"
                 label="apt"
                 outlined
@@ -78,12 +115,36 @@
               />
             </td>
           </tr>
-          <tr v-for="(prop, propName) in customerSchema" :key="propName">
-            <td class="d-none d-md-flex">{{ prop.title }}</td>
+          <tr v-for="(prop, propName) in customerDetails" :key="propName">
+            <td class="d-none d-md-flex pt-4">
+              <v-badge
+                v-if="prop.requestForUpdate"
+                dark
+                :color="badgeColors[propName]"
+                icon="mdi-alert-circle-outline"
+              >
+                {{ prop.title }}
+              </v-badge>
+              <div v-else>
+                <span>{{ prop.title }}</span>
+              </div>
+            </td>
             <td colspan="2">
               <v-text-field
-                v-if="textField(prop)"
+                v-if="prop.type === 'mobile'"
                 v-model="prop.value"
+                @input="update(propName, prop.value)"
+                prefix="+61"
+                :rules="[prop.required && !customerDetails.phoneWork.value ? rules.required : (value) => true, rules.mobile]"
+                label="mobile phone number"
+                outlined
+                dense
+                hide-details
+              />
+              <v-text-field
+                v-else
+                v-model="prop.value"
+                :disabled="propName === 'uniqueCode'"
                 @input="update(propName, prop.value)"
                 :label="prop.title"
                 :rules="[prop.required ? rules.required : (value) => true, rule(prop)]"
@@ -91,28 +152,13 @@
                 dense
                 hide-details
               />
-              <v-text-field
-                v-if="prop.type === 'mobile'"
-                v-model="prop.value"
-                @input="update(propName, prop.value)"
-                prefix="+61"
-                :rules="[prop.required && !customerSchema.phoneWork.value ? rules.required : (value) => true, rules.mobile]"
-                label="mobile phone number"
-                outlined
-                dense
-                hide-details
-              ></v-text-field>
             </td>
           </tr>
 
           <tr style="height: 48px;"></tr>
 
           <tr style="margin-top: 48px!important">
-            <!-- <td class="d-none d-md-flex">
-              <v-btn outlined text color="buttons" @click="$emit('update:dialog', false)">Exit</v-btn>
-            </td> -->
-              <td colspan="3" class="text-right">
-              <!-- <v-spacer /> -->
+            <td colspan="3" class="text-right">
               <v-btn dark class="buttons" @click="saveCustomerDetails" v-if="!saveDisabled">
                 Update/save details
               </v-btn>
@@ -133,9 +179,16 @@ import { customerSchema, rules } from '@/configs'
 import { testTextField } from '@/helpers'
 import { SwitchValues, DatePicker } from '@/components/inputs'
 
-import { partnerUniqueCodeHandler, customerHandler, buildingDetailsHandler } from '@/helpers/data-handlers'
+import {
+  partnerUniqueCodeHandler,
+  customerHandler,
+  buildingDetailsHandler,
+  messagesHandler
+} from '@/helpers/data-handlers'
 
 const { customerDetails, commercial } = customerSchema
+
+const [updatedColor, updateNeededColor] = ['#09b', '#a00']
 
 export default {
   name: 'EditCustomerDetails',
@@ -148,15 +201,21 @@ export default {
   props: ['dialog'],
 
   data: () => ({
+    ready: true,
     worker: window[Symbol.for('map.worker')],
     customer: customerHandler(),
-    customerSchema: JSON.parse(JSON.stringify(customerDetails)),
-    commercialSchema: JSON.parse(JSON.stringify(commercial)),
+    requestToUpdateAddress: false,
+    fieldsToUpdate: [],
+    customerDetails: JSON.parse(JSON.stringify(customerDetails)),
+    commercial: JSON.parse(JSON.stringify(commercial)),
     rules: rules,
     buildings: [],
     customerType: null,
     errorMessage: '',
-    uniqueCode: ''
+    uniqueCode: '',
+
+    badgeColors: {},
+    messageId: null
   }),
 
   computed: {
@@ -182,7 +241,7 @@ export default {
     customerType: {
       handler (newVal, oldVal) {
         if (newVal && (!this.customer.commercial || !Object.keys(this.customer.commercial))) {
-          this.customer.commercial = this.commercialSchema
+          this.customer.commercial = this.commercial
         }
       }
     },
@@ -198,7 +257,7 @@ export default {
     changeUniqueCode () {
       this.customer.uniqueCode = `${partnerUniqueCodeHandler()}.${buildingDetailsHandler().uniqueCode}`
       this.customer.uniqueCode += this.customer.apartmentNumber ? `.${this.customer.apartmentNumber}` : ''
-      this.customerSchema.uniqueCode.value = this.customer.uniqueCode
+      this.customerDetails.uniqueCode.value = this.customer.uniqueCode
     },
 
     getBuildingById (buildingDetails) {
@@ -218,12 +277,34 @@ export default {
       this.changeUniqueCode(this.customer.apartmentNumber)
     },
 
+    changeBadgeColor (propName) {
+      const index = this.fieldsToUpdate.findIndex(item => item.field === propName)
+      if (index !== -1) {
+        Object.assign(this.fieldsToUpdate[index], { updated: new Date().toISOString().slice(0, 10) })
+        Object.assign(this.badgeColors, { [propName]: updatedColor })
+      }
+    },
+
     update (propName, propValue) {
       this.customer[propName] = propValue
+      this.changeBadgeColor(propName)
+    },
+
+    updateCompanyName (value) {
+      this.changeBadgeColor('companyName')
+    },
+
+    updateCompanyABN (value) {
+      this.changeBadgeColor('companyAbn')
+    },
+
+    updateAddress (value) {
+      this.changeBadgeColor('address')
     },
 
     updateBuildingId () {
       this.worker.getBuildingDetailsByAddress(this.customer.address, this.updateBuildingDetails)
+      this.changeBadgeColor('address')
     },
 
     rowHeight (item) {
@@ -242,8 +323,8 @@ export default {
         return true
       }
 
-      for (const fieldName in this.customerSchema) {
-        const field = this.customerSchema[fieldName]
+      for (const fieldName in this.customerDetails) {
+        const field = this.customerDetails[fieldName]
 
         if (field.required ? !field.value : false) {
           this.errorMessage = `${field.title} is required`
@@ -263,12 +344,12 @@ export default {
     createSchema () {
       if (this.customer.commercial && Object.keys(this.customer.commercial).length > 0) {
         this.customerType = true
-        this.commercialSchema.companyName.value = this.customer.commercial.companyName || ''
-        this.commercialSchema.companyAbn.value = this.customer.commercial.companyAbn || ''
+        this.commercial.companyName.value = this.customer.commercial.companyName || ''
+        this.commercial.companyAbn.value = this.customer.commercial.companyAbn || ''
       }
-      this.customerSchema = customerSchema.customerDetails
-      for (const prop in this.customerSchema) {
-        this.customerSchema[prop].value = this.customer[prop]
+
+      for (const propName in this.customerDetails) {
+        this.customerDetails[propName].value = this.customer[propName]
       }
     },
 
@@ -277,9 +358,13 @@ export default {
     },
 
     saveCustomerDetails () {
+      if (this.messageId) this.__updateMessage(this.messageId, this.fieldsToUpdate)
+
       this.customer.commercial = !this.customerType ? null
-        : ({ companyName: this.commercialSchema.companyName.value, companyAbn: this.commercialSchema.companyAbn.value })
+        : ({ companyName: this.commercial.companyName.value, companyAbn: this.commercial.companyAbn.value })
       this.customer.postCode = buildingDetailsHandler().addressComponents.postCode
+
+      this.customer.status = Date.now()
 
       this.customer._id
         ? this.__putCustomer(this.customer._id, this.customer, this.customerUpdated)
@@ -292,7 +377,58 @@ export default {
 
     customerCreated (customerId) {
       this.$root.$emit('customer-created', customerId)
+    },
+
+    findMessage () {
+      return messagesHandler().find(message => message.type === 'update-customer-details' && message.customerId === this.customer._id)
+    },
+
+    findIndex (data) {
+      return data.findIndex(message => message.type === 'update-customer-details' && message.customerId === this.customer._id)
+    },
+
+    setFieldsToUpdate () {
+      this.ready = false
+      const checkRecord = this.findMessage()
+
+      if (checkRecord) {
+        [this.messageId, this.fieldsToUpdate] = [checkRecord._id, checkRecord.fields]
+
+        this.fieldsToUpdate = JSON.parse(JSON.stringify(checkRecord.fields))
+
+        for (const item of this.fieldsToUpdate) {
+          Object.assign(this.badgeColors, { [item.field]: item.updated ? updatedColor : updateNeededColor })
+        }
+
+        const fields = this.fieldsToUpdate.map(item => item.field)
+
+        this.requestToUpdateAddress = this.fieldsToUpdate.map(item => item.field).includes('address')
+
+        Object.keys(this.customerDetails).forEach(key => Object.assign(this.customerDetails[key], {
+          requestForUpdate: fields.includes(key)
+        }))
+      }
+
+      this.$nextTick(() => { this.ready = true })
+    },
+
+    refreshFieldsToUpdate (data) {
+      if (!data) return
+      this.setFieldsToUpdate()
+    },
+
+    getCustomerUpdates (data) {
+      if (!data) return
+      const customer = data.find(item => item._id === this.customer._id)
+      if (customer) customerHandler(customer)
+      Object.assign(this.customer, customerHandler())
+      this.createSchema()
     }
+  },
+
+  beforeDestroy () {
+    this.$root.$off('messages-updates-received', this.refreshFieldsToUpdate)
+    this.$root.$off('customers-updates-received', this.getCustomerUpdates)
   },
 
   beforeMount () {
@@ -302,6 +438,10 @@ export default {
   mounted () {
     this.customer = customerHandler()
     this.createSchema()
+    this.__refreshMessages(this.setFieldsToUpdate)
+
+    this.$root.$on('messages-updates-received', this.refreshFieldsToUpdate)
+    this.$root.$on('customers-updates-received', this.getCustomerUpdates)
 
     this.$vuetify.goTo(0)
   }

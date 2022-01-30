@@ -11,15 +11,16 @@ const {
   putTicketToLocalDBError
 } = require('../error-handlers').default
 
+const [route, action] = ['tickets', 'post']
+
 export const postNewTicket = async function (data) {
   const { data: ticket } = data
-
-  // ticket.created = Date.now().toString()
-  // ticket.modified = Date.now().toString()
 
   const { status, result } = await post('ticket', ticket)
 
   if (status !== 200) return postNewTicketError(status)
+
+  await self.controller.sendNotification('ticket', result.data)
 
   const response = await get(`ticket/${result.data}`)
 
@@ -33,16 +34,15 @@ export const postNewTicket = async function (data) {
 
   if (tmp.status !== 200) return putTicketToLocalDBError(tmp.status)
 
-  const created = new Date().toISOString().slice(0, 10)
-  const modified = new Date().toISOString().slice(0, 10)
+  const [created, modified] = [1, 2].map(item => new Date().toISOString().slice(0, 10))
 
-  self.postMessage({
+  return {
     status: 200,
-    route: 'tickets',
-    action: 'post',
+    route,
+    action,
     result: Object.assign(res.result.data, { created, modified }),
     message: true,
     messageType: 'Tickets',
     messageText: `New ticket ${res.result.data.number} has been created`
-  })
+  }
 }

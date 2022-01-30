@@ -13,7 +13,8 @@ export const routes = {
   dashboard: {
     info: dashboardController.getCustomersServicesInfo,
     'refresh-messages': dashboardController.refreshMessages,
-    'get-messages': dashboardController.getMessages
+    'get-messages': dashboardController.getMessages,
+    'patch-message': dashboardController.patchMessage
   },
 
   rsp: {
@@ -35,6 +36,7 @@ export const routes = {
     post: customersController.createCustomer,
     delete: customersController.deleteCustomer,
     put: customersController.updateCustomer,
+    patch: customersController.patchCustomer,
 
     assign: customersController.assignNewService,
     activate: customersController.activateService,

@@ -10,8 +10,7 @@ self.initialized = false
 
 self.controller = controller
 
-self.updatesFrequency = 10000
-self.messageUpdatesFrequency = 60000
+self.updatesFrequency = 30000
 
 const refreshMessages = () => {
   if (!credentialsHandler()) return setTimeout(getUpdatesFromRemote, self.frequency)
@@ -22,10 +21,25 @@ const refreshMessages = () => {
 
 refreshMessages()
 
-const getUpdatesFromRemote = () => {
-  if (!credentialsHandler()) return setTimeout(getUpdatesFromRemote, self.frequency)
+const getUpdatesFromRemote = async () => {
+  if (credentialsHandler()) {
+    const { result: fullListOfNotifications } = await self.controller.getNotificationsAll()
+    const response = await Promise.all([
+      self.controller.getCustomerUpdates(fullListOfNotifications),
+      self.controller.getTicketUpdates(fullListOfNotifications),
+      self.controller.getMessageUpdates(fullListOfNotifications),
+      self.controller.getServiceUpdates(fullListOfNotifications)
+    ])
 
-  updatesController.getLastUpdates()
+    // self.postDebugMessage({ updates: Object.assign({}, ...response.map(record => ({ [record.action]: record.result }))) })
+
+    self.postMessage({
+      status: 200,
+      route: 'updates',
+      action: 'get',
+      result: Object.assign({}, ...response.map(record => ({ [record.action]: record.result })))
+    })
+  }
 
   setTimeout(getUpdatesFromRemote, self.updatesFrequency)
 }

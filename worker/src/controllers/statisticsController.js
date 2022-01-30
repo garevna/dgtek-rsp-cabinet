@@ -24,6 +24,7 @@ class StatisticsController {
 
   patch (serviceId, customerId, status, modified) {
     if (!serviceId || !customerId || !status || !modified) return this.statistics
+    if (!this.statistics[serviceId].customers) this.statistics[serviceId].customers = {}
     this.statistics[serviceId].customers[customerId] = { status, modified }
     this.getStatistics()
     return this.statistics

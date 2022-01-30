@@ -7,6 +7,7 @@ export const customers = {
   get: 'customer-data-received',
   post: 'customer-created',
   put: 'customer-updated',
+  patch: 'customer-updated',
 
   assign: 'new-service-assigned-to-customer',
   activate: 'service-activation-request-sent',

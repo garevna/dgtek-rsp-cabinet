@@ -21,6 +21,8 @@ export const updateCustomerServices = async function (customerId, services) {
 
   if (status !== 200) return Object.assign({ route, action, status, result }, remoteServerError)
 
+  await self.controller.sendNotification('customer', customerId, 'services')
+
   const response = await putRecordByKey('customers', customerId, result.data)
 
   if (response.status !== 200) return Object.assign(response, { route, action }, localDBError)
