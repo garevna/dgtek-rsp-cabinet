@@ -290,18 +290,39 @@ export default {
 
     serviceStatusModified (status) {
       this.services = serviceController.updateCurrentServiceStatus(status)
+    },
+
+    getCustomerServices () {
+      const services = serviceController.getCustomerServices()
+      console.log('CUSTOMER SERVICES:\n', services)
+      for (const service of services) {
+        if (service.name) delete service.name
+        this.__getServiceById(service.id, this.getServiceDetails)
+      }
+    },
+
+    getUpdates (data) {
+      console.log('UPDATES:\n', data)
     }
   },
 
-  mounted () {
-    const services = serviceController.getCustomerServices()
+  beforeDestroy () {
+    this.$root.$off('customers-updates-received', this.getUpdates)
+    this.$root.$off('operation-confirmed', this.catchConfirmation)
+  },
 
+  mounted () {
+    this.$root.$on('customers-updates-received', this.getUpdates)
     this.$root.$on('operation-confirmed', this.catchConfirmation)
 
-    for (const service of services) {
-      if (service.name) delete service.name
-      this.__getServiceById(service.id, this.getServiceDetails)
-    }
+    this.getCustomerServices()
+
+    // const services = serviceController.getCustomerServices()
+    //
+    // for (const service of services) {
+    //   if (service.name) delete service.name
+    //   this.__getServiceById(service.id, this.getServiceDetails)
+    // }
 
     this.$vuetify.goTo(0)
   }

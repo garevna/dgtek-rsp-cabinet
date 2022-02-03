@@ -1,11 +1,10 @@
 import { eventsTable } from '@/controllers/events-table'
 import { statistics } from '@/controllers/events'
 
-export const getStatistics = function (callback) {
-  window[Symbol.for('vue.prototype')].$sendMessageToWorker({
-    route: 'statistics',
-    action: 'get'
-  })
+const [route, action] = ['statistics', 'get']
 
-  eventsTable[statistics.get] = callback
+export const getStatistics = function (callback) {
+  window[Symbol.for('vue.prototype')].$sendMessageToWorker({ route, action })
+
+  eventsTable[statistics[action]] = callback
 }

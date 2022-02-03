@@ -28,7 +28,8 @@ const getUpdatesFromRemote = async () => {
       self.controller.getCustomerUpdates(fullListOfNotifications),
       self.controller.getTicketUpdates(fullListOfNotifications),
       self.controller.getMessageUpdates(fullListOfNotifications),
-      self.controller.getServiceUpdates(fullListOfNotifications)
+      self.controller.getServiceUpdates(fullListOfNotifications),
+      self.controller.getSettingsUpdates(fullListOfNotifications)
     ])
 
     // self.postDebugMessage({ updates: Object.assign({}, ...response.map(record => ({ [record.action]: record.result }))) })

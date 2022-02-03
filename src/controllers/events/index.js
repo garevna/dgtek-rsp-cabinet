@@ -2,7 +2,7 @@ import { rsp } from './rsp'
 import { customers } from './customers'
 import { tickets } from './tickets'
 import { services } from './services'
-import { lots } from './schedule'
+import { schedule } from './schedule'
 import { mapWorkerEvents } from './map-worker-events'
 import { settings } from './settings'
 
@@ -13,7 +13,7 @@ export {
   customers,
   tickets,
   services,
-  lots,
+  schedule,
   rsp,
   dashboard,
   settings,

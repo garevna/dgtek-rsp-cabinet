@@ -11,10 +11,6 @@ class ServicesController {
     self.postMessage(await self.controller.getServiceById(request.key))
   }
 
-  async getFreeLotsForSchedule () {
-    self.postMessage(await self.controller.getFreeLotsForSchedule())
-  }
-
   async getSLAContent (request) {
     self.postMessage(await self.controller.getSLAContent(request.key))
   }

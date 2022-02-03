@@ -161,7 +161,7 @@ export default {
       if (val) {
         this.ready = false
         this.refresh = false
-        this.__refreshCustomers(this.customersListRefreshed)
+        this.__refreshCustomers(this.getUpdates)
       }
     }
   },
@@ -207,10 +207,10 @@ export default {
       this.edit = true
     },
 
-    customersListRefreshed (data) {
-      this.__getCustomersListForTable(this.getData)
-      this.$vuetify.goTo(0)
-    },
+    // customersListRefreshed (data) {
+    //   this.__getCustomersListForTable(this.getData)
+    //   this.$vuetify.goTo(0)
+    // },
 
     setPendingConnectionStatus (data) {
       this.pendingConnectionStatus = data
@@ -220,7 +220,11 @@ export default {
       customersListPageNumberHandler(number)
     },
 
-    getCustomersListForTable () {
+    // getCustomersListForTable () {
+    //   this.__getCustomersListForTable(this.getData)
+    // },
+
+    getUpdates () {
       this.__getCustomersListForTable(this.getData)
     }
   },
@@ -234,13 +238,13 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('customers-updates-received', this.getCustomersListForTable)
+    this.$root.$off('customers-updates-received', this.getUpdates)
   },
 
   mounted () {
-    this.getCustomersListForTable()
+    this.__getCustomersListForTable(this.getData)
 
-    this.$root.$on('customers-updates-received', this.getCustomersListForTable)
+    this.$root.$on('customers-updates-received', this.getUpdates)
 
     this.$vuetify.goTo(0)
   }

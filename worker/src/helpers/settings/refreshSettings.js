@@ -29,8 +29,6 @@ export const refreshSettings = async function () {
 
   statisticsController.setPending()
 
-  // self.postDebugMessage({ pending: statisticsController.pending })
-
   return {
     status,
     route,

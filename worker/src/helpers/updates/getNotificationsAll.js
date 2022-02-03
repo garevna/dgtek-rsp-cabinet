@@ -5,7 +5,7 @@ const [route, action] = ['notifications', 'all']
 export const getNotificationsAll = async () => {
   const { result } = await get('local-storage')
 
-  const { created, modified, ...notes } = result
+  const { created, modified, previous, ...notes } = result
 
   const notifications = Object.keys(notes).flatMap(key => notes[key])
 

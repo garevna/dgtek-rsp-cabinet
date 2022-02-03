@@ -1,3 +1,3 @@
-export const lots = {
+export const schedule = {
   get: 'schedule-lots-received'
 }

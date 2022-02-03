@@ -6,7 +6,8 @@ const {
   servicesController,
   ticketsController,
   rspController,
-  statisticsController
+  statisticsController,
+  scheduleController
 } = require('../controllers')
 
 export const routes = {
@@ -63,7 +64,7 @@ export const routes = {
   },
 
   schedule: {
-    get: servicesController.getFreeLotsForSchedule
+    get: scheduleController.getScheduleLots
   },
 
   tickets: {
@@ -79,10 +80,6 @@ export const routes = {
 
   categories: {
     get: ticketsController.getCategories
-  },
-
-  lots: {
-    get: customersController.getScheduleLots
   },
 
   settings: {

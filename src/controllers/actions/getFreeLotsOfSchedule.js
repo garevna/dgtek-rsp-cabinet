@@ -1,11 +1,10 @@
 import { eventsTable } from '@/controllers/events-table'
-import { lots } from '@/controllers/events'
+import { schedule } from '@/controllers/events'
+
+const [route, action] = ['schedule', 'get']
 
 export const getFreeLotsOfSchedule = function (callback) {
-  window[Symbol.for('vue.prototype')].sendMessageToWorker({
-    route: 'schedule',
-    action: 'get'
-  })
+  window[Symbol.for('vue.prototype')].sendMessageToWorker({ route, action })
 
-  eventsTable[lots.get] = callback
+  eventsTable[schedule[action]] = callback
 }

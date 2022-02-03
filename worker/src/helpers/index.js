@@ -5,6 +5,8 @@ import customers from './customers'
 import tickets from './tickets'
 import services from './services'
 
+import schedule from './schedule'
+
 import settings from './settings'
 
 import dashboard from './dashboard'
@@ -19,7 +21,7 @@ self.postDebugMessage = function (message) {
 
 self.getWeekNumber = getWeekNumber
 
-export const controller = Object.assign({}, rsp, customers, tickets, services, settings, dashboard, updates)
+export const controller = Object.assign({}, rsp, customers, tickets, services, schedule, settings, dashboard, updates)
 
 export {
   init,

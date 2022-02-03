@@ -7,6 +7,7 @@ import { ticketsController } from './ticketsController'
 import { rspController } from './rspController'
 
 import { statisticsController } from './statisticsController'
+import { scheduleController } from './scheduleController'
 import { updatesController } from './updatesController'
 
 export {
@@ -19,5 +20,6 @@ export {
   rspController,
 
   statisticsController,
+  scheduleController,
   updatesController
 }
