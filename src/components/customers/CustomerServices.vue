@@ -25,10 +25,10 @@
               <small>Status modified</small>
             </th>
             <th class="text-center" width="360">
-              <small>Selected lots</small>
+              <small>Requested dates (lots)</small>
             </th>
             <th class="text-center" width="240">
-              <small>Installation date</small>
+              <small>Activation date</small>
             </th>
           </tr>
         </thead>
@@ -47,7 +47,7 @@
                 <v-icon small color="primary">mdi-delete</v-icon>
               </v-btn>
             </td>
-            <td style="text-align: left; padding-left: 24px;">
+            <td style="text-align: center">
               <small>{{ item.serviceName }}</small>
             </td>
 
@@ -59,7 +59,7 @@
                 @click="changeStatus(item)"
                 :disabled="disable(item)"
               >
-                {{ item.status }}
+                {{ getStatusText(item) }}
               </v-btn>
             </td>
 
@@ -68,7 +68,8 @@
                 {{ new Date(item.modified).toISOString().slice(0, 10) }}
               </small>
             </td>
-            <td>
+
+            <td v-if="item.status === 'Awaiting for confirmation' || item.status === 'In job queue'">
               <li v-if="item.lots && item.lots.length === 2">
                 <small>{{ item.lots[0].date }} <small>({{ item.lots[0].period.toUpperCase() }})</small></small>
               </li>
@@ -76,7 +77,17 @@
                 <small>{{ item.lots[1].date }} <small>({{ item.lots[1].period.toUpperCase() }})</small></small>
               </li>
             </td>
+
             <td>
+              <v-icon small color="primary">{{ getIcon(item) }}</v-icon>
+              <small>{{ getDate(item) }}</small>
+            </td>
+
+            <td v-if="item.activationDate">
+              <small><b>{{ item.activationDate }}</b></small>
+            </td>
+
+            <td v-if="item.status === 'In job queue'">
               <p v-if="item.installation && item.installation.date">
                 <small style="color: #900"><b>{{ item.installation.date }}({{ item.installation.period.toUpperCase() }})</b></small>
               </p>
@@ -129,12 +140,13 @@
     </v-row>
 
     <ConfirmActivationRequest :open.sync="confirmationDialogOpened" />
+    <RequestForDate />
   </v-container>
 </template>
 
 <script>
 
-import { showServiceSelectHandler } from '@/helpers/data-handlers'
+import { customerHandler, showServiceSelectHandler } from '@/helpers/data-handlers'
 
 import { serviceController } from '@/controllers'
 
@@ -154,14 +166,15 @@ export default {
 
   components: {
     Services,
+    RequestForDate: () => import(/* webpackChunkName: 'popup-date-request' */ '@/components/popups/RequestForDate.vue'),
     TicketDetails: () => import(/* webpackChunkName: 'ticket-details' */ '@/components/tickets/TicketDetails.vue'),
     ConfirmActivationRequest: () => import(/* webpackChunkName: 'confirmation-request' */ '@/components/popups/ConfirmActivationRequest.vue'),
     LotSelection: () => import(/* webpackChunkName: 'lot-selection' */ '@/components/schedule/LotSelection.vue')
   },
 
-  props: ['address', 'customerId'],
-
   data: () => ({
+    customerId: customerHandler()._id,
+    address: `${customerHandler().apartmentNumber}/${customerHandler().address}`,
     services: [],
     showServices: false,
     newService: null,
@@ -174,7 +187,10 @@ export default {
 
     confirmationDialogOpened: false,
     suspendConfirmation: false,
-    cancelConfirmation: false
+    cancelConfirmation: false,
+
+    suspentionDate: null,
+    cancelationDate: null
   }),
 
   computed: {
@@ -207,6 +223,29 @@ export default {
   methods: {
     showError: showError,
 
+    getStatusText (item) {
+      const date = item.status === 'Suspended' ? item.suspendedDate
+        : item.status === 'Canceled' ? item.canceledDate : null
+      return date ? `${item.status} from ${date}` : item.status
+    },
+
+    getDate (item) {
+      return item.status === 'Awaiting for cancelation' || item.status === 'Canceled'
+        ? item.canceledDate || item.cancelDate
+        : item.status === 'Awaiting to be suspended' || item.status === 'Suspended'
+          ? item.suspendedDate || item.suspendDate
+          : item.status === 'Awaiting to be resumed'
+            ? item.resumedDate || item.resumeDate
+            : ''
+    },
+
+    getIcon (item) {
+      return item.canceledDate || item.suspendedDate || item.resumedDate
+        ? 'mdi-checkbox-marked-outline'
+        : item.cancelDate || item.suspendDate || item.resumeDate
+          ? 'mdi-help-rhombus-outline' : ''
+    },
+
     getDateString (ms) {
       return (new Date(ms || Date.now())).toISOString().slice(0, 10)
     },
@@ -226,7 +265,7 @@ export default {
     actionsHandler (item, action) {
       serviceController.setCurrentService(item.id)
 
-      this.$root.$emit('open-confirmation-popup', {
+      this.$root.$emit('open-date-selection-popup', {
         action,
         header: serviceController.getCustomerAddress(),
         title: item.serviceName,
@@ -237,11 +276,6 @@ export default {
     disable (item) {
       const available = ['Awaiting for scheduling', 'Not connected', 'Awaiting for connection']
       return !available.includes(item.status)
-    },
-
-    getServiceDetails (details) {
-      serviceController.setServiceDetails(details)
-      this.services = serviceController.getDataForServiceList()
     },
 
     assignNewService (service) {
@@ -265,23 +299,28 @@ export default {
       this.confirmationDialogOpened = item.status === 'Not connected'
     },
 
-    catchConfirmation (action) {
-      if (!serviceController.getCurrentService()) return
+    catchConfirmation (response) {
+      const { action, date } = response
 
-      const actions = {
+      const service = serviceController.getCurrentService()
+
+      if (!service) return
+
+      const { id: serviceId, status } = service
+
+      const customerId = serviceController.getCustomerId()
+
+      if (action === 'cancel' && status === 'Not connected') return this.removeService()
+
+      const availableStatus = {
         suspend: 'Awaiting to be suspended',
         cancel: 'Awaiting for cancelation',
         resume: 'Awaiting to be resumed'
       }
 
-      if (!actions[action]) return
+      if (!availableStatus[action]) return
 
-      const { id: serviceId, status } = serviceController.getCurrentService()
-
-      if (action === 'cancel' && status === 'Not connected') return this.removeService()
-
-      const customerId = serviceController.getCustomerId()
-      this.__updateServiceStatus(customerId, serviceId, actions[action], this.serviceStatusModified.bind(this, actions[action]))
+      this[`__${action}Service`](customerId, serviceId, date, this.serviceStatusModified.bind(this, availableStatus[action]))
     },
 
     removeService () {
@@ -292,17 +331,19 @@ export default {
       this.services = serviceController.updateCurrentServiceStatus(status)
     },
 
+    getServiceDetails (details) {
+      serviceController.setServiceDetails(details)
+      this.services = serviceController.getDataForServiceList()
+    },
+
     getCustomerServices () {
       const services = serviceController.getCustomerServices()
-      console.log('CUSTOMER SERVICES:\n', services)
-      for (const service of services) {
-        if (service.name) delete service.name
-        this.__getServiceById(service.id, this.getServiceDetails)
-      }
+
+      for (const service of services) this.__getServiceById(service.id, this.getServiceDetails)
     },
 
     getUpdates (data) {
-      console.log('UPDATES:\n', data)
+      // console.log('UPDATES:\n', data)
     }
   },
 
@@ -316,13 +357,6 @@ export default {
     this.$root.$on('operation-confirmed', this.catchConfirmation)
 
     this.getCustomerServices()
-
-    // const services = serviceController.getCustomerServices()
-    //
-    // for (const service of services) {
-    //   if (service.name) delete service.name
-    //   this.__getServiceById(service.id, this.getServiceDetails)
-    // }
 
     this.$vuetify.goTo(0)
   }

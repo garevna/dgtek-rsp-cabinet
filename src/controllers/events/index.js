@@ -1,3 +1,4 @@
+import { buildings } from './buildings'
 import { rsp } from './rsp'
 import { customers } from './customers'
 import { tickets } from './tickets'
@@ -10,6 +11,7 @@ import { dashboard } from './dashboard'
 import { statistics } from './statistics'
 
 export {
+  buildings,
   customers,
   tickets,
   services,

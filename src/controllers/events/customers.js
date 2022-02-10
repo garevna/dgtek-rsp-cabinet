@@ -11,6 +11,12 @@ export const customers = {
 
   assign: 'new-service-assigned-to-customer',
   activate: 'service-activation-request-sent',
+  suspend: 'service-suspend-request-sent',
+  resume: 'service-resume-request-sent',
+  cancel: 'service-cancel-request-sent',
+  'finish-cancel': 'service-cancelation-finished',
+  'finish-suspend': 'service-suspension-finished',
+  'finish-resume': 'service-resuming-finished',
   scheduling: 'scheduling-request-sent',
   status: 'service-status-updated',
   services: 'customer-services-updated',

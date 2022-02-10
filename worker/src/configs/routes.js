@@ -7,7 +7,8 @@ const {
   ticketsController,
   rspController,
   statisticsController,
-  scheduleController
+  scheduleController,
+  updatesController
 } = require('../controllers')
 
 export const routes = {
@@ -16,6 +17,10 @@ export const routes = {
     'refresh-messages': dashboardController.refreshMessages,
     'get-messages': dashboardController.getMessages,
     'patch-message': dashboardController.patchMessage
+  },
+
+  buildings: {
+    notify: updatesController.sendNotification
   },
 
   rsp: {
@@ -41,6 +46,12 @@ export const routes = {
 
     assign: customersController.assignNewService,
     activate: customersController.activateService,
+    suspend: customersController.suspendService,
+    resume: customersController.resumeService,
+    cancel: customersController.cancelService,
+    'finish-cancel': customersController.finishServiceCancelation,
+    'finish-suspend': customersController.finishServiceSuspension,
+    'finish-resume': customersController.finishServiceResuming,
     status: customersController.updateServiceStatus,
     services: customersController.updateCustomerServices,
 
@@ -64,7 +75,7 @@ export const routes = {
   },
 
   schedule: {
-    get: scheduleController.getScheduleLots
+    get: scheduleController.getFreeLotsForSchedule
   },
 
   tickets: {

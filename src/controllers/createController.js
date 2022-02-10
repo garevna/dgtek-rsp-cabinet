@@ -10,7 +10,7 @@ export const createController = function () {
     window[Symbol.for('rsp.worker')].postMessage(message)
   }
 
-  Object.keys(actions).forEach(key => Object.assign(window[Symbol.for('vue.prototype')], {
+  Object.keys(actions).forEach(key => key.indexOf('__') === -1 && actions[key] && Object.assign(window[Symbol.for('vue.prototype')], {
     [`__${key}`]: actions[key]
   }))
 }

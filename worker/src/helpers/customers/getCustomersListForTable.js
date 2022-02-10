@@ -2,9 +2,9 @@ import { getCustomersTableData } from '../db'
 
 const { getCustomersListError } = require('../error-handlers').default
 
-export const getCustomersListForTable = async function () {
-  const [route, action] = ['customers', 'table']
+const [route, action] = ['customers', 'table']
 
+export const getCustomersListForTable = async function () {
   const { status, result } = await getCustomersTableData()
 
   if (status !== 200) return getCustomersListError(status)

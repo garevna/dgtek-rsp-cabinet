@@ -2,14 +2,14 @@ import { statisticsController } from '../../controllers'
 
 const { invalidServiceDeliveryStatusRequest } = require('../error-handlers').default
 
-const [route, action, serviceStatus] = ['customers', 'activate', 'Awaiting for connection']
+const [route, action, serviceStatus] = ['customers', 'finish-suspend', 'Suspended']
 
-export const activateService = async function (customerId, serviceId) {
+export const finishServiceSuspension = async function (customerId, serviceId, date) {
   if (!customerId || !serviceId) return invalidServiceDeliveryStatusRequest(customerId, serviceId)
 
   const { status, result } = await self.controller.updateServiceStatus(customerId, serviceId, serviceStatus)
 
-  statisticsController.patch(serviceId, customerId, serviceStatus, Date.now())
+  statisticsController.patch(serviceId, customerId, serviceStatus, date)
 
   return {
     status,
@@ -17,7 +17,7 @@ export const activateService = async function (customerId, serviceId) {
     action,
     result,
     message: true,
-    messageType: 'Customer service delivery',
-    messageText: 'Service activation request has been sent.'
+    messageType: 'Customer service delivery status update',
+    messageText: 'Service suspended.'
   }
 }

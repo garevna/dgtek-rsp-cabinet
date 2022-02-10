@@ -1,5 +1,5 @@
 <template>
-  <v-card flat class="transparent mt-8 pb-12 px-12 mx-auto" max-with="960">
+  <v-card flat class="transparent mt-8 mb-12 pb-12 px-12 mx-auto" max-with="960">
     <v-row align="start" justify="center" v-if="!edit" class="mx-auto" style="max-width: 1100px">
       <v-col style="max-width: 240px" class="text-center mt-4">
         <fieldset class="field-set">
@@ -32,15 +32,26 @@
         <v-data-table
           :headers="headers"
           :items="filteredItems"
+          :items-per-page.sync="rowsPerPage"
           :search="search"
           class="transparent"
           @click:row="editItem"
           width="700"
-          @pagination="pagination"
           :options="{
             page: tablePage,
             itemsPerPage: rowsPerPage
           }"
+          fixed-header
+          :footer-props="{
+            showFirstLastPage: true,
+            itemsPerPage: 10,
+            itemsPerPageOptions: [10, 20, 50, 100, -1],
+            firstIcon: 'mdi-skip-previous',
+            lastIcon: 'mdi-skip-next',
+            prevIcon: 'mdi-chevron-left',
+            nextIcon: 'mdi-chevron-right'
+          }"
+          @pagination="pagination"
         >
           <template v-slot:top>
             <Filters
@@ -62,7 +73,7 @@
               </v-icon>
             </template>
 
-            <template v-slot:footer.prepend>
+            <template v-slot:footer.prepend class="mb-12">
               <v-text-field
                 v-model="search"
                 label="Search"
@@ -117,7 +128,7 @@ export default {
     categories: null,
     tablePage: 1,
     tablePages: null,
-    rowsPerPage: 8,
+    rowsPerPage: 10,
     headers: [
       { text: '', value: 'actions' },
       { text: 'Ticket number', value: 'number' },
@@ -192,6 +203,7 @@ export default {
     },
 
     pagination (options) {
+      // console.log(options)
       this.tablePage = options.page
       this.tablePages = options.pageCount
     },

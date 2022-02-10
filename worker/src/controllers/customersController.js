@@ -51,6 +51,30 @@ class CustomersController {
     self.postMessage(await self.controller.activateService(customerId, serviceId))
   }
 
+  async suspendService ({ customerId, serviceId, date }) {
+    self.postMessage(await self.controller.suspendService(customerId, serviceId, date))
+  }
+
+  async finishServiceSuspension ({ customerId, serviceId, date }) {
+    self.postMessage(await self.controller.finishServiceSuspension(customerId, serviceId, date))
+  }
+
+  async resumeService ({ customerId, serviceId, date }) {
+    self.postMessage(await self.controller.resumeService(customerId, serviceId, date))
+  }
+
+  async finishServiceResuming ({ customerId, serviceId, date }) {
+    self.postMessage(await self.controller.finishServiceResuming(customerId, serviceId, date))
+  }
+
+  async cancelService ({ customerId, serviceId, date }) {
+    self.postMessage(await self.controller.cancelService(customerId, serviceId, date))
+  }
+
+  async finishServiceCancelation ({ customerId, serviceId, date }) {
+    self.postMessage(await self.controller.finishServiceCancelation(customerId, serviceId, date))
+  }
+
   async updateServiceStatus (request) {
     self.postMessage(await self.controller.updateServiceStatus(request.customerId, request.serviceId, request.newStatus))
   }

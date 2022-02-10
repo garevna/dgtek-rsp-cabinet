@@ -5,7 +5,11 @@
           <tr>
             <td width="280">Customer creation date</td>
             <td width="480">
-              <DatePicker :date.sync="customer.customerCreationDate" title="Created" />
+              <DatePicker
+                :date.sync="customer.customerCreationDate"
+                title="Created"
+                :max="new Date().toISOString().slice(0, 10)"
+              />
             </td>
             <td width="280" class="d-none d-md-flex">
             </td>

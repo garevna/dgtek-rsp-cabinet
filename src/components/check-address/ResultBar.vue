@@ -60,7 +60,7 @@ import { buildingDetailsHandler, customerHandler } from '@/helpers/data-handlers
 export default {
   name: 'ResultBar',
 
-  props: ['addressData', 'newCustomer', 'selectCustomer', 'services'],
+  props: ['addressData', 'newCustomer', 'newBuilding', 'selectCustomer', 'services'],
 
   data: () => ({
     worker: window[Symbol.for('map.worker')],
@@ -85,7 +85,10 @@ export default {
     },
 
     getNewBuildingId (buildingId) {
-      customerHandler(Object.assing(customerHandler(), { buildingId }))
+      this.__sendNotification(buildingId, response => response)
+      this.$root.$emit('new-building-created', buildingId)
+      customerHandler(Object.assign(customerHandler(), { buildingId }))
+      this.$emit('update:newCustomer', true)
     },
 
     getSettings (data) {

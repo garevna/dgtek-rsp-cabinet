@@ -19,6 +19,7 @@
           v-if="selectedBuilding"
           :addressData="selectedBuilding"
           :newCustomer.sync="newCustomer"
+          :newBuilding.sync="newBuilding"
           :selectCustomer.sync="selectCustomer"
           :services.sync="services"
         />
@@ -39,6 +40,11 @@
       mode="new"
       :dialog.sync="openNewCustomerForm"
     />
+
+    <!-- <EditBuildingDetails
+      v-if="openNewBuildingForm"
+      :dialog.sync="openNewBuildingForm"
+    /> -->
   </v-container>
 </template>
 
@@ -59,7 +65,8 @@ export default {
   components: {
     ListOfBuildings,
     ResultBar: () => import('@/components/check-address/ResultBar.vue'),
-    CustomerDetails: () => import(/* webpackChunkName: 'customer-details' */ '@/components/customers/CustomerDetails.vue')
+    CustomerDetails: () => import(/* webpackChunkName: 'edit-customer-details' */ '@/components/customers/CustomerDetails.vue')
+    // EditBuildingDetails: () => import(/* webpackChunkName: 'edit-building-details' */ '@/components/customers/EditBuildingDetails.vue')
   },
 
   data: () => ({
@@ -67,10 +74,12 @@ export default {
     container: null,
     eventType: null,
     newCustomer: false,
+    newBuilding: false,
     selectCustomer: false,
     services: false,
 
     openNewCustomerForm: false,
+    // openNewBuildingForm: false,
     openSelectCustomer: false,
     showServices: false,
 
@@ -106,6 +115,10 @@ export default {
     newCustomer (val) {
       if (val) this.openNewCustomerForm = true
     },
+
+    // newBuilding (val) {
+    //   if (val) this.openNewBuildingForm = true
+    // },
 
     selectCustomer (val) {
       val && this.$root.$emit('go-to-customers-list')

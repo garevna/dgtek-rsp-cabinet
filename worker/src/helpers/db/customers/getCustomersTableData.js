@@ -42,13 +42,30 @@ export async function getCustomersTableData () {
 
         const service = customerServices.length && services[customerServices[0].id]
 
+        const statuses = customerServices.map(service => service.status)
+
         const serviceSpeed = service ? `${service.downstreamSpeed}/${service.upstreamSpeed}` : ''
         const servicePlan = service ? service.subscriptionFee : ''
         const serviceTerm = service ? service.contractTerm : ''
 
         const serviceStatus = service ? customerServices[0].status : ''
 
-        result.push({ _id, customerCreationDate, name, apartmentNumber, postCode, address, uniqueCode, approxETA, serviceSpeed, servicePlan, serviceTerm, serviceStatus, buildingId })
+        result.push({
+          _id,
+          customerCreationDate,
+          name,
+          apartmentNumber,
+          postCode,
+          address,
+          uniqueCode,
+          approxETA,
+          serviceSpeed,
+          servicePlan,
+          serviceTerm,
+          serviceStatus,
+          statuses,
+          buildingId
+        })
 
         cursor.continue()
       } else {

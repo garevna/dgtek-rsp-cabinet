@@ -8,9 +8,10 @@
 // import { putRecordByKey } from '../helpers/db'
 
 class UpdatesController {
-  // async getTicketCategoryUpdates () {
-  //   self.postMessage(await getTicketCategoryUpdates())
-  // }
+  async sendNotification (request) {
+    self.postDebugMessage({ request })
+    self.postMessage(await self.controller.sendNotification(request.target, request.id))
+  }
 
   async getTicketUpdates () {
     self.postMessage(await self.controller.getTicketUpdates())

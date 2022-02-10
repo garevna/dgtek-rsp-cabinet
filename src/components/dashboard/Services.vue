@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="mb-12 pb-12">
     <v-row v-if="!openCustomerDetails">
       <v-card flat class="transparent pb-12 px-12 mx-auto" max-width="1440" v-if="ready">
         <v-card v-if="!showServiceDetails" flat class="transparent">
@@ -25,6 +25,16 @@
             item-key="serviceName"
             v-model="selected"
             @click:row="openServiceDetails"
+            fixed-header
+            :footer-props="{
+              showFirstLastPage: true,
+              itemsPerPage: 10,
+              itemsPerPageOptions: [10, 20, 50, 100, -1],
+              firstIcon: 'mdi-skip-previous',
+              lastIcon: 'mdi-skip-next',
+              prevIcon: 'mdi-chevron-left',
+              nextIcon: 'mdi-chevron-right'
+            }"
           >
             <template v-slot:item.actions="{ item }">
               <v-btn v-if="showSelect" color="primary" small outlined @click.stop="selectService(item)">
@@ -237,5 +247,8 @@ export default {
 <style>
 .v-simple-checkbox .v-icon {
   color: #900;
+}
+.v-list-item__title {
+  font-size: 0.8rem !important;
 }
 </style>

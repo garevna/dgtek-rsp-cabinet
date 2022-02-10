@@ -11,5 +11,5 @@ export const icons = {
   Suspended: 'mdi-play-pause',
   'Awaiting to be resumed': 'mdi-backup-restore',
   'Awaiting for cancelation': 'mdi-close-network',
-  Canceled: 'account-cancel'
+  Canceled: 'mdi-close-network'
 }

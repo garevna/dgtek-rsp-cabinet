@@ -1,13 +1,11 @@
-export const customerHandler = (function () {
-  let customer = null
-  return function (value) {
-    if (!value) return customer
-    if (value === 'reset') {
-      customer = null
-    } else {
-      customer = Object.assign(JSON.parse(JSON.stringify(value)), {
-        customerCreationDate: value.customerCreationDate || new Date().toISOString().slice(0, 10)
-      })
-    }
-  }
-})()
+let customer = null
+
+export const customerHandler = function (data) {
+  if (!data) return customer
+
+  const details = JSON.parse(JSON.stringify(data))
+
+  if (!data.customerCreationDate) Object.assign(details, { customerCreationDate: new Date().toISOString().slice(0, 10) })
+
+  customer = data === 'reset' ? null : details
+}

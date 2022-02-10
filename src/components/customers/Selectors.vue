@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" class="mt-8 mb-2">
+  <v-row justify="center" class="mt-8 mb-2 ml-5">
     <table>
       <tbody>
         <tr>
@@ -53,7 +53,7 @@
               dense
               color="primary"
               class="selector-content"
-              style="width: 100px"
+              style="width: 120px"
               bottom
               :offset-y="true"
             ></v-select>

@@ -3,7 +3,7 @@
     v-model="menu"
     close-on-content-click
     transition="scale-transition"
-    max-width="290px"
+    max-width="290"
   >
     <template v-slot:activator="{ on, attrs }">
       <v-text-field
@@ -12,16 +12,19 @@
         prepend-icon="mdi-calendar"
         readonly
         outlined
+        dense
         hide-details
         color="primary"
         v-bind="attrs"
         v-on="on"
-        max-width="320"
+        style="max-width: 140px"
         class="mx-auto"
       />
     </template>
     <v-date-picker
       v-model="localDate"
+      :min="localMin"
+      :max="localMax"
       @input="menu = false"
       color="primary"
       :first-day-of-week="1"
@@ -35,12 +38,27 @@
 
 export default {
   name: 'DatePicker',
-  props: ['title', 'date'],
+
+  props: ['title', 'date', 'min', 'max'],
+
   data: () => ({
     menu: false,
     modal: false
   }),
+
   computed: {
+    localMin () {
+      return this.min
+        ? new Date(Date.now() + 1000 * 60 * 60 * 24 * 5).toISOString().slice(0, 10)
+        : null
+    },
+    localMax () {
+      return this.max
+        ? typeof this.max === 'string'
+          ? this.max
+          : new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toISOString().slice(0, 10)
+        : null
+    },
     localDate: {
       get () {
         return this.date || new Date().toISOString().substr(0, 10)

@@ -1,7 +1,6 @@
 <template>
-  <v-card flat class="transparent mx-auto" width="700">
+  <v-card flat class="homefone mx-auto" width="700">
     <v-card flat class="transparent mt-0" v-if="schema">
-      <!-- <v-container> -->
         <v-row justify="center">
           <v-col cols="4" col-lg="3" col-xl="2" class="d-none d-md-flex">
             <small>Building address</small>
@@ -18,7 +17,6 @@
             {{ schema.uniqueCode }}
           </v-col>
         </v-row>
-      <!-- </v-container> -->
 
       <v-container v-for="sectionName of ['management', 'owner']" :key="sectionName">
         <v-row justify="center" v-for="(prop, propName) in schema[sectionName]" :key="propName" class="my-0">
@@ -91,8 +89,6 @@ export default {
     GeoscapeAutocomplete: () => import('@/components/inputs/GeoscapeAutocomplete.vue')
   },
 
-  props: { __buildingId: String },
-
   data: () => ({
     worker: window[Symbol.for('map.worker')],
     ready: false,
@@ -104,9 +100,9 @@ export default {
   }),
 
   methods: {
-    getNewBuildingId (data) {
-      data.status === 200 && this.$emit('update:__buildingId', data.result)
-      this.$root.$emit('new-building-created', data)
+    getNewBuildingId (buildingId) {
+      this.__sendNotification(buildingId, response => response)
+      this.$root.$emit('new-building-created', buildingId)
     },
 
     showError (errorType, errorMessage) {
@@ -115,7 +111,7 @@ export default {
 
     sendMessage (event) {
       this.$root.$emit('open-message-popup', {
-        messageTyle: 'Building details',
+        messageType: 'Building details',
         messageText: 'Data saved'
       })
 
@@ -147,6 +143,7 @@ export default {
   },
 
   mounted () {
+    this.ready = true
     this.$vuetify.goTo(0)
   }
 }

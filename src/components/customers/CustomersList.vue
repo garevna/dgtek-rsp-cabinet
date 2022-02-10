@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <v-container v-if="ready" style="max-width: 1440px">
+    <v-container v-if="ready" style="max-width: 1440px" class="mb-12">
       <v-row v-if="!edit" justify="center">
         <v-card flat class="transparent pb-12 px-4 mx-auto">
           <Selectors
@@ -18,12 +18,27 @@
             ref="customersList"
             :headers="headers"
             :items="filteredItems"
+            :items-per-page.sync="rowsPerPage"
             :search="search"
             :page.sync="page"
-            fixed-header
             @click:row="editCustomerDetails"
             dense
             calculate-widths
+            :options="{
+              page: page,
+              itemsPerPage: rowsPerPage
+            }"
+            fixed-header
+            :footer-props="{
+              showFirstLastPage: true,
+              itemsPerPage: rowsPerPage,
+              itemsPerPageOptions: [10, 20, 50, 100, -1],
+              firstIcon: 'mdi-skip-previous',
+              lastIcon: 'mdi-skip-next',
+              prevIcon: 'mdi-chevron-left',
+              nextIcon: 'mdi-chevron-right'
+            }"
+            @pagination="showPagination"
             @page-count="gotoLastPage"
           >
 
@@ -37,14 +52,14 @@
             </template>
           </v-data-table>
 
-          <div style="margin-top: -48px">
+          <div class="table-footer-button">
             <v-btn v-if="status !== 'pending'" outlined color="primary" @click="status = 'pending'">
               Show all pending connections
             </v-btn>
             <v-btn v-else outlined color="primary" @click="resetFilters">
               Show all
             </v-btn>
-            <span class="ml-12"><small>Total selected customers: {{ selectedCustomersNumber }}</small></span>
+            <small class="ml-12">Total selected customers: {{ selectedCustomersNumber }}</small>
           </div>
         </v-card>
 
@@ -84,7 +99,7 @@ export default {
     Fieldset: () => import('@/components/Fieldset.vue'),
     Selectors: () => import('@/components/customers/Selectors.vue'),
     Statistics: () => import('@/components/dashboard/Statistics.vue'),
-    CustomerDetails: () => import(/* webpackChunkName: 'customer-details' */ '@/components/customers/CustomerDetails.vue')
+    CustomerDetails: () => import('@/components/customers/CustomerDetails.vue')
   },
 
   data: () => ({
@@ -97,6 +112,7 @@ export default {
     customers: null,
     search: '',
     page: customersListPageNumberHandler(),
+    rowsPerPage: 10,
     status: null,
     speed: null,
     plan: null,
@@ -139,9 +155,10 @@ export default {
     filteredItems () {
       const output = this.status === 'Service not assigned' ? this.customers.filter(customer => !customer.serviceStatus)
         : this.status === 'pending'
-          // ? this.customers.filter(customer => customer.serviceStatus === 'Not connected' || customer.serviceStatus === 'Awaiting for scheduling')
-          ? this.customers.filter(customer => this.pendingConnectionStatus.includes(customer.serviceStatus))
-          : this.customers.filter(customer => !this.status || (customer.serviceStatus === this.status))
+          ? this.getPending()
+          : this.status
+            ? this.getByStatus(this.status)
+            : this.customers
 
       this.$vuetify.goTo(0)
 
@@ -163,10 +180,29 @@ export default {
         this.refresh = false
         this.__refreshCustomers(this.getUpdates)
       }
+    },
+
+    rowsPerPage (val) {
+      // console.log('Rows per page: ', val)
     }
   },
 
   methods: {
+    getPending () {
+      return this.customers
+        .filter(customer => customer.statuses.filter(status => this.pendingConnectionStatus.includes(status)).length)
+    },
+
+    getByStatus (status) {
+      return this.customers
+        .filter(customer => customer.statuses.filter(item => item === status).length)
+    },
+
+    showPagination (data) {
+      // console.log(data)
+      customersListPageNumberHandler(data.page)
+    },
+
     resetFilters  () {
       this.status = ''
       this.postCode = ''
@@ -207,11 +243,6 @@ export default {
       this.edit = true
     },
 
-    // customersListRefreshed (data) {
-    //   this.__getCustomersListForTable(this.getData)
-    //   this.$vuetify.goTo(0)
-    // },
-
     setPendingConnectionStatus (data) {
       this.pendingConnectionStatus = data
     },
@@ -219,10 +250,6 @@ export default {
     gotoLastPage (number) {
       customersListPageNumberHandler(number)
     },
-
-    // getCustomersListForTable () {
-    //   this.__getCustomersListForTable(this.getData)
-    // },
 
     getUpdates () {
       this.__getCustomersListForTable(this.getData)
@@ -253,17 +280,40 @@ export default {
 
 <style>
 
+.v-application--is-ltr .v-data-table--fixed-header .v-data-footer {
+  margin-right: -8px!important;
+  bottom: 36px;
+  position: fixed;
+  background: #ddd;
+  left: 0;
+  right: 0;
+  padding: 0 16px;
+  z-index: 18;
+}
+
+.v-menu__content--fixed {
+  top: calc(100% - 360px) !important;
+  bottom: 64px !important;
+}
+
 .sortable.active {
   background: #ddd !important;
   color: #900 !important;
 }
 
-.v-data-footer__select {
+/* .v-data-footer__select {
   visibility: hidden;
-}
+} */
 
 .creation-date {
   font-size: 12px !important;
   color: #900;
+}
+
+.table-footer-button {
+  position: fixed;
+  bottom: 48px;
+  left: 16px;
+  z-index: 55;
 }
 </style>

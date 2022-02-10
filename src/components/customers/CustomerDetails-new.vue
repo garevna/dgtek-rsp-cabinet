@@ -14,7 +14,7 @@
               Customer details
             </b>
           </v-btn>
-          <v-btn text @click="section = 'Service details'" :disabled="!customerServicesAvailable">
+          <v-btn text @click="section = 'Service details'" :disabled="!customer?._id">
             <b :style="{ color: section === 'Service details' ? '#900' : '#999' }">
               Service details
             </b>
@@ -43,21 +43,29 @@
             </v-btn>
           </td>
           <td>
-            <Fieldset legend="Customer details" v-if="section === 'Customer details'">
-              <EditCustomerDetails :customerId.sync="customerId" :buildingId.sync="buildingId" />
+            <Fieldset :legend="section" style="min-width: 960px">
+              <EditCustomerDetails
+                v-if="section === 'Customer details'"
+                :customerId.sync="customerId"
+                :buildingId.sync="buildingId"
+              />
+              <CustomerServices v-if="section === 'Service details'" />
+              <EditBuildingDetails v-if="section === 'Building details'"/>
+            </Fieldset>
+            <!-- <Fieldset legend="Customer details" v-if="section === 'Customer details'">
+              <EditCustomerDetails
+                :customerId.sync="customerId"
+                :buildingId.sync="buildingId"
+              />
             </Fieldset>
 
             <Fieldset legend="Service details" v-if="section === 'Service details'" style="min-width: 960px">
-              <CustomerServices
-                v-if="customerServicesAvailable"
-                :customerId="customer._id || customerId"
-                :address="customerAddress"
-              />
+              <CustomerServices />
             </Fieldset>
 
             <Fieldset legend="Building details" v-if="section === 'Building details'">
               <EditBuildingDetails />
-            </Fieldset>
+            </Fieldset> -->
           </td>
           <td width="100" style="text-align: center; vertical-align: top; padding-top: 40px">
             <v-btn
@@ -73,7 +81,12 @@
         </tr>
         <tr>
           <td>
-            <v-btn :disabled="section === 'Building details'" outlined color="primary" @click="goToBack">
+            <v-btn
+              :disabled="section === 'Building details'"
+              outlined
+              color="primary"
+              @click="goToBack"
+            >
               Back
             </v-btn>
           </td>
@@ -83,7 +96,12 @@
             </v-btn>
           </td>
           <td>
-            <v-btn :disabled="section === 'Service details' || !customerServicesAvailable" outlined color="primary" @click="goToNext">
+            <v-btn
+              :disabled="section === 'Service details' || !customer._id"
+              outlined
+              color="primary"
+              @click="goToNext"
+            >
               Next
             </v-btn>
           </td>
@@ -99,10 +117,7 @@ import { newCustomer } from '@/configs'
 
 // import { getCustomerUniqueCode } from '@/helpers'
 
-import {
-  buildingDetailsHandler,
-  customerHandler
-} from '@/helpers/data-handlers'
+import { buildingDetailsHandler, customerHandler } from '@/helpers/data-handlers'
 
 import { serviceController } from '@/controllers'
 
@@ -118,23 +133,33 @@ export default {
     EditBuildingDetails: () => import('@/components/customers/EditBuildingDetails.vue')
   },
 
-  props: {
-    dialog: { type: Boolean, required: true },
-    sectionName: { type: String, default: 'Customer details', required: false },
-    customerId: { type: String, default: null, required: false }, /* new customer has no id */
-    buildingId: { type: String, default: null, required: false } /* new building has no id */
-  },
+  props: ['dialog', 'customerId'],
+
+  // props: {
+  //   dialog: { type: Boolean, required: true },
+  //   // sectionName: { type: String, default: 'Customer details', required: false },
+  //   customerId: { type: String, default: null, required: false }
+  //   // buildingId: { type: String, default: null, required: false }
+  // },
 
   data: () => ({
     worker: window[Symbol.for('map.worker')],
     ready: false,
     section: 'Customer details',
-    customer: JSON.parse(JSON.stringify(newCustomer)),
+    customer: null,
     customerAddress: '',
     update: false,
-    customerDetailsAvailable: true,
-    customerServicesAvailable: false
+    customerDetailsAvailable: true
   }),
+
+  watch: {
+    ready (value) {
+      if (value) {
+        this.customer = customerHandler()
+        this.customerAddress = `${this.customer.apartmentNumber}/${this.customer.address}`
+      }
+    }
+  },
 
   methods: {
     goToBack () {
@@ -155,23 +180,15 @@ export default {
 
       serviceController.setCustomer(customerDetails._id, this.customerAddress, services)
 
-      this.customerServicesAvailable = true
-
-      if (!customerDetails.buildingId) this.section = 'Building details'
-      else this.worker.getBuildingDetailsById(customerDetails.buildingId, this.updateBuildingDetails)
+      // if (!customerDetails.buildingId) this.section = 'Building details'
+      // else this.worker.getBuildingDetailsById(customerDetails.buildingId, this.updateBuildingDetails)
 
       this.ready = true
     },
 
     updateBuildingDetails (data) {
-      const customer = customerHandler()
-
       if (data) {
         buildingDetailsHandler(data)
-        if (data.address !== customer.address) {
-          customerHandler(Object.assign(customer, { address: data.address }))
-          this.__patchCustomer(customer._id, { address: data.address }, this.setCustomerDetailsSection)
-        }
         this.setCustomerDetailsSection()
       } else {
         buildingDetailsHandler('reset')
@@ -189,14 +206,12 @@ export default {
       this.section = 'Building details'
     },
 
-    setServicesSection (customerId) {
-      if (!this.customer || !customerId) return
+    setServicesSection () {
+      if (!this.customer?._id) return
 
-      Object.assign(this.customer, { _id: customerId })
+      // Object.assign(this.customer, { _id: customerId })
 
-      serviceController.setCustomer(customerId, this.customer.address, this.customer.services)
-
-      this.customerServicesAvailable = true
+      // serviceController.setCustomer(this.customer._id, this.customer.address, this.customer.services)
 
       this.section = 'Service details'
     },
@@ -215,30 +230,22 @@ export default {
     this.$root.$emit('show-main-menu')
   },
 
-  beforeMount () {
-    ['new-building-created', 'building-data-updated'].forEach(event => this.$root.$on(event, this.setCustomerDetailsSection));
-    ['customer-created', 'customer-updated'].forEach(event => this.$root.$on(event, this.setServicesSection))
-
-    if (!this.customerId) {
-      this.customer = customerHandler()
-      this.customerAddress = `${customerHandler().apartmentNumber}/${customerHandler().address}`
-
-      this.section = this.customer.buildingId ? 'Customer details' : 'Building details'
-
-      this.customerServiceAvailable = Boolean(this.customer._id)
-
-      this.ready = true
-    } else {
-      this.__getCustomerData(this.customerId, this.getCustomerDetails)
-    }
+  created () {
+    this.customerId
+      ? this.__getCustomerData(this.customerId, this.getCustomerDetails)
+      : this.getCustomerDetails(JSON.parse(JSON.stringify(newCustomer)))
   },
 
   mounted () {
+    ['new-building-created', 'building-data-updated'].forEach(event => this.$root.$on(event, this.setCustomerDetailsSection));
+    ['customer-created', 'customer-updated'].forEach(event => this.$root.$on(event, this.setServicesSection))
+
+    this.ready = Boolean(customerHandler())
+
+    this.customer = customerHandler()
+
+    this.customerAddress = `${customerHandler().apartmentNumber}/${customerHandler().address}`
     this.$root.$emit('hide-main-menu')
-    // this.$root.$emit('hide-snackbar')
-
-    // this.$root.$on('new-building-created', this.getNewBuildingId)
-
     this.$vuetify.goTo(0)
   }
 }

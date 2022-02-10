@@ -1,3 +1,27 @@
+const customerServiceProps = [
+  'id',
+  'status',
+  'modified',
+  'activationDate',
+  'suspendDate',
+  'suspendedDate',
+  'resumeDate',
+  'resumedDate',
+  'cancelDate',
+  'canceledDate',
+  'lots',
+  'log',
+  'installation'
+]
+
+const defaultValues = {
+  status: 'Not connected',
+  modufied: Date.now(),
+  lots: [],
+  installation: {},
+  log: { [Date.now()]: 'Not connected' }
+}
+
 class ServiceController {
   constructor () {
     this.services = null
@@ -27,27 +51,53 @@ class ServiceController {
     this.services = []
 
     for (const service of customerServices) {
-      const { id, status, modified, lots = [], log = {}, installation = {} } = service
-      if (!id) {
+      const data = Object.assign({}, ...customerServiceProps.map(key => ({ [key]: service[key] || defaultValues[key] || null })))
+
+      this.updateCancelation(service)
+      this.updateSuspension(service)
+      this.updateResuming(service)
+
+      if (!data.id) {
         this.sendErrorMessage(this.serviceDetailsError)
         continue
       }
-      this.services.push({ id, status, modified, lots, log, installation })
+      this.services.push(data)
     }
+  }
+
+  updateCancelation (service) {
+    if (service.status === 'Awaiting for cancelation') {
+      if (service.canceledDate <= new Date().toISOString().slice(0, 10)) {
+        window[Symbol.for('vue.instance')].__finishCancelation(this.customerId, service.id, service.canceledDate, this.getResponse)
+      }
+    }
+  }
+
+  updateSuspension (service) {
+    if (service.status === 'Awaiting to be suspended') {
+      if (service.suspendedDate <= new Date().toISOString().slice(0, 10)) {
+        window[Symbol.for('vue.instance')].__finishSuspension(this.customerId, service.id, service.suspendedDate, this.getResponse)
+      }
+    }
+  }
+
+  updateResuming (service) {
+    if (service.status === 'Awaiting to be resumed') {
+      if (service.resumedDate <= new Date().toISOString().slice(0, 10)) {
+        window[Symbol.for('vue.instance')].__finishResuming(this.customerId, service.id, service.resumedDate, this.getResponse)
+      }
+    }
+  }
+
+  getResponse (data) {
+    // console.log('RESPONSE:\n', data)
   }
 
   getCustomerServices () {
     if (!this.customerId) return this.sendErrorMessage(this.customerError)
     if (!this.services) return this.sendErrorMessage(this.customerServicesError)
 
-    return this.services.map(service => ({
-      id: service.id,
-      status: service.status,
-      modified: service.modified,
-      lots: service.lots,
-      log: service.log,
-      installation: service.installation
-    }))
+    return this.services.map(service => Object.assign({}, ...customerServiceProps.map(key => ({ [key]: service[key] }))))
   }
 
   setServiceDetails (serviceDetails) {
@@ -70,9 +120,11 @@ class ServiceController {
 
     if (index === -1) return this.sendErrorMessage(this.serviceNotFound)
 
-    const { id, status, modified, lots, log, installation, ...details } = this.services[index]
+    const details = Object.keys(this.services[index])
+      .filter(key => !customerServiceProps.includes(key))
+      .map(key => ({ [key]: this.services[index][key] }))
 
-    return details
+    return Object.assign({}, ...details)
   }
 
   setCurrentService (serviceId) {
@@ -92,7 +144,7 @@ class ServiceController {
     return this.getDataForServiceList()
   }
 
-  updateCurrentServiceStatus (status) {
+  updateCurrentServiceStatus (status, date) {
     if (!this.services || typeof this.currentServiceIndex !== 'number') return this.sendErrorMessage(this.customerServicesError)
     Object.assign(this.services[this.currentServiceIndex], {
       status,
@@ -126,19 +178,10 @@ class ServiceController {
   getDataForServiceList () {
     if (!this.services) return this.sendErrorMessage(this.customerServicesError)
 
-    return this.services.map(service => {
-      const {
-        id,
-        serviceName,
-        status = 'Not connected',
-        modified = Date.now(),
-        lots = [],
-        log = { [Date.now()]: 'Not connected' },
-        installation = {}
-      } = service
+    const props = customerServiceProps.concat(['serviceName'])
 
-      return { id, serviceName, status, modified, log, lots, installation }
-    })
+    return this.services
+      .map(service => Object.assign({}, ...props.map(key => ({ [key]: service[key] || defaultValues[key] || null }))))
   }
 
   addNewService (serviceDetails) {
@@ -148,7 +191,9 @@ class ServiceController {
 
     const { _id: id, ...details } = serviceDetails
 
-    this.services.push(Object.assign({
+    const schema = Object.assign({}, ...customerServiceProps.map(key => ({ [key]: null })))
+
+    this.services.push(Object.assign(schema, {
       id,
       status: 'Not connected',
       modified: Date.now(),
