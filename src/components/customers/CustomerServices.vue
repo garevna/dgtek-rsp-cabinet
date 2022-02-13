@@ -69,28 +69,55 @@
               </small>
             </td>
 
-            <td v-if="item.status === 'Awaiting for confirmation' || item.status === 'In job queue'">
-              <li v-if="item.lots && item.lots.length === 2">
-                <small>{{ item.lots[0].date }} <small>({{ item.lots[0].period.toUpperCase() }})</small></small>
-              </li>
-              <li v-if="item.lots && item.lots.length === 2">
-                <small>{{ item.lots[1].date }} <small>({{ item.lots[1].period.toUpperCase() }})</small></small>
-              </li>
+            <td>
+              <div v-if="item.status === 'Awaiting for confirmation' || item.status === 'In job queue'">
+                <li v-if="item.lots && item.lots.length === 2">
+                  <small>{{ item.lots[0].date }} <small>({{ item.lots[0].period.toUpperCase() }})</small></small>
+                </li>
+                <li v-if="item.lots && item.lots.length === 2">
+                  <small>{{ item.lots[1].date }} <small>({{ item.lots[1].period.toUpperCase() }})</small></small>
+                </li>
+              </div>
+              <div v-else>
+                <v-icon v-if="item.status !== 'Active' && item.status !== 'In job queue'" small color="primary" class="mr-2">
+                  {{ getIcon(item) }}
+                </v-icon>
+                <small
+                  v-if="item.status !== 'Active' && item.status !== 'In job queue'"
+                  @click="item.showConnectionInfo = item.status === 'Active'"
+                  :style="getStyle(item)"
+                >
+                  {{ getDate(item) }}
+                </small>
+              </div>
             </td>
 
             <td>
-              <v-icon small color="primary">{{ getIcon(item) }}</v-icon>
-              <small>{{ getDate(item) }}</small>
-            </td>
+              <div v-if="item.activationDate">
+                <v-icon small color="primary" class="mr-2"> mdi-check-network-outline </v-icon>
+                <small
+                  @click="item.showConnectionInfo = item.status === 'Active'"
+                  :style="getStyle(item)"
+                >
+                  {{ item.activationDate }}
+                </small>
+              </div>
 
-            <td v-if="item.activationDate">
-              <small><b>{{ item.activationDate }}</b></small>
-            </td>
+              <div v-if="item.status === 'In job queue' && item.installation && item.installation.date">
+                <v-icon small color="primary" class="mr-2"> mdi-calendar-clock </v-icon>
+                <small
+                  @click="item.showConnectionInfo = item.status === 'Active'"
+                  :style="getStyle(item)"
+                >
+                  {{ item.installation.date }}
+                </small>
+              </div>
 
-            <td v-if="item.status === 'In job queue'">
-              <p v-if="item.installation && item.installation.date">
-                <small style="color: #900"><b>{{ item.installation.date }}({{ item.installation.period.toUpperCase() }})</b></small>
-              </p>
+              <ConnectionInfo
+                v-if="item.showConnectionInfo"
+                :opened.sync="item.showConnectionInfo"
+                :data="item.connectionData"
+              />
             </td>
           </tr>
         </tbody>
@@ -166,6 +193,7 @@ export default {
 
   components: {
     Services,
+    ConnectionInfo: () => import(/* webpackChunkName: 'lot-selection' */ '@/components/customers/ConnectionInfo.vue'),
     RequestForDate: () => import(/* webpackChunkName: 'popup-date-request' */ '@/components/popups/RequestForDate.vue'),
     TicketDetails: () => import(/* webpackChunkName: 'ticket-details' */ '@/components/tickets/TicketDetails.vue'),
     ConfirmActivationRequest: () => import(/* webpackChunkName: 'confirmation-request' */ '@/components/popups/ConfirmActivationRequest.vue'),
@@ -236,14 +264,25 @@ export default {
           ? item.suspendedDate || item.suspendDate
           : item.status === 'Awaiting to be resumed'
             ? item.resumedDate || item.resumeDate
-            : ''
+            : item.status === 'In job queue' && item.installation
+              ? `${item.installation.date} (${item.installation.period.toUpperCase()})`
+              : item.status === 'Active'
+                ? item.activationDate
+                : ''
     },
 
     getIcon (item) {
-      return item.canceledDate || item.suspendedDate || item.resumedDate
-        ? 'mdi-checkbox-marked-outline'
-        : item.cancelDate || item.suspendDate || item.resumeDate
-          ? 'mdi-help-rhombus-outline' : ''
+      return item.canceledDate || item.suspendedDate || item.resumedDate || item.status === 'Active'
+        ? 'mdi-check-network-outline'
+        : item.cancelDate || item.suspendDate || item.resumeDate || item.status === 'In job queue'
+          ? 'mdi-calendar-clock' : ''
+    },
+
+    getStyle (item) {
+      const [border, cursor, padding, borderRadius] = item.status === 'Active'
+        ? ['solid 1px #900', 'pointer', '4px 8px', '4px']
+        : ['none', 'text', '0', '0']
+      return { border, cursor, padding, borderRadius }
     },
 
     getDateString (ms) {
@@ -333,7 +372,9 @@ export default {
 
     getServiceDetails (details) {
       serviceController.setServiceDetails(details)
-      this.services = serviceController.getDataForServiceList()
+      this.services = serviceController
+        .getDataForServiceList()
+        .map(item => Object.assign(item, { showConnectionInfo: false }))
     },
 
     getCustomerServices () {

@@ -1,5 +1,57 @@
 <template>
-  <v-menu
+  <v-card flat class="transparent mx-auto">
+    <v-row class="mt-2" justify="center" align="center">
+      <v-col>
+        <v-dialog
+          ref="dialog"
+          v-model="modal"
+          :return-value.sync="localDate"
+          persistent
+          width="320px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field
+              v-model="localDate"
+              :label="title"
+              prepend-inner-icon="mdi-calendar-search"
+              readonly
+              outlined
+              dense
+              hide-details
+              v-bind="attrs"
+              v-on="on"
+              color="primary"
+              style="max-width: 180px; display: inline-block"
+              @click:append-outer="$emit('update:action', true)"
+            ></v-text-field>
+          </template>
+
+          <v-date-picker
+            v-model="localDate"
+            scrollable
+            no-title
+            color="primary"
+            class="pt-4"
+            :min="localMin"
+            :max="localMax"
+            :first-day-of-week="1"
+          >
+
+            <v-spacer />
+
+            <v-btn text color="primary" @click="modal = false">
+              Cancel
+            </v-btn>
+
+            <v-btn text color="primary" @click="$refs.dialog.save(date)">
+              OK
+            </v-btn>
+          </v-date-picker>
+        </v-dialog>
+      </v-col>
+    </v-row>
+  </v-card>
+  <!-- <v-menu
     v-model="menu"
     close-on-content-click
     transition="scale-transition"
@@ -31,7 +83,7 @@
       no-title
       scrollable
     />
-  </v-menu>
+  </v-menu> -->
 </template>
 
 <script>
@@ -42,7 +94,7 @@ export default {
   props: ['title', 'date', 'min', 'max'],
 
   data: () => ({
-    menu: false,
+    // menu: false,
     modal: false
   }),
 

@@ -43,8 +43,6 @@ export default {
     DatePicker: () => import('@/components/inputs/DatePicker.vue')
   },
 
-  // props: ['title', 'date'],
-
   data: () => ({
     header: '',
     title: '',
@@ -53,6 +51,12 @@ export default {
     dialog: false,
     localDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString().slice(0, 10)
   }),
+
+  watch: {
+    localDate (val) {
+      console.log(val)
+    }
+  },
 
   methods: {
     confirm () {

@@ -29,22 +29,6 @@ export const getCustomer = async function (id) {
       continue
     }
 
-    if (service.status === 'Awaiting for cancelation') {
-      self.postDebugMessage({ serviceStatus: service.status, cancelDate: service.cancelDate, canceledDate: service.canceledDate, currentDate: new Date().toISOString().slice(0, 10) })
-      if (service.canceledDate <= new Date().toISOString().slice(0, 10)) {
-        self.postDebugMessage({ message: 'Canceled' })
-        // await self.controller.updateServiceStatus(id, service.id, 'Canceled')
-      }
-    }
-
-    if (service.status === 'Awaiting to be suspended') {
-      self.postDebugMessage({ serviceStatus: service.status, suspendDate: service.suspendDate, suspendedDate: service.suspendedDate })
-      if (service.canceledDate <= new Date().toISOString().slice(0, 10)) {
-        self.postDebugMessage({ message: 'Suspended' })
-        // await self.controller.updateServiceStatus(id, service.id, 'Canceled')
-      }
-    }
-
     const { status, result } = await getRecordByKey('services', service.id)
 
     if (status !== 200) {
@@ -53,8 +37,6 @@ export const getCustomer = async function (id) {
     } else tested.push(Object.assign(customer.services[index], { serviceName: result.serviceName }))
     index++
   }
-
-  self.postDebugMessage({ customer: id, services: tested })
 
   Object.assign(customer, { services: JSON.parse(JSON.stringify(tested)) })
 

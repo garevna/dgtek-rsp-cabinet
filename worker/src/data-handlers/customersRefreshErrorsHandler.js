@@ -28,6 +28,4 @@ export const customersRefreshErrorsHandler = function (action, customers, servic
         })
     }
   }
-  // self.postDebugMessage({ info })
-  // self.postDebugMessage({ errors })
 }

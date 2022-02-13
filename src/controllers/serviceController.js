@@ -11,7 +11,8 @@ const customerServiceProps = [
   'canceledDate',
   'lots',
   'log',
-  'installation'
+  'installation',
+  'connectionData'
 ]
 
 const defaultValues = {

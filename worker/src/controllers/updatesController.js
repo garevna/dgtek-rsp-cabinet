@@ -1,15 +1,5 @@
-// import {
-//   getCustomerUpdates,
-//   getTicketCategoryUpdates,
-//   getTicketUpdates,
-//   getMessageUpdates
-// } from '../helpers/updates'
-
-// import { putRecordByKey } from '../helpers/db'
-
 class UpdatesController {
   async sendNotification (request) {
-    self.postDebugMessage({ request })
     self.postMessage(await self.controller.sendNotification(request.target, request.id))
   }
 
